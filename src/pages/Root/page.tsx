@@ -49,8 +49,9 @@ export default function Page() {
       clearSearchParams();
     }
 
+    navigate('/vote-fap');
     showToast({ type: 'welcome', title: `환영환영` });
   }, []);
 
-  return <Navigate to="/vote-fap" />;
+  return <></>;
 }
