@@ -4,6 +4,24 @@
 
 @layer base {
   :root {
-    @apply m-0 p-0 box-border;
+    @apply m-0 box-border p-0 font-pretendard tracking-tight;
+
+    --sat: env(safe-area-inset-top);
+    --sar: env(safe-area-inset-right);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+  }
+
+  html {
+    @apply pwa:overscroll-none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    @apply outline-purple-700;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
