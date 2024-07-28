@@ -1,3 +1,4 @@
+import { Button } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { DefaultModalProps } from '@Stores/modal';
 import { forwardRef } from 'react';
@@ -11,7 +12,7 @@ export const VotePolicyBottomSheet = forwardRef<HTMLDivElement, DefaultModalProp
         </header>
       </FlexibleLayout.Header>
 
-      <FlexibleLayout.Content>
+      <FlexibleLayout.Content className="p-5">
         <ul className="list-disc space-y-3">
           <li className="ml-5 whitespace-pre-line">{`1사이클은 10회의 FADE IN/OUT 투표로 이루어집니다.`}</li>
           <li className="ml-5 whitespace-pre-line">{`하루에 가능한 투표 횟수의 제한은 없습니다.`}</li>
@@ -23,9 +24,9 @@ export const VotePolicyBottomSheet = forwardRef<HTMLDivElement, DefaultModalProp
 
       <FlexibleLayout.Footer>
         <div className="flex p-4">
-          <button type="button" className="flex-1 rounded-lg bg-gray-200 py-2 text-xl text-black transition-colors" onClick={onClose}>
+          <Button variants="secondary" className="w-full text-xl" onClick={onClose}>
             확인
-          </button>
+          </Button>
         </div>
       </FlexibleLayout.Footer>
     </FlexibleLayout.Root>

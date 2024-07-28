@@ -1,44 +1,58 @@
-import { LoaderResponseStatus } from '@Types/loaderResponse';
 import { useAuthActions } from '@Hooks/auth';
-import { requestSignInWithCode } from '@Services/authAPI';
+import { requestSignInWithCode } from '@Services/auth';
+import { LoaderResponseStatus } from '@Types/loaderResponse';
+import { isErrorWithData } from '@Types/serviceError';
 import { createErrorLoaderResponse, createSuccessLoaderResponse, tryCatcher } from '@Utils/index';
 import { useEffect } from 'react';
-import { LoaderFunctionArgs, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
+import { LoaderFunctionArgs, useLoaderData, useNavigate } from 'react-router-dom';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { searchParams } = new URL(request.url);
   const authorizationCode = searchParams.get('code');
 
+  /** 비정상적인 접근 */
   if (authorizationCode === null) {
-    return createErrorLoaderResponse({ errorCode: 'custom_error_code_1' });
+    return null;
   }
 
-  const [response, errorCode] = await tryCatcher(() => requestSignInWithCode({ authorizationCode }));
+  const [response, errorResponse] = await tryCatcher(() => requestSignInWithCode({ authorizationCode }));
 
   if (response) {
     return createSuccessLoaderResponse(response.data);
   }
 
-  return createErrorLoaderResponse({ errorCode });
+  return createErrorLoaderResponse(errorResponse);
 }
 
 export default function KakaoCallback() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const { status, payload } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
+  const loaderResponse = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { signIn } = useAuthActions();
 
   useEffect(() => {
+    /** 비정상적인 접근 */
+    if (loaderResponse === null) {
+      return navigate('/', { replace: true });
+    }
+
+    const { status, payload } = loaderResponse;
     const isValidAccess = status === LoaderResponseStatus.SUCCESS;
 
+    /** 기존 회원 로그인 */
     if (isValidAccess) {
       signIn(payload);
       return navigate('/', { replace: true });
     }
 
-    return navigate(`/signup?code=${searchParams.get('code')}`, { replace: true });
-  }, [status, payload]);
+    /** 신규 회원가입 */
+    const { result } = payload;
+
+    if (isErrorWithData(result, 'NOT_MATCH_SOCIAL_MEMBER')) {
+      const { accessToken } = result.data;
+      return navigate('/signup', { state: { accessToken }, replace: true });
+    }
+  }, [loaderResponse]);
 
   return <></>;
 }

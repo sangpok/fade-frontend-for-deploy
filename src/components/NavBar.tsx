@@ -24,7 +24,7 @@ const navList: NavItem[] = [
     IconComponent: MdAdd,
   },
   {
-    link: '/feed',
+    link: '/subscribe',
     IconComponent: MdAccountBox,
   },
   {
@@ -57,7 +57,7 @@ function NavItem({ link, IconComponent, isActive }: NavItemProps) {
     return (
       <li className="flex-1">
         <button type="button" className={buttonClassName} onClick={() => navigate(link)}>
-          <IconComponent className="mx-auto size-6 transition-transform pointerdevice:group-hover:rotate-3 pointerdevice:group-hover:scale-125 pointerdevice:group-active:scale-95" />
+          <IconComponent className="mx-auto size-6 transition-transform touchdevice:group-active:rotate-3 touchdevice:group-active:scale-75 pointerdevice:group-hover:rotate-3 pointerdevice:group-hover:scale-125 pointerdevice:group-active:scale-95" />
         </button>
       </li>
     );
@@ -80,7 +80,7 @@ function UploadImageButton({ buttonClassName, IconComponent }: { buttonClassName
   return (
     <li className="flex-1">
       <button type="button" className={buttonClassName} onClick={handleClick}>
-        <IconComponent className="mx-auto size-6" />
+        <IconComponent className="mx-auto size-6 transition-transform touchdevice:group-active:rotate-3 touchdevice:group-active:scale-75 pointerdevice:group-hover:rotate-3 pointerdevice:group-hover:scale-125 pointerdevice:group-active:scale-95" />
       </button>
     </li>
   );

@@ -14,16 +14,16 @@ export function TermOfPIPA({ onClose }: DefaultModalProps) {
         <header className="relative px-5 py-4">
           <button
             type="button"
-            className="group absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 pointerdevice:hover:bg-gray-100"
+            className="group absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 touchdevice:active:bg-gray-100 pointerdevice:hover:bg-gray-100"
             onClick={onClose}>
-            <MdChevronLeft className="size-6 group-active:pointerdevice:scale-95" />
+            <MdChevronLeft className="size-6 transition-transform group-active:pointerdevice:scale-95" />
           </button>
 
           <p className="text-center text-2xl font-semibold">FADE 이용 약관</p>
         </header>
       </FlexibleLayout.Header>
 
-      <FlexibleLayout.Content>
+      <FlexibleLayout.Content className="p-5">
         <p className="whitespace-pre-line">{pipaContent}</p>
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>

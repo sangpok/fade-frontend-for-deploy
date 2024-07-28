@@ -25,6 +25,7 @@ export type ModalType = 'fullScreenDialog' | 'bottomSheet' | 'component';
 export type DefaultModalProps<T = unknown, P = Record<string, unknown>> = {
   setCloseHandler: (handler: () => () => Promise<boolean>) => void;
   onClose: (value?: T) => void;
+  onSubmitSuccess: () => void;
 } & P;
 
 /** type에 따라 animateType을 제한하고 싶은데 ... 모르겠다 */

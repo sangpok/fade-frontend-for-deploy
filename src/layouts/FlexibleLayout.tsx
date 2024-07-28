@@ -17,7 +17,7 @@ function Header({ children }: PropsWithChildren) {
 
 function Content({ children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   return (
-    <section className={cn('min-h-1 flex-1 overflow-y-scroll border border-blue-300 p-5', className)} {...props}>
+    <section className={cn('min-h-1 flex-1 overflow-y-scroll border border-blue-300', className)} {...props}>
       {children}
     </section>
   );

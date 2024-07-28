@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      backgroundImage: {
+        'fade-gradient': 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 15%)',
+      },
       colors: {
         purple: {
           50: '#FFE9FF',

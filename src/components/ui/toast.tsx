@@ -37,9 +37,10 @@ export const Toast = forwardRef<ElementRef<typeof RadixToast.Root>, { value: Toa
           {isSuccess && <MdCheckCircleOutline className="size-6 text-purple-700" />}
           {isError && <MdReport className="size-6" />}
 
-          <RadixToast.Title className="flex-1">{value.title}</RadixToast.Title>
-
-          {value.description && <RadixToast.Description>{value.description}</RadixToast.Description>}
+          <div className="flex-1 pl-1">
+            <RadixToast.Title className="font-semibold">{value.title}</RadixToast.Title>
+            {value.description && <RadixToast.Description className="whitespace-pre-line">{value.description}</RadixToast.Description>}
+          </div>
 
           {wouldShowAction && value.actionSlot!()}
           {wouldShowClose && (

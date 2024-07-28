@@ -15,12 +15,17 @@ const GlobalErrorPage = lazy(() => import('@Pages/GlobalErrorPage').then((module
 const AppLayout = lazy(() => import('@Layouts/AppLayout').then((module) => ({ default: module.default })));
 
 /** Root */
-const LoginPage = lazy(() => import('@Pages/Root/Login/page').then((module) => ({ default: module.default })));
+const LoginPage = lazy(() => import('@Pages/Root/login/page').then((module) => ({ default: module.default })));
 const SignUpPage = lazy(() => import('@Pages/Root/signup/page').then((module) => ({ default: module.default })));
 const ArchivePage = lazy(() => import('@Pages/Root/archive/page').then((module) => ({ default: module.default })));
 const VoteFAPPage = lazy(() => import('@Pages/Root/voteFAP/page').then((module) => ({ default: module.default })));
-const FeedPage = lazy(() => import('@Pages/Root/feed/page').then((module) => ({ default: module.default })));
+const SubscribePage = lazy(() => import('@Pages/Root/subscribe/page').then((module) => ({ default: module.default })));
+const SubscribeListPage = lazy(() => import('@Pages/Root/subscribe/list/page').then((module) => ({ default: module.default })));
 const MyPage = lazy(() => import('@Pages/Root/mypage/page').then((module) => ({ default: module.default })));
+const MyPageFeed = lazy(() => import('@Pages/Root/mypage/feed/page').then((module) => ({ default: module.default })));
+const MyPageVoteHistory = lazy(() => import('@Pages/Root/mypage/voteHistory/page').then((module) => ({ default: module.default })));
+const MyPageBookmark = lazy(() => import('@Pages/Root/mypage/bookmark/page').then((module) => ({ default: module.default })));
+const UserFeedPage = lazy(() => import('@Pages/Root/user/page').then((module) => ({ default: module.default })));
 
 /** Auth */
 const KakaoCallback = lazy(() => import('@Pages/Auth/KakaoCallback').then((module) => ({ default: module.default })));
@@ -28,8 +33,14 @@ const SignOut = lazy(() => import('@Pages/Auth/SignOut').then((module) => ({ def
 
 export const routesFromElements = createRoutesFromElements(
   <Route element={<RootLayout />}>
-    <Route path="/" ErrorBoundary={GlobalErrorPage}>
-      <Route index element={<RootPage />} loader={async (params) => (await import('@Pages/Root/page')).loader(params)} />
+    <Route
+      path="/"
+      errorElement={
+        <Suspense>
+          <GlobalErrorPage />
+        </Suspense>
+      }>
+      <Route index element={<RootPage />} loader={async () => (await import('@Pages/Root/page')).loader()} />
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignUpPage />} />
       <Route element={<ProtectedRoute />}>
@@ -41,13 +52,28 @@ export const routesFromElements = createRoutesFromElements(
           }>
           <Route path="archive" element={<ArchivePage />} />
           <Route path="vote-fap" element={<VoteFAPPage />} />
-          <Route path="feed" element={<FeedPage />} />
-          <Route path="mypage" element={<MyPage />} />
+          <Route path="subscribe">
+            <Route index element={<SubscribePage />} />
+            <Route path="list" element={<SubscribeListPage />} />
+          </Route>
+          <Route path="mypage">
+            <Route index element={<MyPage />} />
+            <Route path="feed" element={<MyPageFeed />} />
+            <Route path="vote-history" element={<MyPageVoteHistory />} />
+            <Route path="bookmark" element={<MyPageBookmark />} />
+          </Route>
+          <Route path="user" element={<UserFeedPage />} />
         </Route>
       </Route>
     </Route>
 
-    <Route path="/auth" ErrorBoundary={GlobalErrorPage}>
+    <Route
+      path="/auth"
+      errorElement={
+        <Suspense>
+          <GlobalErrorPage />
+        </Suspense>
+      }>
       <Route path="callback">
         <Route path="kakao">
           <Route index element={<KakaoCallback />} loader={async (params) => (await import('@Pages/Auth/KakaoCallback')).loader(params)} />
@@ -58,6 +84,6 @@ export const routesFromElements = createRoutesFromElements(
       </Route>
     </Route>
 
-    <Route path="*" Component={NotFoundPage} />
+    <Route path="*" element={<NotFoundPage />} />
   </Route>
 );

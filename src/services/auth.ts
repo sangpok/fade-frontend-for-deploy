@@ -16,19 +16,23 @@ type RefreshTokenResponse = AuthTokens;
 
 /** RefreshToken으로 AccessToken을 요청 */
 export async function requestRefreshToken() {
-  return await axios.post<RefreshTokenResponse>('/auth/refresh');
+  return await axios.post<RefreshTokenResponse>('/auth/token');
 }
 
 export const enum SignUpType {
-  KAKAO = 'kakao',
+  KAKAO = 'KAKAO',
 }
 
-type SignUpPayload = { signUpType: SignUpType; authorizationCode: string; accountId: string; sex: string };
+type SignUpPayload = { signUpType: SignUpType; accessToken: string; accountId: string; gender: string };
 type SignUpResponse = AuthTokens;
 
 /** 회원가입 요청 */
-export async function requestSignUp({ signUpType, authorizationCode, accountId, sex }: SignUpPayload) {
-  return await axios.post<SignUpResponse>(`/auth/signup`, { signUpType, authorizationCode, accountId, sex });
+export async function requestSignUp(payload: SignUpPayload) {
+  return await axios.post<SignUpResponse>(`/auth/social-login/${payload.signUpType}/signup`, {
+    socialAccessToken: payload.accessToken,
+    username: payload.accountId,
+    genderType: payload.gender,
+  });
 }
 
 type SignInWithCodePayload = { authorizationCode: string };
@@ -36,7 +40,7 @@ type SignInWithCodeReponse = AuthTokens;
 
 /** 인가 코드로 로그인 요청 */
 export async function requestSignInWithCode({ authorizationCode }: SignInWithCodePayload) {
-  return await axios.post<SignInWithCodeReponse>(`/auth/check`, { authorizationCode });
+  return await axios.post<SignInWithCodeReponse>(`/auth/social-login/KAKAO/signin`, { code: authorizationCode });
 }
 
 /** 로그아웃 요청 */

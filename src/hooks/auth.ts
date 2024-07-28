@@ -1,5 +1,5 @@
 import { useAuthStore } from '@Stores/auth';
-import { AuthTokens } from '@Types/User';
+import { AuthTokens } from '@Types/model';
 import { useCallback, useMemo } from 'react';
 
 export const useUser = () => useAuthStore((state) => state.user);
@@ -8,8 +8,7 @@ export const useCsrfToken = () => useAuthStore((state) => state.csrfToken);
 
 export const useIsAuthenticated = () => {
   const user = useUser();
-
-  return useMemo(() => !!user, [user]);
+  return useMemo(() => user.id !== -1, [user]);
 };
 
 export const useAuthActions = () => {
@@ -19,7 +18,8 @@ export const useAuthActions = () => {
 
   const signIn = useCallback(
     ({ accessToken, csrfToken }: AuthTokens) => {
-      setTokens({ accessToken, csrfToken });
+      /** NOTE: CSRF Token 보류 */
+      setTokens({ accessToken, csrfToken: csrfToken || '' });
       setAuthFromToken({ accessToken });
     },
     [setTokens, setAuthFromToken]

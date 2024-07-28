@@ -12,5 +12,5 @@ export function useHeader({ title, leftSlot, rightSlot }: UseHeaderProps) {
     setTitle(title);
     setLeftSlot(leftSlot);
     setRightSlot(rightSlot);
-  }, []);
+  }, [title, leftSlot, rightSlot]);
 }

@@ -1,5 +1,5 @@
 import { useAuthActions } from '@Hooks/auth';
-import { requestSignOut } from '@Services/authAPI';
+import { requestSignOut } from '@Services/auth';
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 

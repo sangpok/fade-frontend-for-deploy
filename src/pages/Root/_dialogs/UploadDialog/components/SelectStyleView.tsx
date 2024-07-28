@@ -1,10 +1,10 @@
 import { OUTFIT_STYLE_LIST } from '@/constants';
-import { ToggleButton } from '@Components/ui/toogleButton';
+import { ItemBadge } from '@Components/ItemBadge';
+import { BackButton, Button } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { DefaultModalProps } from '@Stores/modal';
 import { OutfitStyle } from '@Types/outfitStyle';
-import { useState } from 'react';
-import { MdChevronLeft } from 'react-icons/md';
+import { PropsWithChildren, useState } from 'react';
 
 type SelectStyleViewProp = { defaultStyles: OutfitStyle[] };
 
@@ -17,22 +17,19 @@ export const SelectStyleView = ({ defaultStyles = [], onClose }: DefaultModalPro
         <Header onBack={() => onClose(defaultStyles)} />
       </FlexibleLayout.Header>
 
-      <FlexibleLayout.Content className="space-y-3">
+      <FlexibleLayout.Content className="space-y-3 p-5">
         <p>스타일은 복수선택 가능하며 사진 필터링에 이용됩니다.</p>
         <ul className="flex flex-row flex-wrap gap-x-2 gap-y-3">
           {OUTFIT_STYLE_LIST.map((outfitStyle, index) => (
             <li key={outfitStyle}>
-              <ToggleButton
-                selected={selectedStyles.includes(index)}
-                onSelect={(isSelected) => {
-                  if (isSelected) {
-                    setSelectedStyles((prevStyles) => [...prevStyles, index]);
-                  } else {
-                    setSelectedStyles((prevStyles) => prevStyles.filter((value) => value !== index));
-                  }
+              <OutfitStyleToggleButton
+                isSelected={selectedStyles.includes(index)}
+                onToggle={(isSelected) => {
+                  isSelected && setSelectedStyles((prevStyles) => [...prevStyles, index]);
+                  !isSelected && setSelectedStyles((prevStyles) => prevStyles.filter((value) => value !== index));
                 }}>
                 {outfitStyle}
-              </ToggleButton>
+              </OutfitStyleToggleButton>
             </li>
           ))}
         </ul>
@@ -47,11 +44,8 @@ export const SelectStyleView = ({ defaultStyles = [], onClose }: DefaultModalPro
 
 function Header({ onBack }: { onBack: () => void }) {
   return (
-    <header className="relative px-5 py-4">
-      <button className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 hover:bg-gray-200" onClick={onBack}>
-        <MdChevronLeft className="size-6" />
-      </button>
-
+    <header className="relative py-2">
+      <BackButton onClick={onBack} />
       <p className="text-center text-2xl font-semibold">스타일 선택</p>
     </header>
   );
@@ -60,9 +54,24 @@ function Header({ onBack }: { onBack: () => void }) {
 function DoneSelectStylesButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="flex p-5">
-      <button className="flex-1 rounded-lg bg-black py-2 text-xl text-white" onClick={onClick}>
+      <Button variants="secondary" className="w-full text-lg" onClick={onClick}>
         스타일 선택 완료
-      </button>
+      </Button>
     </div>
+  );
+}
+
+interface TOutfitStyleToogleButton {
+  isSelected: boolean;
+  onToggle: (newValue: boolean) => void;
+}
+
+type OutfitStyleToggleButtonProps = PropsWithChildren<TOutfitStyleToogleButton>;
+
+function OutfitStyleToggleButton({ isSelected, onToggle, children }: OutfitStyleToggleButtonProps) {
+  return (
+    <button type="button" onClick={() => onToggle(!isSelected)}>
+      <ItemBadge variants={isSelected ? 'primary' : 'default'}>{children}</ItemBadge>
+    </button>
   );
 }

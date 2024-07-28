@@ -7,6 +7,7 @@ import { PropsWithChildren, useState } from 'react';
 import { MdChevronRight } from 'react-icons/md';
 import { TermOfPIPA } from './TermOfPIPA';
 import { TermOfService } from './TermOfService';
+import { Button } from '@Components/ui/button';
 
 type AgreementList = {
   tos: boolean /** 이용약관 */;
@@ -89,12 +90,9 @@ export default function AgreementsView({ onAgree }: { onAgree: () => void }) {
             </ToggleTosButton>
           </div>
 
-          <button
-            className="w-full rounded-lg bg-purple-500 py-3 text-xl font-semibold text-white transition-colors disabled:bg-gray-300 disabled:text-gray-500"
-            disabled={!hasAllAgreement}
-            onClick={() => onAgree()}>
+          <Button className="w-full text-xl" disabled={!hasAllAgreement} onClick={() => onAgree()}>
             다음
-          </button>
+          </Button>
         </section>
       </FlexibleLayout.Footer>
     </FlexibleLayout.Root>
@@ -103,7 +101,7 @@ export default function AgreementsView({ onAgree }: { onAgree: () => void }) {
 
 function AgreeAllTosButton({ isActive, onClick }: { isActive: boolean; onClick: () => void }) {
   return (
-    <button className="flex w-full flex-row items-center gap-2 rounded-lg border border-purple-200 px-5 py-4" onClick={onClick}>
+    <button className="group flex w-full flex-row items-center gap-2 rounded-lg border border-purple-200 px-5 py-4" onClick={onClick}>
       <div
         className={cn('rounded-full border border-purple-100 bg-purple-50 transition-colors', {
           ['border-purple-500 bg-purple-500 text-white']: isActive,
@@ -147,7 +145,14 @@ function CheckIcon({ isActive }: { isActive: boolean }) {
   return (
     <div className="grid size-6 place-items-center">
       <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path animate={{ pathLength: isActive ? 1 : 0 }} d="M2 6L6.5 10L14 2" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <motion.path
+          animate={{ pathLength: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
+          d="M2 6L6.5 10L14 2"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </div>
   );

@@ -36,6 +36,11 @@ function Modal({ Component, id, type, props, resolve, animateType }: ModalItem) 
     resolve(params);
   };
 
+  const handleSubmitSuccess = () => {
+    setIsOpen(false);
+    resolve(undefined);
+  };
+
   return (
     <AlertDialog.Root open={isOpen} onOpenChange={(value) => !value && handleClose()}>
       {/* 실제로 Modal 데이터가 지워지는 건 Animate가 끝난 후 */}
@@ -54,7 +59,7 @@ function Modal({ Component, id, type, props, resolve, animateType }: ModalItem) 
               </VisuallyHidden>
 
               <AnimatedDialog modalType={type} animateType={animateType}>
-                <Component {...(props || {})} setCloseHandler={setCloseHandler} onClose={handleClose} />
+                <Component {...(props || {})} setCloseHandler={setCloseHandler} onClose={handleClose} onSubmitSuccess={handleSubmitSuccess} />
               </AnimatedDialog>
             </AlertDialog.Content>
           </AlertDialog.Portal>

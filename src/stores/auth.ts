@@ -1,25 +1,34 @@
-import { User } from '@Types/User';
+import { UserDetail } from '@Types/model';
 import { getPayloadFromJWT } from '@Utils/index';
 import { create } from 'zustand';
 
 export type AuthStore = {
-  user: User | null;
+  user: UserDetail;
   accessToken: string | null;
   csrfToken: string | null;
   iat: Date | null;
   exp: Date | null;
+  isAuthentication: boolean;
 
-  setUser: ({ user }: { user: User }) => void;
+  setUser: ({ user }: { user: UserDetail }) => void;
   setAccessToken: ({ accessToken }: { accessToken: string }) => void;
   setCSRFToken: ({ csrfToken }: { csrfToken: string }) => void;
   setTokens: ({ accessToken, csrfToken }: { accessToken: string; csrfToken: string }) => void;
+  setIsAuthentication: ({ isAuthentication }: { isAuthentication: boolean }) => void;
   setAuthFromToken: ({ accessToken }: { accessToken: string }) => void;
 
   resetAuth: () => void;
 };
 
+const initialUserDetail: UserDetail = {
+  id: -1,
+  accountId: '',
+  genderType: undefined,
+  profileImageURL: undefined,
+};
+
 export const useAuthStore = create<AuthStore>((set, get) => ({
-  user: null,
+  user: initialUserDetail,
   accessToken: null,
   csrfToken: null,
   iat: null,
@@ -43,14 +52,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     get().setCSRFToken({ csrfToken });
   },
 
-  setAuthFromToken({ accessToken }) {
-    const { accountId, email, exp, iat, id } = getPayloadFromJWT(accessToken);
+  setIsAuthentication({ isAuthentication }) {
+    set({ isAuthentication });
+  },
 
-    const newUser = { id, email, accountId };
-    set({ user: newUser, exp, iat });
+  setAuthFromToken({ accessToken }) {
+    const { id, username: accountId, genderType, exp, iat } = getPayloadFromJWT(accessToken);
+
+    const newUser: Partial<UserDetail> = { id: +id, accountId, genderType };
+    set(({ user }) => ({
+      isAuthentication: true,
+      user: { ...user, ...newUser },
+      exp,
+      iat,
+    }));
   },
 
   resetAuth() {
-    set({ user: null, accessToken: null, csrfToken: null, iat: null, exp: null });
+    set({ user: initialUserDetail, isAuthentication: false, accessToken: null, csrfToken: null, iat: null, exp: null });
   },
 }));

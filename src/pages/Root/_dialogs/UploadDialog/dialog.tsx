@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { UploadImageForm } from './components/UploadImageForm';
 import { PolicyView } from './components/UploadPolicyView';
 import { useConfirm } from '@Hooks/modal';
+import { AnimatePresence, motion } from 'framer-motion';
 
-export function UploadViewDialog({ setCloseHandler, onClose }: DefaultModalProps) {
+export function UploadViewDialog({ setCloseHandler, onClose, onSubmitSuccess }: DefaultModalProps) {
   const dirtyRef = useRef(false);
 
   /** TODO: User 정보로 불러와야 함 */
@@ -27,9 +28,18 @@ export function UploadViewDialog({ setCloseHandler, onClose }: DefaultModalProps
   };
 
   return (
-    <>
-      {shouldShowPolicyView && <PolicyView onAgreePolicy={() => setHasAgreementOfPolicy(true)} onDegreePolicy={onClose} />}
-      {!shouldShowPolicyView && <UploadImageForm onClose={onClose} onValueChanged={(value) => (dirtyRef.current = value)} />}
-    </>
+    <AnimatePresence mode="wait">
+      {shouldShowPolicyView && (
+        <motion.div key="view-1" initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
+          <PolicyView onAgreePolicy={() => setHasAgreementOfPolicy(true)} onDegreePolicy={onClose} />
+        </motion.div>
+      )}
+
+      {!shouldShowPolicyView && (
+        <motion.div key="view-2" initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
+          <UploadImageForm onClose={onClose} onValueChanged={(value) => (dirtyRef.current = value)} onSubmitSuccess={onSubmitSuccess} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

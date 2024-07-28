@@ -8,10 +8,11 @@ import Lottie from 'react-lottie-player';
 import howToVoteAsset1 from '@Assets/how_to_vote_1.json';
 import howToVoteAsset2 from '@Assets/how_to_vote_2.png';
 import howToVoteAsset3 from '@Assets/how_to_vote_3.png';
+import { Button } from '@Components/ui/button';
 
 export const HowToVoteModal = forwardRef<HTMLDivElement, DefaultModalProps>(({ onClose }: DefaultModalProps, ref) => {
   return (
-    <FlexibleLayout.Root ref={ref} className="h-fit">
+    <FlexibleLayout.Root ref={ref} className="h-[31.875rem]">
       <FlexibleLayout.Header>
         <header className="relative px-5 py-4">
           <p className="text-center text-2xl font-semibold">FA:P 투표 방법</p>
@@ -71,8 +72,8 @@ function Carousel({ onLastClick }: { onLastClick: () => void }) {
 
   return (
     <>
-      <FlexibleLayout.Content className="flex h-full w-full">
-        <div className="relative flex flex-1 flex-col gap-5 overflow-hidden">
+      <FlexibleLayout.Content className="flex h-full w-full p-5">
+        <div className="relative flex h-fit flex-1 flex-col gap-5 overflow-hidden">
           <CarouselImageSection currentStep={currentStep} />
           <CarouselNav currentStep={currentStep} />
         </div>
@@ -89,7 +90,7 @@ function Carousel({ onLastClick }: { onLastClick: () => void }) {
 
 function CarouselImageSection({ currentStep }: { currentStep: number }) {
   return (
-    <motion.ul animate={{ x: `-${currentStep * 100}%` }} className="flex h-full flex-row whitespace-nowrap">
+    <motion.ul animate={{ x: `-${currentStep * 100}%` }} className="flex h-full flex-row items-center whitespace-nowrap">
       {carouselList.map((carouselItem, index) => (
         <CarouselItem key={`carousel-item-${index}`} {...carouselItem} />
       ))}
@@ -102,9 +103,9 @@ function CarouselItem({ data, description, type }: CarouselItem) {
   const isImage = type === 'image';
 
   return (
-    <li className="flex h-full min-w-full flex-col items-center justify-center">
+    <li className="flex h-full min-w-full flex-col items-center justify-center gap-4">
       <div className="flex flex-1 items-center justify-center">
-        {isImage && <img src={data} className="max-h-[13.125rem] w-full object-contain" />}
+        {isImage && <img src={data} className="max-h-[13.125rem]" />}
         {isLottie && <Lottie loop play animationData={data} className="max-h-full w-full" />}
       </div>
       <p className="whitespace-pre-line text-center">{description}</p>
@@ -128,12 +129,18 @@ function CarouselNavItem({ isActive }: { isActive: boolean }) {
 
 function NextCarouselButton({ onClick, isLastStep }: { onClick: () => void; isLastStep: boolean }) {
   return (
-    <button
-      type="button"
-      className={cn('flex-1 rounded-lg bg-gray-200 py-2 text-xl text-black transition-colors', { ['bg-purple-700 text-white']: isLastStep })}
-      onClick={onClick}>
+    <Button variants={isLastStep ? 'primary' : 'secondary'} className="w-full" onClick={onClick}>
       {!isLastStep && '다음'}
       {isLastStep && 'FA:P 투표 시작하기'}
-    </button>
+    </Button>
+    // <button
+    //   type="button"
+    //   className={cn('group flex-1 rounded-lg bg-gray-200 py-2 text-xl text-black transition-colors', { ['bg-purple-700 text-white']: isLastStep })}
+    //   onClick={onClick}>
+    //   <span className="inline-block transition-transform group-active:scale-95">
+    //     {!isLastStep && '다음'}
+    //     {isLastStep && 'FA:P 투표 시작하기'}
+    //   </span>
+    // </button>
   );
 }

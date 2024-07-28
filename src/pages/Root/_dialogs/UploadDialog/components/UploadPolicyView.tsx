@@ -1,3 +1,4 @@
+import { Button } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { MdClose } from 'react-icons/md';
 
@@ -5,18 +6,13 @@ export function PolicyView({ onDegreePolicy, onAgreePolicy }: { onDegreePolicy: 
   return (
     <FlexibleLayout.Root>
       <FlexibleLayout.Header>
-        <header className="relative px-5 py-4">
-          <button
-            className="group absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 pointerdevice:hover:bg-gray-100"
-            onClick={() => onDegreePolicy()}>
-            <MdClose className="size-6 group-active:pointerdevice:scale-95" />
-          </button>
-
+        <header className="relative py-2">
+          <CloseButton onClick={() => onDegreePolicy()} />
           <p className="text-center text-2xl font-semibold">사진 업로드 정책</p>
         </header>
       </FlexibleLayout.Header>
 
-      <FlexibleLayout.Content>
+      <FlexibleLayout.Content className="p-5">
         <ul className="ml-5 list-decimal space-y-5 text-lg">
           <li>{`FADE는 본인 사진 업로드를 원칙으로 합니다.`}</li>
           <li>{`업로드한 사진은 업로드 날짜와 무관하게 모두 FA:P(일 별로 가장 많은 표를 받은 사진) 선정의 후보가 되며, 다른 유저의 투표에 포함될 수 있습니다.`}</li>
@@ -28,14 +24,26 @@ export function PolicyView({ onDegreePolicy, onAgreePolicy }: { onDegreePolicy: 
       </FlexibleLayout.Content>
 
       <FlexibleLayout.Footer>
-        <div className="flex p-4">
-          <button
-            className="flex-1 rounded-lg bg-black py-2 text-xl text-white transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:pointerdevice:cursor-not-allowed"
-            onClick={() => onAgreePolicy()}>
-            동의하고 계속하기
-          </button>
-        </div>
+        <AgreeButton onClick={() => onAgreePolicy()} />
       </FlexibleLayout.Footer>
     </FlexibleLayout.Root>
+  );
+}
+
+function CloseButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button variants="ghost" className="absolute left-4 top-1/2 -translate-y-1/2" onClick={onClick}>
+      <MdClose className="size-6" />
+    </Button>
+  );
+}
+
+function AgreeButton({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="flex p-4">
+      <Button variants="secondary" className="w-full text-xl" onClick={onClick}>
+        동의하고 계속하기
+      </Button>
+    </div>
   );
 }

@@ -1,12 +1,13 @@
+import { ShowNotificationButton } from '@Components/ShowNotificationButton';
 import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { useVotingStore } from '@Stores/vote';
-import { useState } from 'react';
-import { MdInfoOutline, MdOutlineNotificationsNone } from 'react-icons/md';
+import { AnimatePresence, motion } from 'framer-motion';
+import { MdInfoOutline } from 'react-icons/md';
 import { VoteController } from './components/VoteController';
 import { VotePolicyBottomSheet } from './components/VotePolicyBottomSheet';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Button } from '@Components/ui/button';
 
 export default function Page() {
   useHeader({
@@ -16,7 +17,7 @@ export default function Page() {
   });
 
   return (
-    <FlexibleLayout.Root className="gap-3">
+    <FlexibleLayout.Root className="gap-3 p-5">
       <FlexibleLayout.Header>
         <VotingCounter />
       </FlexibleLayout.Header>
@@ -57,24 +58,8 @@ function ShowVotePolicyButton() {
   };
 
   return (
-    <button className="group cursor-pointer rounded-lg p-2 pointerdevice:hover:bg-gray-100" onClick={showVotePolicyModal}>
-      <MdInfoOutline className="size-6 group-active:pointerdevice:scale-95" />
-    </button>
-  );
-}
-
-function ShowNotificationButton() {
-  const [isOpened, setIsOpened] = useState(false);
-
-  return (
-    <div className="relative" onClick={() => setIsOpened(!isOpened)}>
-      <MdOutlineNotificationsNone className="size-6" />
-
-      {isOpened && (
-        <div className="absolute right-4 top-full flex min-w-max rounded border bg-white p-5">
-          <p>흐으음..</p>
-        </div>
-      )}
-    </div>
+    <Button variants="ghost" size="icon" onClick={showVotePolicyModal}>
+      <MdInfoOutline className="size-6" />
+    </Button>
   );
 }

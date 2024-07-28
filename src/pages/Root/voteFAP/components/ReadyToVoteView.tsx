@@ -1,6 +1,8 @@
 import voteStartImage from '@Assets/vote_starting_image.jpg';
 import { useModalActions } from '@Hooks/modal';
 import { HowToVoteModal } from './HowToVoteModal';
+import { Image } from '@Components/ui/image';
+import { Button } from '@Components/ui/button';
 
 export function ReadyToVoteView({ onStartClick }: { onStartClick: () => void }) {
   return (
@@ -12,16 +14,7 @@ export function ReadyToVoteView({ onStartClick }: { onStartClick: () => void }) 
 }
 
 function ReadyToVoteCover() {
-  return (
-    <div
-      className="flex-1 rounded-lg bg-gray-200 shadow-bento"
-      style={{
-        backgroundImage: `url('${voteStartImage}')`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-      }}></div>
-  );
+  return <Image src={voteStartImage} className="flex-1 rounded-lg bg-gray-200 shadow-bento" size="contain" />;
 }
 
 function HowToVoteButton() {
@@ -32,9 +25,9 @@ function HowToVoteButton() {
   };
 
   return (
-    <button className="group rounded-lg border-gray-200 bg-white p-2 text-xl shadow-bento" onClick={showHowToVoteModal}>
-      <span className="inline-block transition-transform pointerdevice:group-hover:scale-105 pointerdevice:group-active:scale-95">투표 방법</span>
-    </button>
+    <Button variants="white" className="py-2 text-xl font-normal shadow-bento" onClick={showHowToVoteModal}>
+      투표 방법
+    </Button>
   );
 }
 
@@ -49,8 +42,8 @@ function ReadyToVoteTools({ onStartClick }: { onStartClick: () => void }) {
 
 function StartVoteButton({ onClick }: { onClick: () => void }) {
   return (
-    <button className="group rounded-lg bg-purple-700 p-3 text-xl font-semibold text-white shadow-bento" onClick={onClick}>
-      <span className="inline-block transition-transform pointerdevice:group-hover:scale-105 pointerdevice:group-active:scale-95">투표 시작하기</span>
-    </button>
+    <Button className="text-xl shadow-bento" onClick={onClick}>
+      투표 시작하기
+    </Button>
   );
 }
