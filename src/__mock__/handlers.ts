@@ -145,7 +145,7 @@ export const handlers = [
         message: '',
         result: {
           errorCode: 'NOT_MATCH_SOCIAL_MEMBER',
-          data: { accessToken: createAccessToken(userData) },
+          data: { socialAccessToken: createAccessToken(userData) },
         },
       } as ServiceErrorResponse<'NOT_MATCH_SOCIAL_MEMBER'>,
       {
