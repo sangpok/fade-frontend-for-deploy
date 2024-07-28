@@ -4,7 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import AgreementsView from './components/AgreementsView';
 import AccountInitializeView from './components/AccountInitializeView';
 
-type SignUpLocaitonState = { accessToken: string };
+type SignUpLocaitonState = { socialAccessToken: string };
 
 export default function Page() {
   const [hasAgreements, setHasAgreements] = useState(false);
@@ -14,7 +14,7 @@ export default function Page() {
     return <Navigate to="/login" />;
   }
 
-  const { accessToken } = locationState as SignUpLocaitonState;
+  const { socialAccessToken } = locationState as SignUpLocaitonState;
 
   return (
     <AnimatePresence mode="wait">
@@ -25,7 +25,7 @@ export default function Page() {
       )}
       {hasAgreements && (
         <motion.div key="view-2" initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
-          <AccountInitializeView accessToken={accessToken} />
+          <AccountInitializeView accessToken={socialAccessToken} />
         </motion.div>
       )}
     </AnimatePresence>

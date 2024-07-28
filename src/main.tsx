@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
-export async function enableMocking(enabled: boolean = true) {
+export async function enableMocking(enabled: boolean = false) {
   // if (import.meta.env.PROD || !enabled) {
   if (!enabled) {
     return;

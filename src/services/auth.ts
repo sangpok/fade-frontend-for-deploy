@@ -40,7 +40,10 @@ type SignInWithCodeReponse = AuthTokens;
 
 /** 인가 코드로 로그인 요청 */
 export async function requestSignInWithCode({ authorizationCode }: SignInWithCodePayload) {
-  return await axios.post<SignInWithCodeReponse>(`/auth/social-login/KAKAO/signin`, { code: authorizationCode });
+  return await axios.post<SignInWithCodeReponse>(`/auth/social-login/KAKAO/signin`, {
+    code: authorizationCode,
+    redirectUri: import.meta.env.VITE_KAKAO_REDIRECT_URL,
+  });
 }
 
 /** 로그아웃 요청 */

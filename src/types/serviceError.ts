@@ -31,7 +31,7 @@ export type ServiceErrorCode =
   | StyleErrorCode;
 
 type ErrorCodeDataMap = {
-  NOT_MATCH_SOCIAL_MEMBER: { accessToken: string };
+  NOT_MATCH_SOCIAL_MEMBER: { socialAccessToken: string };
 };
 
 type ErrorData<T extends ServiceErrorCode> = T extends keyof ErrorCodeDataMap ? ErrorCodeDataMap[T] : null;

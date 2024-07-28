@@ -49,8 +49,8 @@ export default function KakaoCallback() {
     const { result } = payload;
 
     if (isErrorWithData(result, 'NOT_MATCH_SOCIAL_MEMBER')) {
-      const { accessToken } = result.data;
-      return navigate('/signup', { state: { accessToken }, replace: true });
+      const { socialAccessToken } = result.data;
+      return navigate('/signup', { state: { socialAccessToken }, replace: true });
     }
   }, [loaderResponse]);
 
