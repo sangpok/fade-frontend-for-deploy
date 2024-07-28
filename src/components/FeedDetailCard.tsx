@@ -45,7 +45,7 @@ export function FeedDetailCard({ focus, onAccountIdClicked, ...feedDetail }: Fee
   }, [focus, containerRef.current]);
 
   return (
-    <div ref={containerRef} className="flex h-full snap-start border border-red-500">
+    <div ref={containerRef} className="flex h-full snap-start">
       <section className="relative flex h-full w-full flex-col gap-3 p-5">
         {isFAPFeed && <Image src={fapBadgeImage} className="absolute right-5 top-3 size-10" />}
         {isVoteType && <p className="text-h6">{format(feedDetail.votedAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}

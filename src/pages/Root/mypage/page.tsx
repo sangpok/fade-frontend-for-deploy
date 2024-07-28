@@ -96,7 +96,7 @@ export default function Page() {
         <ManageAccountButton />
       </div>
 
-      <div className="flex min-h-1 flex-1 flex-col border border-red-400">
+      <div className="flex min-h-1 flex-1 flex-col">
         <ul className="min-h-1 flex-1 space-y-3 overflow-y-scroll px-5 py-3">
           {mypageMenus.map((menuItem) => (
             <li key={`menu-${menuItem.id}`} onClick={() => handleMenuClick(menuItem)} className="flex cursor-pointer flex-row gap-1 rounded-lg bg-white px-5 py-3">

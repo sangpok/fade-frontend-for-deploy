@@ -74,7 +74,7 @@ export default function Page() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-row items-center gap-3 border border-red-500 bg-white px-5 py-3">
+      <div className="flex flex-row items-center gap-3 bg-white px-5 py-3">
         <input
           id="datePicker"
           type="date"
