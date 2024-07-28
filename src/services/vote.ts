@@ -1,16 +1,16 @@
 import { axios } from '@Libs/axios';
-import { TFeed, TVoteCandidateAPI, TVoteHistoryItem, TVoteHistoryItemAPI, TVoteResult } from '@Types/model';
+import { TVoteCandidate, TVoteCandidateAPI, TVoteHistoryItem, TVoteHistoryItemAPI, TVoteResult } from '@Types/model';
 import { VoteInfiniteResponse } from '@Types/response';
 
-type GetVoteCandidatesAPIResponse = { feeds: TFeed[] };
-type GetVoteCandidatesResponse = { voteCandidates: TVoteCandidateAPI[] };
+type GetVoteCandidatesAPIResponse = { feeds: TVoteCandidateAPI[] };
+type GetVoteCandidatesResponse = { voteCandidates: TVoteCandidate[] };
 
 export async function requestGetVoteCandidates() {
   return await axios.get<GetVoteCandidatesAPIResponse>('/vote/candidates').then(
     ({ data: { feeds } }) =>
       ({
-        voteCandidates: feeds.map(({ id, ...feed }) => ({
-          feedId: id,
+        voteCandidates: feeds.map(({ styleIds, ...feed }) => ({
+          styleIds: styleIds.map(({ id }) => id),
           ...feed,
         })),
       }) as GetVoteCandidatesResponse

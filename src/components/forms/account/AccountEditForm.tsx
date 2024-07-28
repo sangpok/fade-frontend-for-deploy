@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useToastActions } from '@Hooks/toast';
 import { requestUpdateUserDetails } from '@Services/member';
 import { useMutation } from '@tanstack/react-query';
+import { UserDetail } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
-import { UserDetail } from '@Types/User';
 import { isAxiosError } from 'axios';
 import { useTransition } from 'react';
 import { Control, useForm } from 'react-hook-form';
@@ -34,7 +34,7 @@ export function AccountEditForm({ defaultUserDetails, onSubmited }: AccountEditF
   const form = useForm<AccountEditSchema>({
     resolver: zodResolver(accountEditSchema),
     defaultValues: {
-      profileImageId: defaultUserDetails.profileImageId,
+      profileImageId: -1,
       accountId: defaultUserDetails.accountId,
     },
     mode: 'onChange',

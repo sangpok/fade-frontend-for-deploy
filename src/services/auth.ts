@@ -1,5 +1,5 @@
-import { AuthTokens } from '@Types/User';
 import { axios } from '@Libs/axios';
+import { AuthTokens } from '@Types/model';
 
 /**
  * 서비스 로직에서 응답 및 오류를 처리하는 방법:

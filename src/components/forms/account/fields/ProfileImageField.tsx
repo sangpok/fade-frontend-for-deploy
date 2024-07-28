@@ -18,7 +18,7 @@ export function ProfileImageField({ control }: ProfileImageIdFieldProps) {
     <FormField
       control={control}
       name="profileImageId"
-      render={({ field }) => (
+      render={() => (
         <FormItem className="space-y-1">
           <p className="text-h6 font-semibold">프로필 사진</p>
           <FormControl>

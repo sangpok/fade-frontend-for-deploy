@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useToastActions } from '@Hooks/toast';
 import { requestSignUp, SignUpType } from '@Services/auth';
 import { useMutation } from '@tanstack/react-query';
+import { AuthTokens } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
 import { isAxiosError } from 'axios';
 import { useTransition } from 'react';
@@ -12,7 +13,6 @@ import { VscLoading } from 'react-icons/vsc';
 import { accountInitializeSchema, AccountInitializeSchema, AccountSchema } from './_accountSchema';
 import { AccountIdField } from './fields/AccountIdField';
 import { GenderField } from './fields/GenderField';
-import { AuthTokens } from '@Types/User';
 
 interface TAccountInitializeForm {
   accessToken: string;

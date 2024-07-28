@@ -215,6 +215,7 @@ export function generateDummyFashionFeed(count: number = 10, startCursor: number
 
 function generateRandomFeedDetail(id: number): TFeedDetail {
   const baseFeed = generateRandomFeed(id);
+  // @ts-expect-error 모킹은 타입 체크 안 할 겅미 ...
   const baseDetail: TFeedDetail = {
     ...baseFeed,
     profileImageURL: testFahsionImages[getRandomNumber(0, testFahsionImages.length - 1)],

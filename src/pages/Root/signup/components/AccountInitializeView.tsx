@@ -2,7 +2,7 @@ import { FadeLogo } from '@Components/FadeLogo';
 import { AccountInitializeForm } from '@Components/forms/account/AccountInitializeForm';
 import { useAuthActions } from '@Hooks/auth';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
-import { AuthTokens } from '@Types/User';
+import { AuthTokens } from '@Types/model';
 import { useNavigate } from 'react-router-dom';
 
 export default function AccountInitializeView({ accessToken }: { accessToken: string }) {

@@ -1,6 +1,6 @@
 import { LoaderResponse, LoaderResponseStatus } from '@Types/loaderResponse';
+import { GenderType } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
-import { GenderType } from '@Types/User';
 import { isAxiosError } from 'axios';
 import { type ClassValue, clsx } from 'clsx';
 import { isAfter, isBefore, isSameMonth, isSameYear } from 'date-fns';

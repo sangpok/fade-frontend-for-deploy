@@ -1,20 +1,18 @@
+import testImage from '@Assets/test_fashion_image.jpg';
 import { AccountEditForm } from '@Components/forms/account/AccountEditForm';
 import { BackButton } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { DefaultModalProps } from '@Stores/modal';
-import { UserDetail } from '@Types/User';
-import testImage from '@Assets/test_fashion_image.jpg';
+import { UserDetail } from '@Types/model';
 
 export function AccountSetting({ onClose }: DefaultModalProps) {
   /** TODO: 유저 정보 가져오기 */
 
   const userDetails: UserDetail = {
     accountId: 'fade_1234',
-    email: 'dd@dd.com',
     id: 0,
-    profileImageId: 0,
     profileImageURL: testImage,
-    gender: 'men',
+    genderType: 'MALE',
   };
 
   return (

@@ -16,28 +16,6 @@ import {
 } from './utils';
 
 import testFashionImage1 from '@Assets/test_fashion_image.jpg';
-import testFashionImage10 from '@Assets/test_fashion_image_10.jpg';
-import testFashionImage2 from '@Assets/test_fashion_image_2.jpg';
-import testFashionImage3 from '@Assets/test_fashion_image_3.jpg';
-import testFashionImage4 from '@Assets/test_fashion_image_4.jpg';
-import testFashionImage5 from '@Assets/test_fashion_image_5.webp';
-import testFashionImage6 from '@Assets/test_fashion_image_6.jpg';
-import testFashionImage7 from '@Assets/test_fashion_image_7.jpg';
-import testFashionImage8 from '@Assets/test_fashion_image_8.jpg';
-import testFashionImage9 from '@Assets/test_fashion_image_9.jpg';
-
-const testFahsionImages = [
-  testFashionImage1,
-  testFashionImage2,
-  testFashionImage3,
-  testFashionImage4,
-  testFashionImage5,
-  testFashionImage6,
-  testFashionImage7,
-  testFashionImage8,
-  testFashionImage9,
-  testFashionImage10,
-];
 
 const NETWORK_DELAY = 1000;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;

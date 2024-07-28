@@ -125,7 +125,7 @@ function FadeInModeToggleButton({ isFadeInMode, onToggle }: { isFadeInMode: bool
 }
 
 function VoteHistoryItem({ isFadeInMode, feeds }: { isFadeInMode: boolean; feeds: TVoteHistoryItem[] }) {
-  const votedAtLabel = feeds.at(0) && format(feeds.at(0).votedAt, 'yyyy년 M월 d일');
+  const votedAtLabel = feeds.at(0) && format(feeds.at(0)!.votedAt, 'yyyy년 M월 d일');
 
   return (
     <section className="space-y-2">
