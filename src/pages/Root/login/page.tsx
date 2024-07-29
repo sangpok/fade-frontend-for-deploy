@@ -18,7 +18,7 @@ export default function Page() {
         <div className="flex flex-col gap-3">
           <KakaoLoginButton />
           <Link to="/auth/callback/kakao?code=test" className="rounded-lg border bg-gray-50 p-2 text-center">
-            테스트 로그인
+            테스트 로그인(API 모킹용)
           </Link>
         </div>
       </div>
