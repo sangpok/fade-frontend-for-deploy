@@ -26,7 +26,7 @@ export default function RootLayout() {
       <ModalProvider />
       <ToastProvider />
 
-      <div className="absolute left-1/2 top-4 z-50 -translate-x-1/2 opacity-30 transition-opacity focus-within:opacity-100 touchdevice:active:opacity-100 pointerdevice:hover:opacity-100">
+      <div className="absolute left-1/2 top-4 z-50 -translate-x-1/2 opacity-30 transition-opacity focus-within:opacity-100 touchdevice:active:opacity-100 pointerdevice:hover:opacity-100 pwa:pt-[var(--sat)]">
         <MockingButton />
       </div>
     </div>
