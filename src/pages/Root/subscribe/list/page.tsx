@@ -24,7 +24,7 @@ export default function Page() {
     getNextPageParam({ nextCursor }) {
       return nextCursor || undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
@@ -52,11 +52,11 @@ export default function Page() {
   );
 }
 
-function SubscribeItem({ accountId, profileImageURL, userId }: TSubscriber) {
+function SubscribeItem({ username, profileImageURL, userId }: TSubscriber) {
   return (
     <div className="infiniteItem fle-row flex items-center gap-3 rounded-lg bg-white p-3">
       <Avatar src={profileImageURL} size="40" />
-      <p className="flex-1">{accountId}</p>
+      <p className="flex-1">{username}</p>
       <SubscribeButton userId={userId} initialSubscribedStatus={true} onToggle={() => {}} size="lg" />
     </div>
   );

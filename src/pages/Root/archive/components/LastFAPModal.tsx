@@ -18,7 +18,7 @@ export type LastFAPModalProps = {
   user: {
     id: number;
     profileURL: string;
-    accountId: string;
+    username: string;
   };
 };
 
@@ -51,7 +51,7 @@ export const LastFAPModal = forwardRef<HTMLDivElement, DefaultModalProps<void, L
               <FaCrown className="absolute -left-3 -top-4 size-6 -rotate-[25deg] text-yellow-700" />
             </div>
 
-            <span className="text-h6 font-semibold">{user.accountId}</span>
+            <span className="text-h6 font-semibold">{user.username}</span>
           </div>
 
           <Button variants="secondary" className="text-xl" onClick={handleClick}>

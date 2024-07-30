@@ -23,14 +23,14 @@ export const enum SignUpType {
   KAKAO = 'KAKAO',
 }
 
-type SignUpPayload = { signUpType: SignUpType; accessToken: string; accountId: string; gender: string };
+type SignUpPayload = { signUpType: SignUpType; accessToken: string; username: string; gender: string };
 type SignUpResponse = AuthTokens;
 
 /** 회원가입 요청 */
 export async function requestSignUp(payload: SignUpPayload) {
   return await axios.post<SignUpResponse>(`/auth/social-login/${payload.signUpType}/signup`, {
     socialAccessToken: payload.accessToken,
-    username: payload.accountId,
+    username: payload.username,
     genderType: payload.gender,
   });
 }
@@ -48,5 +48,5 @@ export async function requestSignInWithCode({ authorizationCode }: SignInWithCod
 
 /** 로그아웃 요청 */
 export async function requestSignOut() {
-  return await axios.get<null>(`/auth/signout`);
+  return await axios.post<null>(`/auth/signout`);
 }

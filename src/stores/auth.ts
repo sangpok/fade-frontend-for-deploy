@@ -1,16 +1,16 @@
-import { UserDetail } from '@Types/model';
+import { TUserDetail } from '@Types/model';
 import { getPayloadFromJWT } from '@Utils/index';
 import { create } from 'zustand';
 
 export type AuthStore = {
-  user: UserDetail;
+  user: TUserDetail;
   accessToken: string | null;
   csrfToken: string | null;
   iat: Date | null;
   exp: Date | null;
   isAuthentication: boolean;
 
-  setUser: ({ user }: { user: UserDetail }) => void;
+  setUser: ({ user }: { user: TUserDetail }) => void;
   setAccessToken: ({ accessToken }: { accessToken: string }) => void;
   setCSRFToken: ({ csrfToken }: { csrfToken: string }) => void;
   setTokens: ({ accessToken, csrfToken }: { accessToken: string; csrfToken: string }) => void;
@@ -20,10 +20,10 @@ export type AuthStore = {
   resetAuth: () => void;
 };
 
-const initialUserDetail: UserDetail = {
+const initialUserDetail: TUserDetail = {
   id: -1,
-  accountId: '',
-  genderType: undefined,
+  username: '',
+  genderType: 'MALE',
   profileImageURL: undefined,
 };
 
@@ -57,9 +57,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   setAuthFromToken({ accessToken }) {
-    const { id, username: accountId, genderType, exp, iat } = getPayloadFromJWT(accessToken);
+    const { id, username, genderType, exp, iat } = getPayloadFromJWT(accessToken);
 
-    const newUser: Partial<UserDetail> = { id: +id, accountId, genderType };
+    const newUser: Partial<TUserDetail> = { id: +id, username, genderType };
     set(({ user }) => ({
       isAuthentication: true,
       user: { ...user, ...newUser },

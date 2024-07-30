@@ -53,7 +53,7 @@ function SubscribeFeedList() {
     getNextPageParam({ nextCursor }) {
       return nextCursor || undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   useEffect(() => {
@@ -76,10 +76,8 @@ function SubscribeFeedList() {
   return (
     <div className="relative min-h-1 flex-1 snap-y snap-mandatory overflow-y-scroll">
       <div id="feedList" className="h-full">
-        {data && data.pages.map((page) => page.feeds.map((feedDetail) => <FeedDetailCard key={feedDetail.feedId} {...feedDetail} />))}
+        {data && data.pages.map((page) => page.feeds.map((feedDetail) => <FeedDetailCard key={feedDetail.id} {...feedDetail} />))}
       </div>
-
-      {!isPending && !hasNextPage && <p className="text-detail text-gray-700">모든 페이더들의 패션을 불러왔어요.</p>}
     </div>
   );
 }
@@ -91,7 +89,7 @@ export function SubscriberList() {
     getNextPageParam({ nextCursor }) {
       return nextCursor || undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   return (
@@ -103,14 +101,14 @@ export function SubscriberList() {
   );
 }
 
-function SubscriberItem({ accountId, profileImageURL, userId }: TSubscriber) {
+function SubscriberItem({ username, profileImageURL, userId }: TSubscriber) {
   return (
     <li
       className={cn('boder-gray-200 flex h-full flex-row items-center gap-2 rounded-lg border p-2', {
         ['border-purple-100 bg-purple-50']: userId === 0,
       })}>
       <Avatar src={profileImageURL} size="32" />
-      <span>{accountId}</span>
+      <span>{username}</span>
     </li>
   );
 }

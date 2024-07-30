@@ -7,7 +7,7 @@ import { useHeader } from '@Hooks/useHeader';
 import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
 import { requestGetBookmarkFeeds } from '@Services/feed';
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
-import { TFeedDetail } from '@Types/model';
+import { TFeed } from '@Types/model';
 import { Suspense, useEffect } from 'react';
 import { MdChevronLeft } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -40,11 +40,11 @@ function BackButton() {
 function BookmarkFeeds({ userId }: { userId: number }) {
   const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery({
     queryKey: ['user', userId, 'bookmark'],
-    queryFn: ({ pageParam }) => requestGetBookmarkFeeds({ userId, nextCursor: pageParam }),
+    queryFn: ({ pageParam }) => requestGetBookmarkFeeds({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
       return nextCursor || undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
@@ -61,23 +61,23 @@ function BookmarkFeeds({ userId }: { userId: number }) {
   }, [hasNextPage]);
 
   return (
-    <div className="p-1">
+    <div className="space-y-10 p-1">
       <Grid id="feedList" cols={3}>
-        {data?.pages.map((page) => page.feeds.map((feed, index) => <FeedItem key={`feed-item-${feed.feedId}`} {...feed} feeds={page.feeds} index={index} />))}
+        {data?.pages.map((page) => page.feeds.map((feed, index) => <FeedItem key={`feed-item-${feed.id}`} {...feed} feeds={page.feeds} index={index} />))}
       </Grid>
 
       {isFetchingNextPage && <SpinLoading />}
-      {!isPending && !hasNextPage && <p className="text-detail text-gray-700">내 모든 피드를 불러왔어요.</p>}
+      {!isPending && !hasNextPage && <p className="text-detail text-gray-700">내 모든 북마크를 불러왔어요.</p>}
     </div>
   );
 }
 
 interface TFeedItem {
-  feeds: TFeedDetail[];
+  feeds: TFeed[];
   index: number;
 }
 
-type FeedItemProps = TFeedItem & TFeedDetail;
+type FeedItemProps = TFeedItem & TFeed;
 
 function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   const { showModal } = useModalActions();
@@ -87,7 +87,7 @@ function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   };
 
   return (
-    <div key={`item-${feed.feedId}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
+    <div key={`item-${feed.id}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
       <Image src={feed.imageURL} className="h-full w-full transition-transform group-hover:scale-105" />
     </div>
   );

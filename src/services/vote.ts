@@ -1,16 +1,16 @@
 import { axios } from '@Libs/axios';
-import { TVoteCandidate, TVoteCandidateAPI, TVoteHistoryItem, TVoteHistoryItemAPI, TVoteResult } from '@Types/model';
+import { TVoteCandidate, TVoteCandidateDTO, TVoteHistoryFeed, TVoteHistoryFeedDTO, TVoteResult } from '@Types/model';
 import { VoteInfiniteResponse } from '@Types/response';
 
-type GetVoteCandidatesAPIResponse = { feeds: TVoteCandidateAPI[] };
+type GetVoteCandidatesAPIResponse = { feeds: TVoteCandidateDTO[] };
 type GetVoteCandidatesResponse = { voteCandidates: TVoteCandidate[] };
 
 export async function requestGetVoteCandidates() {
   return await axios.get<GetVoteCandidatesAPIResponse>('/vote/candidates').then(
     ({ data: { feeds } }) =>
       ({
-        voteCandidates: feeds.map(({ styleIds, ...feed }) => ({
-          styleIds: styleIds.map(({ id }) => id),
+        voteCandidates: feeds.map(({ id, ...feed }) => ({
+          feedId: id,
           ...feed,
         })),
       }) as GetVoteCandidatesResponse
@@ -24,17 +24,16 @@ export async function requestSendVoteResult(voteItems: SendVoteResultPayload) {
 }
 
 type GetVoteHistoryPayload = { nextCursor: string; scrollType: string };
-type GetVoteHistoryResponseAPI = VoteInfiniteResponse<{ feeds: TVoteHistoryItemAPI[] }>;
-type GetVoteHistoryResponse = VoteInfiniteResponse<{ feeds: TVoteHistoryItem[] }>;
+type GetVoteHistoryResponseAPI = VoteInfiniteResponse<{ feeds: TVoteHistoryFeedDTO[] }>;
+type GetVoteHistoryResponse = VoteInfiniteResponse<{ feeds: TVoteHistoryFeed[] }>;
 
 export async function requestGetVoteHistory({ scrollType, nextCursor }: GetVoteHistoryPayload) {
   return await axios.get<GetVoteHistoryResponseAPI>(`/vote/history?limit=3&nextCursor=${nextCursor}&scrollType=${scrollType}`).then(
     ({ data: { feeds, ...rest } }) =>
       ({
         ...rest,
-        feeds: feeds.map(({ styleIds, username, ...feed }) => ({
+        feeds: feeds.map(({ styleIds, ...feed }) => ({
           ...feed,
-          accountId: username,
           styleIds: styleIds.map(({ id }) => id),
         })),
       }) as GetVoteHistoryResponse

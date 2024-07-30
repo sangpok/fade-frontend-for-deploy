@@ -1,30 +1,35 @@
-import { UserDetail } from '@Types/model';
+import testFashionImage1 from '@Assets/test_fashion_image.jpg';
+import { TMyUserDetail } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
+import { generateRandomId } from '@Utils/index';
 import { HttpStatusCode } from 'axios';
-import { addDays, getMonth, getYear } from 'date-fns';
+import { addDays } from 'date-fns';
 import { HttpResponse, delay, http } from 'msw';
 import {
   createAccessToken,
+  createAllFashionFeedDTODummies,
+  createBookmarkFeedDTODummies,
+  createFAPArchivingFeedDTODummies,
+  createFeedUserDetailDummies,
+  createMyUserDetailDummies,
   createRefreshToken,
-  generateDummyFashionFeed,
-  generateDummyFeedData,
-  generateDummyFeedDetail,
-  generateDummyFeedUserDetail,
-  generateDummySubscribersWithPagination,
-  generateDummyVoteHistory,
-  generateTVoteCandidateDummyData,
-} from './utils';
-
-import testFashionImage1 from '@Assets/test_fashion_image.jpg';
+  createSubscribeFeedDTODummies,
+  createSubscriberDTODummies,
+  createVoteCandidateDTODummies,
+  createVoteHistoryFeedDTODummies,
+} from './_utils';
 
 const NETWORK_DELAY = 1000;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const userData: UserDetail = {
+const userData: TMyUserDetail = {
   id: 0,
-  accountId: 'fade_1234',
+  username: 'fade_1234',
   genderType: 'MALE',
   profileImageURL: testFashionImage1,
+  introduceContent: '안녕',
+  fapSelectedCount: 0,
+  subscribedCount: 0,
 };
 
 export const handlers = [
@@ -87,10 +92,10 @@ export const handlers = [
   http.post(`${BASE_URL}/auth/social-login/KAKAO/signup`, async ({ request }) => {
     await delay(NETWORK_DELAY);
 
-    const requestPayload = (await request.json()) as { accountId: string };
-    const alreadyExistAccountId = requestPayload.accountId === 'asdf';
+    const requestPayload = (await request.json()) as { username: string };
+    const alreadyExistUsername = requestPayload.username === 'asdf';
 
-    if (alreadyExistAccountId) {
+    if (alreadyExistUsername) {
       return HttpResponse.json(
         {
           statusCode: HttpStatusCode.Unauthorized,
@@ -211,7 +216,7 @@ export const handlers = [
   http.get(`${BASE_URL}/vote/candidates`, async () => {
     await delay(NETWORK_DELAY);
 
-    return HttpResponse.json({ feeds: generateTVoteCandidateDummyData(10) }, { status: HttpStatusCode.Ok });
+    return HttpResponse.json({ feeds: createVoteCandidateDTODummies(10) }, { status: HttpStatusCode.Ok });
   }),
 
   http.post(`${BASE_URL}/vote/candidates`, async () => {
@@ -250,51 +255,74 @@ export const handlers = [
 
     await delay(NETWORK_DELAY);
 
-    const feeds = generateDummyFeedData(getYear(selectedDate), getMonth(selectedDate));
+    const feeds = createFAPArchivingFeedDTODummies(new Date(selectedDate));
 
     return HttpResponse.json({ feeds }, { status: HttpStatusCode.Ok });
   }),
 
   http.get(`${BASE_URL}/feeds`, async ({ request }) => {
     const { searchParams } = new URL(request.url);
-    const nextCursor = searchParams.get('nextCursor')!;
     const fetchingType = searchParams.get('fetchingType')!;
+    const limit = searchParams.get('limit') || '12';
 
     await delay(NETWORK_DELAY);
 
-    const result = fetchingType === 'SUBSCRIBE' ? generateDummyFeedDetail(5, +nextCursor) : generateDummyFashionFeed(12, +nextCursor);
+    if (fetchingType === 'SUBSCRIBE') {
+      return HttpResponse.json({ feeds: createSubscribeFeedDTODummies(12), nextCursor: generateRandomId() }, { status: HttpStatusCode.Ok });
+    }
 
-    return HttpResponse.json({ ...result }, { status: HttpStatusCode.Ok });
+    if (fetchingType === 'BOOKMARK') {
+      return HttpResponse.json({ feeds: createBookmarkFeedDTODummies(12), nextCursor: generateRandomId() }, { status: HttpStatusCode.Ok });
+    }
+
+    return HttpResponse.json({ feeds: createAllFashionFeedDTODummies(+limit), nextCursor: generateRandomId() }, { status: HttpStatusCode.Ok });
   }),
 
-  http.get(`${BASE_URL}/subscribe/subscribers`, async ({ request }) => {
-    const { searchParams } = new URL(request.url);
-    const nextCursor = searchParams.get('nextCursor')!;
+  http.get(`${BASE_URL}/subscribe/subscribers`, async () => {
+    // const { searchParams } = new URL(request.url);
 
     await delay(NETWORK_DELAY);
 
-    const subscribers = generateDummySubscribersWithPagination(12, +nextCursor);
+    const subscribers = createSubscriberDTODummies(12);
 
-    return HttpResponse.json(subscribers, { status: HttpStatusCode.Ok });
+    return HttpResponse.json({ subscribers, nextCursor: generateRandomId(), totalSubscribers: 100 }, { status: HttpStatusCode.Ok });
   }),
 
-  http.get(`${BASE_URL}/member/details`, async () => {
+  http.get(`${BASE_URL}/members/me`, async () => {
     await delay(NETWORK_DELAY);
 
-    return HttpResponse.json({ details: generateDummyFeedUserDetail() }, { status: HttpStatusCode.Ok });
+    return HttpResponse.json(createMyUserDetailDummies(1)[0], { status: HttpStatusCode.Ok });
   }),
 
-  http.get(`${BASE_URL}/vote/history`, async ({ request }) => {
+  http.put(`${BASE_URL}/members/me`, async () => {
     await delay(NETWORK_DELAY);
 
-    const { searchParams } = new URL(request.url);
-    const scrollType = searchParams.get('scrollType')!;
-    const selectedDate = searchParams.get('selectedDate')!;
-    const limit = searchParams.get('limit')!;
+    return HttpResponse.json({}, { status: HttpStatusCode.Ok });
+  }),
 
-    const direction = scrollType === '0' ? 'down' : scrollType === '1' ? 'up' : 'both';
+  http.get(`${BASE_URL}/members/search`, async () => {
+    await delay(NETWORK_DELAY);
 
-    const result = generateDummyVoteHistory({ limit: +limit, baseDate: selectedDate, direction });
+    return HttpResponse.json({ matchedMembers: createMyUserDetailDummies(5) }, { status: HttpStatusCode.Ok });
+  }),
+
+  http.get(`${BASE_URL}/members/:memberId`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(createFeedUserDetailDummies(1)[0], { status: HttpStatusCode.Ok });
+  }),
+
+  http.get(`${BASE_URL}/vote/history`, async () => {
+    await delay(NETWORK_DELAY);
+
+    const result = {
+      feeds: [...createVoteHistoryFeedDTODummies(10), ...createVoteHistoryFeedDTODummies(10), ...createVoteHistoryFeedDTODummies(10)],
+      nextCursorToUpScroll: '2024-07-30',
+      nextCursorToDownScroll: '2024-07-30',
+      direction: '0',
+      isLastCursorToUpScroll: true,
+      isLastCursorToDownScroll: true,
+    };
 
     return HttpResponse.json(result, { status: HttpStatusCode.Ok });
   }),

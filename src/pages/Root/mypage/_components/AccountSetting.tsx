@@ -1,18 +1,29 @@
-import testImage from '@Assets/test_fashion_image.jpg';
 import { AccountEditForm } from '@Components/forms/account/AccountEditForm';
 import { BackButton } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
+import { axios } from '@Libs/axios';
+import { queryClient } from '@Libs/queryclient';
+import { requestRefreshToken } from '@Services/auth';
 import { DefaultModalProps } from '@Stores/modal';
-import { UserDetail } from '@Types/model';
+import { useMutation } from '@tanstack/react-query';
+import { TMyUserDetail } from '@Types/model';
 
-export function AccountSetting({ onClose }: DefaultModalProps) {
-  /** TODO: 유저 정보 가져오기 */
+type AccountSettingProps = { details: TMyUserDetail };
 
-  const userDetails: UserDetail = {
-    accountId: 'fade_1234',
-    id: 0,
-    profileImageURL: testImage,
-    genderType: 'MALE',
+export function AccountSetting({ details: userDetails, onClose }: DefaultModalProps<void, AccountSettingProps>) {
+  const { mutate: refreshToken } = useMutation({
+    mutationKey: ['refreshToken'],
+    mutationFn: requestRefreshToken,
+  });
+
+  const handleSubmited = () => {
+    refreshToken(null as unknown as void, {
+      onSuccess({ data: { accessToken } }) {
+        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'] });
+        onClose();
+      },
+    });
   };
 
   return (
@@ -25,7 +36,7 @@ export function AccountSetting({ onClose }: DefaultModalProps) {
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content className="flex flex-col p-5 pt-10">
-        <AccountEditForm defaultUserDetails={userDetails} onSubmited={() => {}} />
+        <AccountEditForm defaultUserDetails={userDetails} onSubmited={handleSubmited} />
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>
   );

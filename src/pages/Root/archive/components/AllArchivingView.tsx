@@ -50,7 +50,7 @@ function FeedList({ filters }: FeedListProps) {
     getNextPageParam(lastPage) {
       return lastPage.nextCursor !== null ? lastPage.nextCursor : undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
@@ -67,10 +67,10 @@ function FeedList({ filters }: FeedListProps) {
   }, [hasNextPage]);
 
   return (
-    <div className="h-full min-h-1 flex-1 overflow-y-scroll">
+    <div className="h-full min-h-1 flex-1 space-y-10 overflow-y-scroll">
       <div className="w-full flex-1 gap-1">
         <Grid id={`feedList`} cols={3} className="w-full">
-          {data?.pages.map(({ feeds }) => feeds.map((feed, index) => <FeedItem key={`item-${feed.feedId}`} feeds={feeds} index={index} {...feed} />))}
+          {data?.pages.map(({ feeds }) => feeds.map((feed, index) => <FeedItem key={`item-${feed.id}`} feeds={feeds} index={index} {...feed} />))}
         </Grid>
       </div>
 
@@ -100,7 +100,7 @@ function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   };
 
   return (
-    <div key={`item-${feed.feedId}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
+    <div key={`item-${feed.id}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
       <Image src={feed.imageURL} className="h-full w-full transition-transform group-hover:scale-105" />
     </div>
   );

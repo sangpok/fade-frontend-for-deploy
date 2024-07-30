@@ -1,5 +1,6 @@
 import { useAuthActions, useIsAuthenticated } from '@Hooks/auth';
 import { useToastActions } from '@Hooks/toast';
+import { setAuthorizationHeader } from '@Libs/axios';
 import { requestRefreshToken } from '@Services/auth';
 import { LoaderResponseStatus } from '@Types/loaderResponse';
 import { clearSearchParams, createErrorLoaderResponse, createSuccessLoaderResponse, tryCatcher } from '@Utils/index';
@@ -41,6 +42,7 @@ export default function Page() {
     if (shouldSignIn) {
       signIn(payload!);
       clearSearchParams();
+      setAuthorizationHeader({ accessToken: payload.accessToken });
     }
 
     navigate('/vote-fap');

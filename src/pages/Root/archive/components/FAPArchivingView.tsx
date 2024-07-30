@@ -1,14 +1,15 @@
 import { FeedDetailDialog } from '@Components/FeedDetailDialog';
 import { Button } from '@Components/ui/button';
+import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
 import { useModalActions } from '@Hooks/modal';
 import { requestFAPArchiving } from '@Services/feed';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { TFAPArchivingFeed } from '@Types/model';
 import { cn, isBetweenDate } from '@Utils/index';
-import { addMonths, format, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subMonths } from 'date-fns';
+import { addMonths, format, getDate, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subMonths } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 
 const MIN_DATE = new Date('2024-01-01');
@@ -16,11 +17,6 @@ const MAX_DATE = new Date();
 
 export function FAPArchivingView() {
   const [calenderDate, setCalenderDate] = useState(format(new Date(), 'yyyy-MM'));
-
-  const { data } = useQuery({
-    queryKey: ['archiving', 'fap', calenderDate],
-    queryFn: () => requestFAPArchiving({ selectedDate: calenderDate }),
-  });
 
   const updateDate = (newDate: Date | null) => {
     /** Webkit에서 삭제 버튼 눌렀을 때 */
@@ -36,9 +32,6 @@ export function FAPArchivingView() {
     setCalenderDate(format(newDate, 'yyyy-MM'));
   };
 
-  const weeksInMonth = getWeeksInMonth(calenderDate);
-  const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
-
   return (
     <div className="flex flex-1 flex-col p-5">
       <CalendarDateSelector
@@ -49,16 +42,9 @@ export function FAPArchivingView() {
       />
 
       <DayOfWeeksHeader />
-
-      <div style={{ gridRow: weeksInMonth }} className={`grid flex-1 grid-cols-7 gap-x-2 gap-y-3`}>
-        <AnimatePresence initial={false}>
-          {data ? (
-            data.feeds.map((feed, index) => <FAPFeeds index={index} firstDayOfWeek={firstDayOfWeek} feed={feed} feeds={data.feeds} />)
-          ) : (
-            <FAPFeedsLoading days={getDaysInMonth(calenderDate)} firstDayOfWeek={firstDayOfWeek} />
-          )}
-        </AnimatePresence>
-      </div>
+      <Suspense fallback={<LoadingGrid calenderDate={calenderDate} />}>
+        <FAPFeeds calenderDate={calenderDate} />
+      </Suspense>
     </div>
   );
 }
@@ -121,51 +107,84 @@ function DayOfWeeksHeader() {
 }
 
 interface TFAPFeeds {
-  index: number;
-  firstDayOfWeek: string;
-  feed: TFAPArchivingFeed;
-  feeds: TFAPArchivingFeed[];
+  calenderDate: string;
 }
 
-function FAPFeeds({ index, firstDayOfWeek, feed, feeds }: TFAPFeeds) {
+type FAPFeedsProps = TFAPFeeds;
+
+function FAPFeeds({ calenderDate }: FAPFeedsProps) {
+  const {
+    data: { feeds },
+  } = useSuspenseQuery({
+    queryKey: ['archiving', 'fap', calenderDate],
+    queryFn: () => requestFAPArchiving({ selectedDate: calenderDate }),
+  });
+
+  const weeksInMonth = getWeeksInMonth(calenderDate);
+  const daysInMonth = getDaysInMonth(calenderDate);
+  const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
+
+  return (
+    <Grid cols={7} rows={weeksInMonth} className="flex-1">
+      <AnimatePresence initial={false}>
+        {Array.from({ length: daysInMonth }, (_, index) => (
+          <DayItem feeds={feeds} feed={feeds.find((feed) => getDate(feed.fapSelectedAt) === index + 1)} day={index + 1} firstDayOfWeek={firstDayOfWeek} />
+        ))}
+      </AnimatePresence>
+    </Grid>
+  );
+}
+
+interface TDayItem {
+  day: number;
+  feeds: TFAPArchivingFeed[] | undefined;
+  feed: TFAPArchivingFeed | undefined;
+  firstDayOfWeek: string;
+}
+
+type DayItemProps = TDayItem;
+
+function DayItem({ day, feed, feeds, firstDayOfWeek }: DayItemProps) {
   const { showModal } = useModalActions();
 
   const handleClick = async () => {
-    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: FeedDetailDialog, props: { feeds, defaultViewIndex: index } });
+    if (!feed) {
+      return;
+    }
+
+    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: FeedDetailDialog, props: { feeds, defaultViewIndex: day - 1 } });
   };
 
   return (
     <motion.div
+      key={`$day-${day}`}
       layout
-      key={`$day-${index + 1}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className={cn('flex h-full w-full flex-col')}
-      style={{ gridColumnStart: index === 0 ? firstDayOfWeek : undefined }}
+      style={{ gridColumnStart: day === 1 ? firstDayOfWeek : undefined }}
       onClick={handleClick}>
-      <span className="ml-1">{index + 1}</span>
-      <div className="group h-full w-full cursor-pointer overflow-hidden rounded-lg">
-        <Image src={feed.imageURL} className="transition-transform group-hover:scale-105" />
+      <span className="ml-1">{day}</span>
+      <div className={cn('group h-full w-full overflow-hidden rounded-lg bg-gray-200', { ['cursor-pointer']: !!feed })}>
+        {feed && <Image src={feed.imageURL} className="transition-transform group-hover:scale-105" />}
       </div>
     </motion.div>
   );
 }
 
-function FAPFeedsLoading({ days, firstDayOfWeek }: { days: number; firstDayOfWeek: string }) {
-  return Array.from({ length: days })
-    .fill(0)
-    .map((_, index) => (
-      <motion.div
-        layout
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        key={`$day-${index + 1}`}
-        className={cn('flex h-full w-full animate-pulse flex-col rounded-lg')}
-        style={{ gridColumnStart: index === 0 ? firstDayOfWeek : undefined }}>
-        <span className="ml-1">{index + 1}</span>
-        <div className="h-full w-full bg-gray-100" />
-      </motion.div>
-    ));
+function LoadingGrid({ calenderDate }: { calenderDate: string }) {
+  const weeksInMonth = getWeeksInMonth(calenderDate);
+  const daysInMonth = getDaysInMonth(calenderDate);
+  const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
+
+  return (
+    <Grid cols={7} rows={weeksInMonth} className="flex-1">
+      <AnimatePresence>
+        {Array.from({ length: daysInMonth }, (_, index) => (
+          <DayItem feeds={undefined} feed={undefined} day={index + 1} firstDayOfWeek={firstDayOfWeek} />
+        ))}
+      </AnimatePresence>
+    </Grid>
+  );
 }

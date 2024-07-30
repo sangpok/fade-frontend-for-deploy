@@ -1,10 +1,11 @@
+import { useToastActions } from '@Hooks/toast';
+import { queryClient } from '@Libs/queryclient';
+import { requestSubscribeMember } from '@Services/member';
 import { useMutation } from '@tanstack/react-query';
 import { cn } from '@Utils/index';
 import { useEffect, useState } from 'react';
-import { Button } from './ui/button';
-import { requestSubscribeMember } from '@Services/member';
-import { useToastActions } from '@Hooks/toast';
 import { VscLoading } from 'react-icons/vsc';
+import { Button } from './ui/button';
 
 type SubscribeButtonSize = 'default' | 'lg';
 
@@ -38,6 +39,7 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
       {
         onSuccess() {
           onToggle(!initialSubscribedStatus);
+          queryClient.invalidateQueries({ queryKey: ['user', userId, 'detail'] });
         },
         onError() {
           setIsSubscribed((prev) => !prev);
@@ -61,9 +63,8 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
       )}
       disabled={isPending}
       onClick={handleClick}>
-      {isSubscribed && '구독중'}
-      {!isSubscribed && '구독'}
       {isPending && <VscLoading className={cn('ml-1 inline-block size-3 animate-spin text-gray-600')} />}
+      {!isPending && (isSubscribed ? '구독중' : '구독')}
     </Button>
   );
 }

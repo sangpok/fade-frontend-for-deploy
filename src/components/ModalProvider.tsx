@@ -23,6 +23,7 @@ export function ModalProvider() {
 function Modal({ Component, id, type, props, resolve, animateType }: ModalItem) {
   const removeModal = useModalStore((state) => state.removeModal);
 
+  const [isStartAnimtionEnd, setIsStartAnimtionEnd] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [closeHandler, setCloseHandler] = useState<(() => Promise<boolean>) | null>(null);
 
@@ -58,8 +59,14 @@ function Modal({ Component, id, type, props, resolve, animateType }: ModalItem) 
                 <AlertDialog.AlertDialogDescription>This description is hidden from sighted users but accessible to screen readers.</AlertDialog.AlertDialogDescription>
               </VisuallyHidden>
 
-              <AnimatedDialog modalType={type} animateType={animateType}>
-                <Component {...(props || {})} setCloseHandler={setCloseHandler} onClose={handleClose} onSubmitSuccess={handleSubmitSuccess} />
+              <AnimatedDialog modalType={type} animateType={animateType} onStartAnimationEnd={() => setIsStartAnimtionEnd(true)}>
+                <Component
+                  {...(props || {})}
+                  isStartAnimtionEnd={isStartAnimtionEnd}
+                  setCloseHandler={setCloseHandler}
+                  onClose={handleClose}
+                  onSubmitSuccess={handleSubmitSuccess}
+                />
               </AnimatedDialog>
             </AlertDialog.Content>
           </AlertDialog.Portal>

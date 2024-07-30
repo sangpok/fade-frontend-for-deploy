@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
 export function getPayloadFromJWT(jwt: string) {
   return JSON.parse(atob(jwt.split('.')[1]).replaceAll('\\', '')) as {
     id: string;
-    username: string; // accountId
+    username: string; // username
     genderType: GenderType;
     exp: Date;
     iat: Date;

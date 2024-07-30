@@ -6,7 +6,7 @@ import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { requestGetVoteHistory } from '@Services/vote';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { TVoteHistoryItem } from '@Types/model';
+import { TVoteHistoryFeed } from '@Types/model';
 import { cn } from '@Utils/index';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -41,7 +41,6 @@ export default function Page() {
         nextCursor = selectedDateLabel;
       }
 
-      // Ensure nextCursor is a string or use a default value
       return requestGetVoteHistory({
         nextCursor: nextCursor || format(new Date(), 'yyyy-MM-dd'),
         scrollType,
@@ -88,7 +87,7 @@ export default function Page() {
       <div className="flex-1 space-y-[3.75rem] overflow-y-scroll p-5">
         {data?.pages.map((page) =>
           [page.feeds.slice(0, 10), page.feeds.slice(11, 21), page.feeds.slice(21, 31)].map((feeds, index) => (
-            <VoteHistoryItem key={`history-item-${index}-${feeds[0].feedId}`} isFadeInMode={isFadeInMode} feeds={feeds} />
+            <VoteHistoryItem key={`history-item-${index}-${feeds[0].id}`} isFadeInMode={isFadeInMode} feeds={feeds} />
           ))
         )}
         {!hasNextPage && <p className="text-detail text-gray-700">모든 투표 내역을 불러왔습니다.</p>}
@@ -124,7 +123,7 @@ function FadeInModeToggleButton({ isFadeInMode, onToggle }: { isFadeInMode: bool
   );
 }
 
-function VoteHistoryItem({ isFadeInMode, feeds }: { isFadeInMode: boolean; feeds: TVoteHistoryItem[] }) {
+function VoteHistoryItem({ isFadeInMode, feeds }: { isFadeInMode: boolean; feeds: TVoteHistoryFeed[] }) {
   const votedAtLabel = feeds.at(0) && format(feeds.at(0)!.votedAt, 'yyyy년 M월 d일');
 
   return (
@@ -134,9 +133,9 @@ function VoteHistoryItem({ isFadeInMode, feeds }: { isFadeInMode: boolean; feeds
         <Grid id="feedList" cols={5}>
           {feeds.map((feed, index) => {
             if (isFadeInMode) {
-              return feed.voteType === 'FADE_IN' && <FeedItem key={`feed-item-${feed.feedId}-${index}`} {...feed} feeds={feeds} index={index} />;
+              return feed.voteType === 'FADE_IN' && <FeedItem key={`feed-item-${feed.id}-${index}`} {...feed} feeds={feeds} index={index} />;
             } else {
-              return <FeedItem key={`feed-item-${feed.feedId}-${index}`} {...feed} feeds={feeds} index={index} />;
+              return <FeedItem key={`feed-item-${feed.id}-${index}`} {...feed} feeds={feeds} index={index} />;
             }
           })}
         </Grid>
@@ -145,11 +144,11 @@ function VoteHistoryItem({ isFadeInMode, feeds }: { isFadeInMode: boolean; feeds
   );
 }
 interface TFeedItem {
-  feeds: TVoteHistoryItem[];
+  feeds: TVoteHistoryFeed[];
   index: number;
 }
 
-type FeedItemProps = TFeedItem & TVoteHistoryItem;
+type FeedItemProps = TFeedItem & TVoteHistoryFeed;
 
 function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   const { showModal } = useModalActions();
@@ -166,7 +165,7 @@ function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
       exit={{ opacity: 0 }}
       className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg"
       onClick={handleClick}>
-      <Image src={feed.feedImageURL} className="h-full w-full transition-transform group-hover:scale-105" />
+      <Image src={feed.imageURL} className="h-full w-full transition-transform group-hover:scale-105" />
     </motion.div>
   );
 }

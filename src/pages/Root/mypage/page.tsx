@@ -1,13 +1,15 @@
-import testImage from '@Assets/test_fashion_image.jpg';
 import { ShowNotificationButton } from '@Components/ShowNotificationButton';
 import { Avatar } from '@Components/ui/avatar';
 import { useConfirm, useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
+import { requestGetMyDetails } from '@Services/member';
+import { useQuery } from '@tanstack/react-query';
 import { IconType } from 'react-icons/lib';
 import { MdBook, MdBookmark, MdHowToVote, MdPerson } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { AccountSetting } from './_components/AccountSetting';
 import { ServicePolicyDialog } from './_components/ServicePolicyDialog';
+import { TMyUserDetail } from '@Types/model';
 
 type MenuType = 'subpage' | 'dialog';
 
@@ -64,6 +66,12 @@ const mypageMenus: MyPageMenu[] = [
 
 export default function Page() {
   const { showModal } = useModalActions();
+
+  const { data } = useQuery({
+    queryKey: ['user', 'me', 'detail'],
+    queryFn: () => requestGetMyDetails(),
+  });
+
   const navigate = useNavigate();
 
   useHeader({ title: '마이페이지', rightSlot: () => <ShowNotificationButton /> });
@@ -80,21 +88,7 @@ export default function Page() {
 
   return (
     <div className="flex h-full flex-col bg-gray-100">
-      <div className="flex flex-col items-center justify-center gap-5 rounded-b-2xl bg-white pb-5 pt-10">
-        <Avatar src={testImage} size="124" />
-
-        <div className="flex flex-col items-center justify-center gap-1">
-          <p className="text-h4 font-semibold">안녕하세요, FADE_1234님!</p>
-
-          <div className="space-x-1 text-detail">
-            <span className="text-gray-500">여자</span>
-            <span>·</span>
-            <span>FA:P 선정 0회</span>
-          </div>
-        </div>
-
-        <ManageAccountButton />
-      </div>
+      <MyDetails details={data?.data} />
 
       <div className="flex min-h-1 flex-1 flex-col">
         <ul className="min-h-1 flex-1 space-y-3 overflow-y-scroll px-5 py-3">
@@ -112,15 +106,35 @@ export default function Page() {
   );
 }
 
-function ManageAccountButton() {
+function MyDetails({ details }: { details: TMyUserDetail | undefined }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-5 rounded-b-2xl bg-white pb-5 pt-10">
+      <Avatar src={details?.profileImageURL} size="124" />
+
+      <div className="flex flex-col items-center justify-center gap-1">
+        <p className="text-h4 font-semibold">안녕하세요, {details?.username}님!</p>
+
+        <div className="space-x-1 text-detail">
+          <span className="text-gray-500">{details?.genderType === 'MALE' ? '남자' : '여자'}</span>
+          <span>·</span>
+          <span>FA:P 선정 {details?.fapSelectedCount === undefined ? '-' : details?.fapSelectedCount}회</span>
+        </div>
+      </div>
+
+      <ManageAccountButton details={details} />
+    </div>
+  );
+}
+
+function ManageAccountButton({ details }: { details: TMyUserDetail | undefined }) {
   const { showModal } = useModalActions();
 
   const handleClick = async () => {
-    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: AccountSetting });
+    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: AccountSetting, props: { details } });
   };
 
   return (
-    <button className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-detail" onClick={handleClick}>
+    <button className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-detail" onClick={handleClick} disabled={details === undefined}>
       계정 관리
     </button>
   );

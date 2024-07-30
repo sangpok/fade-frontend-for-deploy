@@ -3,7 +3,7 @@ import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
 import { requestGetUserFeeds } from '@Services/feed';
 import { requestGetFeedUserDetails } from '@Services/member';
 import { useSuspenseInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { TFeedDetail } from '@Types/model';
+import { TFeed } from '@Types/model';
 import { Suspense, useEffect } from 'react';
 import { MdEditNote } from 'react-icons/md';
 import { FeedDetailDialog } from './FeedDetailDialog';
@@ -42,12 +42,14 @@ function UserDetail({ userId, viewType }: { userId: number; viewType: ProfileVie
   const isOwnerView = viewType === 'owner';
   const isUserView = viewType === 'user';
 
-  const { data } = useSuspenseQuery({
+  const {
+    data: { data },
+  } = useSuspenseQuery({
     queryKey: ['user', userId, 'detail'],
     queryFn: () => requestGetFeedUserDetails({ userId }),
   });
 
-  const { accountId, introduceContent, profileImageURL, subscribedCount, isSubscribed } = data!.details;
+  const { username, introduceContent, profileImageURL, subscribedCount, isSubscribed } = data;
 
   return (
     <div className="space-y-5 p-5">
@@ -55,7 +57,7 @@ function UserDetail({ userId, viewType }: { userId: number; viewType: ProfileVie
         <Avatar src={profileImageURL} size="72" />
 
         <div className="flex flex-1 flex-col justify-center">
-          <span className="font-semibold">{accountId}</span>
+          <span className="font-semibold">{username}</span>
 
           <div className="space-x-2">
             <span>구독자</span>
@@ -96,7 +98,7 @@ function UserFeeds({ userId }: { userId: number }) {
     getNextPageParam({ nextCursor }) {
       return nextCursor || undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: -1,
   });
 
   const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
@@ -113,9 +115,9 @@ function UserFeeds({ userId }: { userId: number }) {
   }, [hasNextPage]);
 
   return (
-    <div className="p-1">
+    <div className="space-y-10 p-1">
       <Grid id="feedList" cols={3}>
-        {data?.pages.map((page) => page.feeds.map((feed, index) => <FeedItem key={`feed-item-${feed.feedId}`} {...feed} feeds={page.feeds} index={index} />))}
+        {data?.pages.map((page) => page.feeds.map((feed, index) => <FeedItem key={`feed-item-${feed.id}`} {...feed} feeds={page.feeds} index={index} />))}
       </Grid>
 
       {isFetchingNextPage && <SpinLoading />}
@@ -125,11 +127,11 @@ function UserFeeds({ userId }: { userId: number }) {
 }
 
 interface TFeedItem {
-  feeds: TFeedDetail[];
+  feeds: TFeed[];
   index: number;
 }
 
-type FeedItemProps = TFeedItem & TFeedDetail;
+type FeedItemProps = TFeedItem & TFeed;
 
 function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   const { showModal } = useModalActions();
@@ -139,7 +141,7 @@ function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   };
 
   return (
-    <div key={`item-${feed.feedId}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
+    <div key={`item-${feed.id}`} className="group aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg" onClick={handleClick}>
       <Image src={feed.imageURL} className="h-full w-full transition-transform group-hover:scale-105" />
     </div>
   );

@@ -24,4 +24,12 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export { axiosInstance as axios };
+function setAuthorizationHeader({ accessToken }: { accessToken: string }) {
+  axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+}
+
+function clearAuthorizationHeader() {
+  axiosInstance.defaults.headers.common.Authorization = ``;
+}
+
+export { axiosInstance as axios, setAuthorizationHeader, clearAuthorizationHeader };

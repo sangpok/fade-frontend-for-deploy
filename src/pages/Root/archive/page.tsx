@@ -42,7 +42,7 @@ export default function Page() {
     // showModal({
     //   type: 'component',
     //   Component: LastFAPModal,
-    //   props: { feed: { id: 0, imageURL: testImage }, user: { id: 0, accountId: 'fade_test', profileURL: testImage } } as LastFAPModalProps,
+    //   props: { feed: { id: 0, imageURL: testImage }, user: { id: 0, username: 'fade_test', profileURL: testImage } } as LastFAPModalProps,
     // });
   }, []);
 

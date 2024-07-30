@@ -11,7 +11,7 @@ import { useTransition } from 'react';
 import { Control, useForm } from 'react-hook-form';
 import { VscLoading } from 'react-icons/vsc';
 import { accountInitializeSchema, AccountInitializeSchema, AccountSchema } from './_accountSchema';
-import { AccountIdField } from './fields/AccountIdField';
+import { UsernameField } from './fields/UsernameField';
 import { GenderField } from './fields/GenderField';
 
 interface TAccountInitializeForm {
@@ -34,7 +34,7 @@ export function AccountInitializeForm({ accessToken, onSubmited }: AccountInitia
   const form = useForm<AccountInitializeSchema>({
     resolver: zodResolver(accountInitializeSchema),
     defaultValues: {
-      accountId: '',
+      username: '',
       gender: 'MALE',
     },
     mode: 'onChange',
@@ -81,7 +81,7 @@ export function AccountInitializeForm({ accessToken, onSubmited }: AccountInitia
       <form onSubmit={form.handleSubmit(handleSubmitAfterValidation)} className="h-full space-y-8">
         <fieldset className="flex h-full flex-col gap-5" disabled={isPending}>
           <div className="flex flex-1 flex-col gap-5">
-            <AccountIdField control={form.control as unknown as Control<AccountSchema>} invalid={!!errors?.accountId} />
+            <UsernameField control={form.control as unknown as Control<AccountSchema>} invalid={!!errors?.username} />
             <GenderField control={form.control as unknown as Control<AccountSchema>} />
           </div>
 

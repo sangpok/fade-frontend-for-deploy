@@ -33,9 +33,10 @@ const variantsMap: Record<AnimateType, Variants> = {
 type AnimatedDialogProps = {
   animateType?: AnimateType;
   modalType?: ModalType;
+  onStartAnimationEnd?: () => void;
 };
 
-export function AnimatedDialog({ animateType = 'slideUp', modalType = 'fullScreenDialog', children }: PropsWithChildren<AnimatedDialogProps>) {
+export function AnimatedDialog({ animateType = 'slideUp', modalType = 'fullScreenDialog', onStartAnimationEnd, children }: PropsWithChildren<AnimatedDialogProps>) {
   const isFullScreenDialog = modalType === 'fullScreenDialog';
   const isBottomSheet = modalType === 'bottomSheet';
   const isComponent = modalType === 'component';
@@ -71,6 +72,7 @@ export function AnimatedDialog({ animateType = 'slideUp', modalType = 'fullScree
       exit="exit"
       variants={variantsMap[animateType]}
       custom={boundHeight}
+      onAnimationComplete={(definition) => definition === 'show' && onStartAnimationEnd && onStartAnimationEnd()}
       className={cn('pointer-events-auto absolute flex w-full flex-col bg-white', {
         ['bottom-0 left-0 h-full pt-[var(--sat)]']: isFullScreenDialog,
         ['bottom-0 left-0 rounded-t-2xl']: isBottomSheet,

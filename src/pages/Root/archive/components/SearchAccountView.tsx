@@ -1,31 +1,43 @@
-import testImage from '@Assets/test_fashion_image.jpg';
-import { BackButton } from '@Components/ui/button';
 import { Avatar } from '@Components/ui/avatar';
-import { Button } from '@Components/ui/button';
+import { BackButton, Button } from '@Components/ui/button';
 import { useDebounce } from '@Hooks/useDebounce';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
+import { requestSearchUser } from '@Services/member';
 import { DefaultModalProps } from '@Stores/modal';
+import { useQuery } from '@tanstack/react-query';
+import { TMatchedUser } from '@Types/model';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MdCancel, MdClose, MdSearch, MdWarning } from 'react-icons/md';
 import { VscLoading } from 'react-icons/vsc';
-
-interface TSearchResultItem {
-  userId: number;
-  accountId: string;
-  profileURL: string;
-}
-
-type SearchResults = TSearchResultItem[];
-
-const searchResults: SearchResults = [{ userId: 0, accountId: 'fade_1234', profileURL: testImage }];
+import { useNavigate } from 'react-router-dom';
 
 export function SearchAccountView({ onClose }: DefaultModalProps) {
-  const [targetAccountId, setTargetAccountId] = useState('');
-  const [isPending, debouncedAccountId] = useDebounce(targetAccountId, 350);
+  const navigate = useNavigate();
 
-  const isHistoryView = debouncedAccountId === '';
-  const isResultView = debouncedAccountId !== '';
+  const [targetUsername, setTargetUsername] = useState('');
+  const [isDebouncePending, debouncedUsername] = useDebounce(targetUsername, 350);
+  const [results, setResults] = useState<TMatchedUser[]>([]);
+
+  const { data, isPending: isQueryPending } = useQuery({
+    queryKey: ['search', 'user', debouncedUsername],
+    queryFn: () => requestSearchUser({ username: debouncedUsername }),
+    enabled: debouncedUsername !== '' && !isDebouncePending,
+  });
+
+  useEffect(() => {
+    if (!isQueryPending && data) {
+      setResults(data.data.matchedMembers);
+    }
+  }, [isQueryPending]);
+
+  const handleUserItemClicked = (userId: number) => {
+    navigate(`/user`, { state: { userId } });
+    onClose();
+  };
+
+  const isHistoryView = debouncedUsername === '';
+  const isResultView = debouncedUsername !== '';
 
   return (
     <FlexibleLayout.Root>
@@ -37,25 +49,25 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
 
         <div className="border-b border-b-gray-200 p-5">
           <SearchInput
-            value={targetAccountId}
-            isPending={isPending}
-            onChange={setTargetAccountId}
-            onClear={() => setTargetAccountId('')}
-            onSubmit={() => console.log(targetAccountId)}
+            value={targetUsername}
+            isPending={isDebouncePending || (debouncedUsername !== '' && isQueryPending)}
+            onChange={setTargetUsername}
+            onClear={() => setTargetUsername('')}
+            onSubmit={() => console.log(targetUsername)}
           />
         </div>
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content>
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false} mode="wait">
           {isHistoryView && (
-            <motion.div key={'search-history-view'} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }}>
+            <motion.div key={`search-history-view-${1}`} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }}>
               <SearchHistoryList />
             </motion.div>
           )}
           {isResultView && (
-            <motion.div key={'search-result-view'} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
-              <SearchResultList matchedUsers={searchResults} />
+            <motion.div key={`search-result-view`} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
+              <SearchResultView matchedMembers={results} isPending={isQueryPending} onUserItemClicked={handleUserItemClicked} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -64,19 +76,17 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
   );
 }
 
-function SearchInput({
-  value,
-  isPending,
-  onChange,
-  onClear,
-  onSubmit,
-}: {
+interface TSearchInput {
   value: string;
   isPending: boolean;
   onChange: (value: string) => void;
   onClear: () => void;
   onSubmit: () => void;
-}) {
+}
+
+type SearchInputProps = TSearchInput;
+
+function SearchInput({ value, isPending, onChange, onClear, onSubmit }: SearchInputProps) {
   const hasValue = value !== '';
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -89,7 +99,7 @@ function SearchInput({
     <div className="flex flex-row gap-3 rounded-2xl border border-gray-200 bg-gray-100 px-5 py-3 focus-within:border-gray-400">
       <input
         ref={inputRef}
-        className="flex-1 appearance-none border-none bg-transparent outline-none"
+        className="w-full appearance-none bg-transparent outline-none"
         placeholder="계정명(ID) 입력"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
@@ -97,7 +107,7 @@ function SearchInput({
 
       <AnimatePresence>
         {hasValue && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex justify-center">
             <Button variants="ghost" onClick={handleClear} className="p-0">
               <MdCancel className="size-5 text-gray-600" />
             </Button>
@@ -105,7 +115,7 @@ function SearchInput({
         )}
       </AnimatePresence>
 
-      <Button variants="ghost" className="p-0" onClick={onSubmit}>
+      <Button variants="ghost" className="min-w-fit p-0" onClick={onSubmit}>
         {isPending && <VscLoading className="size-6 animate-spin text-gray-600" />}
         {!isPending && <MdSearch className="size-6 text-gray-600" />}
       </Button>
@@ -114,60 +124,72 @@ function SearchInput({
 }
 
 function SearchHistoryList() {
-  const searchHistory = searchResults;
+  const searchHistory = JSON.parse(localStorage.getItem('FADE_SEARCH_HISTORY') || '[]') as TMatchedUser[];
+  const hasSearchHistory = searchHistory.length !== 0;
 
   return (
     <div className="space-y-3 px-3 py-5">
       <p className="pl-2 text-h6 font-semibold">최근 검색</p>
 
       <ul>
-        {searchHistory.map((userDetail) => (
-          <li key={`search-histroy-${userDetail.accountId}`} className="flex flex-row items-center gap-3">
-            <AccountItem {...userDetail} onClick={(userId) => console.log({ userId })} />
+        {!hasSearchHistory && <p className="pl-2 text-gray-700">최근 검색한 유저가 없습니다.</p>}
+        {hasSearchHistory &&
+          searchHistory.map((userDetail) => (
+            <li key={`search-histroy-${userDetail.username}`} className="flex flex-row items-center gap-3">
+              <UserItem {...userDetail} onClick={(userId) => console.log({ userId })} />
 
-            <button className="group cursor-pointer rounded-lg p-2 touchdevice:active:bg-gray-100 pointerdevice:hover:bg-gray-100">
-              <MdClose className="size-3 text-gray-500 transition-transform group-active:scale-95" />
-            </button>
-          </li>
-        ))}
+              <button className="group cursor-pointer rounded-lg p-2 touchdevice:active:bg-gray-100 pointerdevice:hover:bg-gray-100">
+                <MdClose className="size-3 text-gray-500 transition-transform group-active:scale-95" />
+              </button>
+            </li>
+          ))}
       </ul>
     </div>
   );
 }
 
-function AccountItem({ userId, profileURL, accountId, onClick }: { userId: number; profileURL: string; accountId: string; onClick: (userId: number) => void }) {
+interface TUserItem {
+  onClick: (userId: number) => void;
+}
+
+type UserItemPRops = TUserItem & TMatchedUser;
+
+function UserItem({ id, profileImageURL, username, onClick }: UserItemPRops) {
   return (
     <button
       className="group flex flex-1 flex-row items-center gap-3 rounded-lg p-2 touchdevice:active:bg-gray-200 pointerdevice:hover:bg-gray-100 pointerdevice:active:bg-gray-200"
-      onClick={() => onClick(userId)}>
-      <Avatar src={profileURL} size="40" />
-      <p>{accountId}</p>
+      onClick={() => onClick(id)}>
+      <Avatar src={profileImageURL} size="40" />
+      <p>{username}</p>
     </button>
   );
 }
 
-function SearchResultList({ matchedUsers }: { matchedUsers: SearchResults }) {
-  const hasNoResult = true;
+interface TSearchResultView {
+  matchedMembers: TMatchedUser[];
+  isPending: boolean;
+  onUserItemClicked: (userId: number) => void;
+}
 
-  if (hasNoResult) {
-    return <NoSearchResult />;
-  }
+type SearchResultViewProps = TSearchResultView;
+
+function SearchResultView({ matchedMembers, isPending, onUserItemClicked }: SearchResultViewProps) {
+  const hasMatchedUsers = matchedMembers.length !== 0;
 
   return (
     <div className="space-y-3 px-3 py-5">
       <p className="pl-2 text-h6 font-semibold">계정</p>
 
-      <ul>
-        {matchedUsers.map((userDetail) => (
-          <li key={`search-histroy-${userDetail.accountId}`} className="flex flex-row items-center gap-3">
-            <AccountItem {...userDetail} onClick={(userId) => console.log({ userId })} />
-
-            <Button variants="ghost" className="p-2">
-              <MdClose className="size-3 text-gray-500" />
-            </Button>
-          </li>
-        ))}
-      </ul>
+      {!isPending && !hasMatchedUsers && <NoSearchResult />}
+      {hasMatchedUsers && (
+        <ul>
+          {matchedMembers.map((userDetail) => (
+            <li key={`search-result-${userDetail.username}`} className="flex flex-row items-center gap-3">
+              <UserItem {...userDetail} onClick={onUserItemClicked} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
