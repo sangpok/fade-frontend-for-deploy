@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-const accountIdRegExp = new RegExp(/^[a-zA-Z0-9._]{4,15}$/);
+const UsernameRegExp = new RegExp(/^[a-zA-Z0-9._]{4,15}$/);
 
 export const accountSchema = z.object({
   profileImageId: z.number(),
-  username: z.string().regex(accountIdRegExp, '사용할 수 없는 ID입니다.'),
+  username: z.string().regex(UsernameRegExp, '사용할 수 없는 ID입니다.'),
   gender: z.enum(['MALE', 'FEMALE']),
 });
 
