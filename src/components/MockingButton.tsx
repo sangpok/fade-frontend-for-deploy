@@ -3,11 +3,13 @@ import { Button } from './ui/button';
 import { MdSettings } from 'react-icons/md';
 import { useRef, useState } from 'react';
 import { cn } from '@Utils/index';
+import { useVotingStore } from '@Stores/vote';
 
 const LOCALSTORAGE_KEY = 'FADE_API_MOCKING_ENABLED' as const;
 
 export function MockingButton() {
   const mockButtonRef = useRef<HTMLButtonElement>(null);
+  const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
 
   const [isMockEnabled, setIsMockEnabled] = useState(() => {
     return (localStorage.getItem(LOCALSTORAGE_KEY) as 'true' | 'false' | undefined) === 'true' ? true : false;
@@ -49,7 +51,7 @@ export function MockingButton() {
                 ref={mockButtonRef}
                 aria-checked={(localStorage.getItem('FADE_API_MOCKING_ENABLED') as 'true' | 'false' | undefined) || 'false'}
                 variants="ghost"
-                className={cn({ ['text-pink-400']: isMockEnabled })}
+                className={cn('w-full', { ['text-pink-400']: isMockEnabled })}
                 onClick={handleClick}>
                 {isMockEnabled ? 'Disable' : 'Enable'} API Mocking
               </Button>
@@ -57,6 +59,11 @@ export function MockingButton() {
             <li className="w-full">
               <Button variants="ghost" className="w-full" onClick={() => location.reload()}>
                 Page Reload
+              </Button>
+            </li>
+            <li className="w-full">
+              <Button variants="ghost" className="w-full" onClick={() => setHasVotedToday(true)}>
+                Bypass the vote check today
               </Button>
             </li>
           </ul>

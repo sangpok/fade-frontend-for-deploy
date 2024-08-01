@@ -9,6 +9,7 @@ import { TVoteCandidateCard } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
 import { cn, generateAnonName, prefetchImages } from '@Utils/index';
 import { isAxiosError } from 'axios';
+import { format } from 'date-fns';
 import { AnimatePresence, motion, MotionValue, useMotionValue, useTransform, Variants } from 'framer-motion';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
 import { RandomAvatar } from './RandomAvatar';
