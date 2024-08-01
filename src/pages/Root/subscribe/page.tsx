@@ -24,7 +24,6 @@ export default function Page() {
         <Suspense fallback={<SpinLoading />}>
           <SubscriberList />
         </Suspense>
-        <ShowSubscribeListViewButton />
       </div>
 
       <Suspense fallback={<SpinLoading />}>
@@ -73,9 +72,12 @@ function SubscribeFeedList() {
     !hasNextPage && disconnectObserver();
   }, [hasNextPage]);
 
+  const hasNoFeed = data.pages.at(0)?.feeds.length === 0;
+
   return (
     <div className="relative min-h-1 flex-1 snap-y snap-mandatory overflow-y-scroll">
       <div id="feedList" className="h-full">
+        {hasNoFeed && <p className="pl-5">아직 구독하는 페이더가 없으시군요? 첫 구독을 해보세요!</p>}
         {data && data.pages.map((page) => page.feeds.map((feedDetail) => <FeedDetailCard key={feedDetail.id} {...feedDetail} />))}
       </div>
     </div>
@@ -92,11 +94,21 @@ export function SubscriberList() {
     initialPageParam: -1,
   });
 
+  const hasNoSubscribe = data.pages.at(0)?.subscribers.length === 0;
+  const isOverFive = data.pages.at(0)?.subscribers.length || 0 > 5;
+
+  if (hasNoSubscribe) {
+    return;
+  }
+
   return (
     <div className="flex w-full overflow-y-scroll pr-10">
       <ul className="flex flex-row gap-3">
-        {data?.pages.map((page) => page.subscribers.map((subscriber) => <SubscriberItem key={`subscriber-${subscriber.userId}`} {...subscriber} />))}
+        {hasNoSubscribe && <p>첫 구독</p>}
+        {data?.pages.map((page) => page.subscribers.slice(0, 5).map((subscriber) => <SubscriberItem key={`subscriber-${subscriber.userId}`} {...subscriber} />))}
       </ul>
+
+      {isOverFive && <ShowSubscribeListViewButton />}
     </div>
   );
 }

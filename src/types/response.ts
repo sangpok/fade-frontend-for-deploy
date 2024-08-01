@@ -6,6 +6,4 @@ export type VoteInfiniteResponse<T> = {
   nextCursorToUpScroll: string;
   nextCursorToDownScroll: string;
   direction: string;
-  isLastCursorToUpScroll: boolean;
-  isLastCursorToDownScroll: boolean;
 } & T;

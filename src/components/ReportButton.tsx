@@ -4,6 +4,7 @@ import { MdReport } from 'react-icons/md';
 import { Button } from './ui/button';
 import { useMutation } from '@tanstack/react-query';
 import { useToastActions } from '@Hooks/toast';
+import { requestReportFeed } from '@Services/report';
 
 interface ReportButtonProps {
   feedId: number;
@@ -16,7 +17,7 @@ export function ReportButton({ feedId, onReportEnd }: ReportButtonProps) {
 
   const { mutate: reportFeed, isPending } = useMutation({
     mutationKey: ['reportFeed'],
-    mutationFn: ({ feedId }: { feedId: number }) => new Promise((resolve) => resolve(feedId)),
+    mutationFn: requestReportFeed,
   });
 
   const handleReportClick = async () => {
@@ -27,7 +28,7 @@ export function ReportButton({ feedId, onReportEnd }: ReportButtonProps) {
     }
 
     reportFeed(
-      { feedId },
+      { feedId, ...reportResult },
       {
         onSuccess() {
           showToast({ type: 'basic', title: `${feedId}번 피드를 신고하였습니다.` });
@@ -41,7 +42,6 @@ export function ReportButton({ feedId, onReportEnd }: ReportButtonProps) {
   };
 
   const startReportFlow = async () => {
-    // TODO: Report에 사진 ID? 유저 ID? 넘겨주긴 해야 함
     return await showModal<ReportResult>({ type: 'bottomSheet', Component: ReportBottomSheet });
   };
 

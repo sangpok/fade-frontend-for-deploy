@@ -4,12 +4,12 @@ import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
 import { useModalActions } from '@Hooks/modal';
 import { requestFAPArchiving } from '@Services/feed';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { TFAPArchivingFeed } from '@Types/model';
 import { cn, isBetweenDate } from '@Utils/index';
 import { addMonths, format, getDate, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subMonths } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 
 const MIN_DATE = new Date('2024-01-01');
@@ -42,9 +42,7 @@ export function FAPArchivingView() {
       />
 
       <DayOfWeeksHeader />
-      <Suspense fallback={<LoadingGrid calenderDate={calenderDate} />}>
-        <FAPFeeds calenderDate={calenderDate} />
-      </Suspense>
+      <FAPFeeds calenderDate={calenderDate} />
     </div>
   );
 }
@@ -64,7 +62,7 @@ function CalendarDateSelector({ calenderDate, onMonthSelected, onNextMonthClicke
 
   return (
     <div className="relative flex justify-center rounded-lg border border-gray-200 py-2">
-      <Button variants="ghost" size="icon" className="absolute left-1 top-1/2 -translate-y-1/2" disabled={isMinDate} onClick={() => onPreMonthClicked()}>
+      <Button variants="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2" disabled={isMinDate} onClick={() => onPreMonthClicked()}>
         <MdChevronLeft className="size-6" />
       </Button>
 
@@ -80,7 +78,7 @@ function CalendarDateSelector({ calenderDate, onMonthSelected, onNextMonthClicke
         />
       </div>
 
-      <Button variants="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" disabled={isMaxDate} onClick={() => onNextMonthClicked()}>
+      <Button variants="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" disabled={isMaxDate} onClick={() => onNextMonthClicked()}>
         <MdChevronRight className="size-6" />
       </Button>
     </div>
@@ -113,9 +111,7 @@ interface TFAPFeeds {
 type FAPFeedsProps = TFAPFeeds;
 
 function FAPFeeds({ calenderDate }: FAPFeedsProps) {
-  const {
-    data: { feeds },
-  } = useSuspenseQuery({
+  const { data } = useQuery({
     queryKey: ['archiving', 'fap', calenderDate],
     queryFn: () => requestFAPArchiving({ selectedDate: calenderDate }),
   });
@@ -124,11 +120,19 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
   const daysInMonth = getDaysInMonth(calenderDate);
   const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
 
+  const feeds = data?.feeds;
+
   return (
     <Grid cols={7} rows={weeksInMonth} className="flex-1">
       <AnimatePresence initial={false}>
         {Array.from({ length: daysInMonth }, (_, index) => (
-          <DayItem feeds={feeds} feed={feeds.find((feed) => getDate(feed.fapSelectedAt) === index + 1)} day={index + 1} firstDayOfWeek={firstDayOfWeek} />
+          <DayItem
+            key={`day-${index}`}
+            feeds={feeds}
+            feed={feeds?.find((feed) => getDate(feed.fapSelectedAt) === index + 1)}
+            day={index + 1}
+            firstDayOfWeek={firstDayOfWeek}
+          />
         ))}
       </AnimatePresence>
     </Grid>
@@ -157,34 +161,17 @@ function DayItem({ day, feed, feeds, firstDayOfWeek }: DayItemProps) {
 
   return (
     <motion.div
-      key={`$day-${day}`}
       layout
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={cn('flex h-full w-full flex-col')}
+      className="flex h-full w-full flex-col"
       style={{ gridColumnStart: day === 1 ? firstDayOfWeek : undefined }}
       onClick={handleClick}>
       <span className="ml-1">{day}</span>
-      <div className={cn('group h-full w-full overflow-hidden rounded-lg bg-gray-200', { ['cursor-pointer']: !!feed })}>
+      <div className={cn('group h-full w-full overflow-hidden rounded-lg bg-gray-200', { ['cursor-pointer']: !!feed, ['animate-pulse']: !feeds })}>
         {feed && <Image src={feed.imageURL} className="transition-transform group-hover:scale-105" />}
       </div>
     </motion.div>
-  );
-}
-
-function LoadingGrid({ calenderDate }: { calenderDate: string }) {
-  const weeksInMonth = getWeeksInMonth(calenderDate);
-  const daysInMonth = getDaysInMonth(calenderDate);
-  const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
-
-  return (
-    <Grid cols={7} rows={weeksInMonth} className="flex-1">
-      <AnimatePresence>
-        {Array.from({ length: daysInMonth }, (_, index) => (
-          <DayItem feeds={undefined} feed={undefined} day={index + 1} firstDayOfWeek={firstDayOfWeek} />
-        ))}
-      </AnimatePresence>
-    </Grid>
   );
 }

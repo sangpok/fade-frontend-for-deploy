@@ -1,9 +1,9 @@
 import testFashionImage1 from '@Assets/test_fashion_image.jpg';
-import { TMyUserDetail } from '@Types/model';
+import { TMyUserDetail, TVoteCandidateDTO } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
 import { generateRandomId } from '@Utils/index';
 import { HttpStatusCode } from 'axios';
-import { addDays } from 'date-fns';
+import { addDays, isBefore, subDays } from 'date-fns';
 import { HttpResponse, delay, http } from 'msw';
 import {
   createAccessToken,
@@ -12,6 +12,7 @@ import {
   createFAPArchivingFeedDTODummies,
   createFeedUserDetailDummies,
   createMyUserDetailDummies,
+  createNotificationDummies,
   createRefreshToken,
   createSubscribeFeedDTODummies,
   createSubscriberDTODummies,
@@ -312,18 +313,72 @@ export const handlers = [
     return HttpResponse.json(createFeedUserDetailDummies(1)[0], { status: HttpStatusCode.Ok });
   }),
 
-  http.get(`${BASE_URL}/vote/history`, async () => {
+  http.get(`${BASE_URL}/vote/history`, async ({ request }) => {
     await delay(NETWORK_DELAY);
 
+    const { searchParams } = new URL(request.url);
+    // const limit = +(searchParams.get('limit') || 3);
+    const scrollType = searchParams.get('scrollType');
+    const baseDate = new Date(searchParams.get('nextCursor') || new Date());
+
+    let dummies = null;
+
+    if (scrollType === '0') {
+      dummies = [
+        ...createVoteHistoryFeedDTODummies(10, baseDate),
+        ...createVoteHistoryFeedDTODummies(10, subDays(baseDate, 1)),
+        ...createVoteHistoryFeedDTODummies(10, subDays(baseDate, 2)),
+      ];
+      console.log(dummies);
+    }
+
+    if (scrollType === '1') {
+      dummies = [
+        ...createVoteHistoryFeedDTODummies(10, addDays(baseDate, 2)),
+        ...createVoteHistoryFeedDTODummies(10, addDays(baseDate, 1)),
+        ...createVoteHistoryFeedDTODummies(10, baseDate),
+      ];
+    }
+
+    if (scrollType === '2') {
+      dummies = [
+        ...createVoteHistoryFeedDTODummies(10, subDays(baseDate, 3)),
+        ...createVoteHistoryFeedDTODummies(10, subDays(baseDate, 2)),
+        ...createVoteHistoryFeedDTODummies(10, subDays(baseDate, 1)),
+        ...createVoteHistoryFeedDTODummies(10, baseDate),
+        ...createVoteHistoryFeedDTODummies(10, addDays(baseDate, 1)),
+        ...createVoteHistoryFeedDTODummies(10, addDays(baseDate, 2)),
+        ...createVoteHistoryFeedDTODummies(10, addDays(baseDate, 3)),
+      ] as TVoteCandidateDTO[];
+    }
+
+    dummies!.sort(({ votedAt: a }, { votedAt: b }) => (isBefore(a!, b!) ? 1 : -1));
+
     const result = {
-      feeds: [...createVoteHistoryFeedDTODummies(10), ...createVoteHistoryFeedDTODummies(10), ...createVoteHistoryFeedDTODummies(10)],
-      nextCursorToUpScroll: '2024-07-30',
-      nextCursorToDownScroll: '2024-07-30',
-      direction: '0',
-      isLastCursorToUpScroll: true,
-      isLastCursorToDownScroll: true,
+      feeds: dummies,
+      nextCursorToUpScroll: scrollType === '0' ? null : dummies!.at(0)!.votedAt,
+      nextCursorToDownScroll: scrollType === '1' ? null : dummies!.at(-1)!.votedAt,
+      direction: scrollType,
     };
 
     return HttpResponse.json(result, { status: HttpStatusCode.Ok });
+  }),
+
+  http.get(`${BASE_URL}/notifications`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json({ nextCursor: generateRandomId(), notifications: createNotificationDummies(10) }, { status: HttpStatusCode.Ok });
+  }),
+
+  http.post(`${BASE_URL}/notifications/read`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json({}, { status: HttpStatusCode.Ok });
+  }),
+
+  http.post(`${BASE_URL}/reports`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json({}, { status: HttpStatusCode.Ok });
   }),
 ];

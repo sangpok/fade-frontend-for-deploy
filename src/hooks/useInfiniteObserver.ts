@@ -1,6 +1,14 @@
 import { useEffect, useMemo } from 'react';
 
-export function useInfiniteObserver({ parentNodeId, onIntersection }: { parentNodeId: string; onIntersection: () => void }) {
+interface TUseInfiniteObserver {
+  parentNodeId: string;
+  targetMode?: 'firstChild' | 'lastChild';
+  onIntersection: () => void;
+}
+
+type UseInfiniteObserverProps = TUseInfiniteObserver;
+
+export function useInfiniteObserver({ parentNodeId, targetMode, onIntersection }: UseInfiniteObserverProps) {
   const intersectionObserver = useMemo(
     () =>
       new IntersectionObserver(
@@ -16,10 +24,10 @@ export function useInfiniteObserver({ parentNodeId, onIntersection }: { parentNo
   const mutationObserver = useMemo(
     () =>
       new MutationObserver((mutations) => {
-        const [lastNode] = mutations.pop()!.addedNodes;
-
         intersectionObserver.disconnect();
-        intersectionObserver.observe(lastNode as Element);
+
+        const [targetNode] = targetMode === 'lastChild' ? mutations.pop()!.addedNodes : mutations.at(0)!.addedNodes;
+        intersectionObserver.observe(targetNode as Element);
       }),
     [parentNodeId]
   );
@@ -32,7 +40,14 @@ export function useInfiniteObserver({ parentNodeId, onIntersection }: { parentNo
     }
 
     mutationObserver.observe(targetParentNode!, { childList: true });
-    intersectionObserver.observe(targetParentNode!.lastElementChild || targetParentNode!);
+
+    if (targetMode === 'lastChild') {
+      intersectionObserver.observe(targetParentNode!.lastElementChild || targetParentNode!);
+    }
+
+    if (targetMode === 'firstChild') {
+      intersectionObserver.observe(targetParentNode!.firstElementChild || targetParentNode!);
+    }
   };
 
   const disconnect = () => {

@@ -6,7 +6,7 @@ import { cn } from '@Utils/index';
 import { forwardRef, useState } from 'react';
 import { MdChevronRight } from 'react-icons/md';
 
-const enum ReportType {
+export const enum ReportType {
   PORNO_OR_SEXUAL_IMAGE = 'PORNO_OR_SEXUAL_IMAGE',
   ILLEGAL_USE_OR_AI_IMAGE = 'ILLEGAL_USE_OR_AI_IMAGE',
   UNRELATED_OR_SPAM = 'UNRELATED_OR_SPAM',
@@ -66,7 +66,6 @@ export const ReportBottomSheet = forwardRef<HTMLDivElement, DefaultModalProps<Re
       throw new Error('never but for selectedReportType type-guard');
     }
 
-    // TODO: 신고 해야 함
     onClose({ reportDetails, selectedReportType });
   };
 

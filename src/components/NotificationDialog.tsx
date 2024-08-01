@@ -1,5 +1,7 @@
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
+import { requestGetNotifications, requestReadAllNotifications } from '@Services/notification';
 import { DefaultModalProps } from '@Stores/modal';
+import { InfiniteData, useMutation, useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import {
   isFAPDeletedNotification,
   isFAPSelectedNotification,
@@ -9,68 +11,42 @@ import {
   TNotification,
 } from '@Types/notification';
 import { cn, getRelativeTimeLabel } from '@Utils/index';
-import { subDays, subMonths } from 'date-fns';
+import { Suspense, useEffect } from 'react';
 import { FaCrown } from 'react-icons/fa6';
 import { MdCancel, MdChevronRight, MdDelete, MdReport } from 'react-icons/md';
 import { BackButton } from './ui/button';
+import { format } from 'date-fns';
+import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
+import { SpinLoading } from './SpinLoading';
+import { queryClient } from '@Libs/queryclient';
+import { AxiosResponse } from 'axios';
+import { InfiniteResponse } from '@Types/response';
 
-const testNotis: TNotification[] = [
-  {
-    type: 'FEED_REPORTED',
-    feedId: 0,
-    reportCount: 3,
-    isRead: false,
-    createdAt: subDays(new Date(), 0),
-  },
-  {
-    type: 'FEED_DELETED',
-    isRead: false,
-    createdAt: subDays(new Date(), 1),
-  },
-  {
-    type: 'FAP_SELECTED',
-    selectedDate: '7월 21일',
-    isRead: false,
-    createdAt: subDays(new Date(), 2),
-  },
-  {
-    type: 'FEED_REPORTED',
-    feedId: 0,
-    reportCount: 2,
-    isRead: true,
-    createdAt: subDays(new Date(), 3),
-  },
-  {
-    type: 'FAP_SELECTED',
-    selectedDate: '7월 19일',
-    isRead: true,
-    createdAt: subDays(new Date(), 10),
-  },
-  {
-    type: 'FEED_DELETED',
-    isRead: true,
-    createdAt: subDays(new Date(), 11),
-  },
-  {
-    type: 'FEED_DELETED',
-    isRead: true,
-    createdAt: subDays(new Date(), 12),
-  },
-  {
-    type: 'FAP_DELETED',
-    deletedFAPCount: 1,
-    isRead: true,
-    createdAt: subDays(new Date(), 20),
-  },
-  {
-    type: 'FAP_SELECTED',
-    selectedDate: '6월 19일',
-    isRead: true,
-    createdAt: subMonths(new Date(), 1),
-  },
-];
+type CachedTNotificationsType = InfiniteData<AxiosResponse<InfiniteResponse<{ notifications: TNotification[] }>>>;
 
 export function NotificationDialog({ onClose }: DefaultModalProps) {
+  useEffect(() => {
+    return () => {
+      queryClient.setQueryData<CachedTNotificationsType>(['notifications'], (prevQuery) =>
+        prevQuery
+          ? {
+              ...prevQuery,
+              pages: prevQuery.pages.map((response) => ({
+                ...response,
+                data: {
+                  ...response.data,
+                  notifications: response.data.notifications.map((notification) => ({
+                    ...notification,
+                    isRead: true,
+                  })),
+                },
+              })),
+            }
+          : undefined
+      );
+    };
+  }, []);
+
   return (
     <FlexibleLayout.Root>
       <FlexibleLayout.Header>
@@ -81,15 +57,69 @@ export function NotificationDialog({ onClose }: DefaultModalProps) {
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content className="space-y-3 bg-gray-100 p-5">
-        <ul className="flex flex-col gap-3">
-          {testNotis.map((noti, index) => (
-            <NotificationItem key={`noti-${index}`} {...noti} />
-          ))}
-        </ul>
+        <Suspense fallback={<LoadingList />}>
+          <NotificationList />
+        </Suspense>
 
         <p className="text-detail text-gray-500">알림은 한 달이 지나면 자동으로 사라져요!</p>
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>
+  );
+}
+
+function LoadingList() {
+  return (
+    <ul className="flex flex-col gap-3">
+      <li className="h-[4.3125rem] animate-pulse rounded-lg bg-gray-200" />
+      <li className="h-[4.3125rem] animate-pulse rounded-lg bg-gray-200" />
+      <li className="h-[4.3125rem] animate-pulse rounded-lg bg-gray-200" />
+      <li className="h-[4.3125rem] animate-pulse rounded-lg bg-gray-200" />
+      <li className="h-[4.3125rem] animate-pulse rounded-lg bg-gray-200" />
+    </ul>
+  );
+}
+
+function NotificationList() {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery({
+    queryKey: ['notifications'],
+    queryFn: ({ pageParam }) => requestGetNotifications({ nextCursor: pageParam }),
+    staleTime: 1000 * 60 * 10, // 10분
+    getNextPageParam({ data: { nextCursor } }) {
+      return nextCursor !== null ? nextCursor : undefined;
+    },
+    initialPageParam: -1,
+  });
+
+  const { mutate: readAllNotifications } = useMutation({
+    mutationKey: ['readAllNotifications'],
+    mutationFn: requestReadAllNotifications,
+  });
+
+  const { disconnect, startObserve } = useInfiniteObserver({
+    parentNodeId: 'notificationList',
+    onIntersection: fetchNextPage,
+  });
+
+  useEffect(() => {
+    startObserve();
+
+    readAllNotifications();
+
+    return () => disconnect();
+  }, []);
+
+  useEffect(() => {
+    !hasNextPage && disconnect();
+  }, [hasNextPage]);
+
+  const hasNoNotification = data.pages.at(0)?.data.notifications.length === 0;
+
+  return (
+    <ul id="notificationList" className="flex flex-col gap-3">
+      {hasNoNotification && <p className="text-gray-700">표시할 알림이 없습니다.</p>}
+      {data.pages.map((page) => page.data.notifications.map((notification) => <NotificationItem key={`noti-${notification.id}`} {...notification} />))}
+      {isFetchingNextPage && <SpinLoading />}
+    </ul>
   );
 }
 
@@ -134,10 +164,10 @@ function NotificationItem(notification: TNotification) {
         <p className="text-body">
           {isFeedReportedNotification(notification) && notiDatas[notification.type].getMessage(notification.reportCount)}
           {isFeedDeletedNotification(notification) && notiDatas[notification.type].getMessage()}
-          {isFAPSelectedNotification(notification) && notiDatas[notification.type].getMessage(notification.selectedDate)}
+          {isFAPSelectedNotification(notification) && notiDatas[notification.type].getMessage(format(notification.selectedDate, 'yyyy년 MM월'))}
           {isFAPDeletedNotification(notification) && notiDatas[notification.type].getMessage(notification.deletedFAPCount)}
         </p>
-        {<span className="text-detail text-gray-500">{getRelativeTimeLabel(notification.createdAt)}</span>}
+        {<span className="text-detail text-gray-500">{getRelativeTimeLabel(new Date(notification.createdAt))}</span>}
       </div>
 
       {isFeedReported && <MdChevronRight className="size-6 text-gray-500" />}

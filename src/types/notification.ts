@@ -3,9 +3,15 @@ import { IconType } from 'react-icons/lib';
 export type TNotificationType = 'FEED_REPORTED' | 'FEED_DELETED' | 'FAP_SELECTED' | 'FAP_DELETED';
 
 interface TNotificationBase {
+  id: number;
   type: TNotificationType;
   isRead: boolean;
   createdAt: Date;
+
+  feedId?: number;
+  reportCount?: number;
+  selectedDate?: Date;
+  deletedFAPCount?: number;
 }
 
 interface TNotificationFeedReported extends TNotificationBase {
@@ -20,7 +26,7 @@ interface TNotificationFeedDeleted extends TNotificationBase {
 
 interface TNotificationFAPSelected extends TNotificationBase {
   type: 'FAP_SELECTED';
-  selectedDate: string;
+  selectedDate: Date;
 }
 
 interface TNotificationFAPDeleted extends TNotificationBase {

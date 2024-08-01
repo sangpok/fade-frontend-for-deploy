@@ -42,7 +42,7 @@ function BookmarkFeeds({ userId }: { userId: number }) {
     queryKey: ['user', userId, 'bookmark'],
     queryFn: ({ pageParam }) => requestGetBookmarkFeeds({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
-      return nextCursor || undefined;
+      return nextCursor !== null ? nextCursor : undefined;
     },
     initialPageParam: -1,
   });

@@ -1,7 +1,6 @@
 import { BookmarkButton } from '@Components/BookmarkButton';
 import { ReportButton } from '@Components/ReportButton';
 import { SubscribeButton } from '@Components/SubscribeButton';
-import { Image } from '@Components/ui/image';
 import { useToastActions } from '@Hooks/toast';
 import { requestGetVoteCandidates, requestSendVoteResult } from '@Services/vote';
 import { SwipeDirection, useVotingStore } from '@Stores/vote';
@@ -314,8 +313,10 @@ function VoteCandidateCard({ feedId, imageURL, isCurrentCard }: VoteCandidateCar
       )}
 
       <motion.div style={{ opacity: computedOpacity }} className="absolute inset-0 grid place-items-center rounded-lg bg-purple-500">
-        {isLeftBoundary && <FadeOutCover />}
-        {isRightBoundary && <FadeInCover />}
+        <AnimatePresence>
+          {isLeftBoundary && <FadeOutCover />}
+          {isRightBoundary && <FadeInCover />}
+        </AnimatePresence>
       </motion.div>
 
       <DragController
@@ -329,11 +330,11 @@ function VoteCandidateCard({ feedId, imageURL, isCurrentCard }: VoteCandidateCar
 }
 
 function FadeOutCover() {
-  return <Image src={swipeFadeOutImage} className="h-[3.2725rem] w-[21.875rem]" />;
+  return <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} src={swipeFadeOutImage} className="h-[3.2725rem] w-[21.875rem]" />;
 }
 
 function FadeInCover() {
-  return <Image src={swipeFadeInImage} className="h-[3.2725rem] w-[16.7719rem]" />;
+  return <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} src={swipeFadeInImage} className="h-[3.2725rem] w-[16.7719rem]" />;
 }
 
 type DragControllerProps = {
@@ -357,8 +358,8 @@ function DragController({ x, onDragStart, onDragEnd, onDragOffBoundary }: DragCo
       dragTransition={{ bounceStiffness: 1000, bounceDamping: 50 }}
       onDragStart={onDragStart}
       onDrag={(_, { offset: { x } }) => {
-        const isLeftDirection = x < 0 && x < offsetBoundary * -1;
-        const isRightDirection = x > 0 && x > offsetBoundary;
+        const isLeftDirection = x < 0; // && x < offsetBoundary * -1;
+        const isRightDirection = x > 0; // && x > offsetBoundary;
         const hasNoDirection = !isLeftDirection && !isRightDirection;
 
         isLeftDirection && onDragOffBoundary('left');

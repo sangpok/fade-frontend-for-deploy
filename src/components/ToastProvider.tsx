@@ -8,14 +8,14 @@ export function ToastProvider() {
   const { closeToast } = useToastActions();
 
   return (
-    <RadixToast.Provider>
+    <RadixToast.Provider swipeDirection="down">
       <AnimatePresence mode="popLayout">
         {toasts.map((value) => (
           <Toast key={value.id} value={value} onClose={closeToast} />
         ))}
       </AnimatePresence>
 
-      <RadixToast.Viewport className="absolute bottom-0 left-0 flex w-full flex-col gap-3 px-5 py-[5.25rem]" />
+      <RadixToast.Viewport className="absolute bottom-[4rem] left-0 flex w-full flex-col gap-3 px-5 py-5" />
     </RadixToast.Provider>
   );
 }
