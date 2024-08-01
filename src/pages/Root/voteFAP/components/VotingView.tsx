@@ -17,6 +17,7 @@ import swipeFadeInImage from '@Assets/swipe_fade_in.png';
 import swipeFadeOutImage from '@Assets/swipe_fade_out.png';
 import voteFadeInImage from '@Assets/vote_fade_in.png';
 import voteFadeOutImage from '@Assets/vote_fade_out.png';
+import { format } from 'date-fns';
 
 const viewVariants: Variants = {
   initial: { opacity: 0 },
@@ -228,6 +229,7 @@ function AwaitedVotingView({ onVoteFinish }: { onVoteFinish: () => void }) {
   useLayoutEffect(() => {
     if (viewCards.length === 0) {
       !hasVotedToday && setHasVotedToday(true);
+      localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
 
       clearVotingProgress();
       onVoteFinish();

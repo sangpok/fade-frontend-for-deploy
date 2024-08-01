@@ -1,4 +1,5 @@
 import { useAuthActions } from '@Hooks/auth';
+import { clearAuthorizationHeader, setAuthorizationHeader } from '@Libs/axios';
 import { requestSignInWithCode } from '@Services/auth';
 import { LoaderResponseStatus } from '@Types/loaderResponse';
 import { isErrorWithData } from '@Types/serviceError';
@@ -33,6 +34,7 @@ export default function KakaoCallback() {
   useEffect(() => {
     /** 비정상적인 접근 */
     if (loaderResponse === null) {
+      clearAuthorizationHeader();
       return navigate('/', { replace: true });
     }
 
@@ -42,6 +44,7 @@ export default function KakaoCallback() {
     /** 기존 회원 로그인 */
     if (isValidAccess) {
       signIn(payload);
+      setAuthorizationHeader({ accessToken: payload.accessToken });
       return navigate('/', { replace: true });
     }
 

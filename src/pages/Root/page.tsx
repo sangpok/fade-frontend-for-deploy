@@ -1,6 +1,6 @@
 import { useAuthActions, useIsAuthenticated } from '@Hooks/auth';
 import { useToastActions } from '@Hooks/toast';
-import { setAuthorizationHeader } from '@Libs/axios';
+import { clearAuthorizationHeader, setAuthorizationHeader } from '@Libs/axios';
 import { requestRefreshToken } from '@Services/auth';
 import { LoaderResponseStatus } from '@Types/loaderResponse';
 import { clearSearchParams, createErrorLoaderResponse, createSuccessLoaderResponse, tryCatcher } from '@Utils/index';
@@ -30,6 +30,7 @@ export default function Page() {
       const { errorCode } = payload.result;
 
       if (errorCode === 'TOKEN_NOT_EXIST') {
+        clearAuthorizationHeader();
         return navigate('/login', { replace: true });
       }
 

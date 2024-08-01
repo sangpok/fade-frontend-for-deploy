@@ -1,5 +1,6 @@
 import { TVoteCandidateCard, TVoteResult } from '@Types/model';
 import { generateRandomId } from '@Utils/index';
+import { format } from 'date-fns';
 import { create } from 'zustand';
 
 export type SwipeDirection = 'left' | 'right';
@@ -31,7 +32,17 @@ export const useVotingStore = create<VotingState>((set, get) => ({
   cycleId: generateRandomId(),
   viewCards: [],
   voteResults: [],
-  hasVotedToday: false,
+  hasVotedToday: (() => {
+    const lastVotedAt = localStorage.getItem('FADE_LAST_VOTED_AT');
+
+    if (lastVotedAt === null) {
+      return false;
+    }
+
+    const votedToday = lastVotedAt === format(new Date(), 'yyyy-MM-dd');
+
+    return votedToday;
+  })(),
   isVotingInProgress: false,
   votingCountToday: 0,
   votingProgress: 1,
