@@ -42,14 +42,13 @@ export function AccountEditForm({ defaultUserDetails, onSubmited }: AccountEditF
     mode: 'onChange',
   });
 
+  const { profileImageId, username } = form.watch();
+  const isDirty = profileImageId !== -1 || username !== defaultUserDetails.username;
+
   const { isValid, errors } = form.formState;
-  const couldSubmit = isValid;
+  const couldSubmit = isValid && isDirty;
 
   function handleSubmitAfterValidation(values: AccountEditSchema) {
-    if (!form.formState.isDirty) {
-      return;
-    }
-
     startTransition(() => {
       updateUserDetails(values, {
         onSuccess() {
