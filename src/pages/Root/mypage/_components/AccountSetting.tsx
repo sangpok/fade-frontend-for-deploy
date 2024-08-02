@@ -1,9 +1,10 @@
 import { AccountEditForm } from '@Components/forms/account/AccountEditForm';
 import { BackButton } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
-import { axios } from '@Libs/axios';
+import { setAuthorizationHeader } from '@Libs/axios';
 import { queryClient } from '@Libs/queryclient';
 import { requestRefreshToken } from '@Services/auth';
+import { useAuthStore } from '@Stores/auth';
 import { DefaultModalProps } from '@Stores/modal';
 import { useMutation } from '@tanstack/react-query';
 import { TMyUserDetail } from '@Types/model';
@@ -11,16 +12,19 @@ import { TMyUserDetail } from '@Types/model';
 type AccountSettingProps = { details: TMyUserDetail };
 
 export function AccountSetting({ details: userDetails, onClose }: DefaultModalProps<void, AccountSettingProps>) {
+  const updateUserDetails = useAuthStore((state) => state.updateUserDetails);
+
   const { mutate: refreshToken } = useMutation({
     mutationKey: ['refreshToken'],
     mutationFn: requestRefreshToken,
   });
 
-  const handleSubmited = () => {
+  const handleSubmited = (value: Pick<TMyUserDetail, 'profileImageURL' | 'username'>) => {
     refreshToken(null as unknown as void, {
       onSuccess({ data: { accessToken } }) {
-        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        setAuthorizationHeader({ accessToken });
         queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'] });
+        updateUserDetails({ userDetails: { ...value } });
         onClose();
       },
     });

@@ -3,13 +3,15 @@ import { Avatar } from '@Components/ui/avatar';
 import { useConfirm, useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { requestGetMyDetails } from '@Services/member';
+import { useAuthStore } from '@Stores/auth';
 import { useQuery } from '@tanstack/react-query';
+import { TMyUserDetail } from '@Types/model';
+import { useEffect } from 'react';
 import { IconType } from 'react-icons/lib';
 import { MdBook, MdBookmark, MdHowToVote, MdPerson } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { AccountSetting } from './_components/AccountSetting';
 import { ServicePolicyDialog } from './_components/ServicePolicyDialog';
-import { TMyUserDetail } from '@Types/model';
 
 type MenuType = 'subpage' | 'dialog';
 
@@ -66,8 +68,9 @@ const mypageMenus: MyPageMenu[] = [
 
 export default function Page() {
   const { showModal } = useModalActions();
+  const updateUserDetails = useAuthStore((state) => state.updateUserDetails);
 
-  const { data } = useQuery({
+  const { data, isFetched } = useQuery({
     queryKey: ['user', 'me', 'detail'],
     queryFn: () => requestGetMyDetails(),
   });
@@ -75,6 +78,14 @@ export default function Page() {
   const navigate = useNavigate();
 
   useHeader({ title: '마이페이지', rightSlot: () => <ShowNotificationButton /> });
+
+  useEffect(() => {
+    if (!isFetched || !data) {
+      return;
+    }
+
+    updateUserDetails({ userDetails: { ...data.data } });
+  }, [isFetched]);
 
   const handleMenuClick = ({ path, type }: MyPageMenu) => {
     if (type === 'subpage') {

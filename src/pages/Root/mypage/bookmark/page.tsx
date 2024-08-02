@@ -2,6 +2,7 @@ import { FeedDetailDialog } from '@Components/FeedDetailDialog';
 import { SpinLoading } from '@Components/SpinLoading';
 import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
+import { Skeleton } from '@Components/ui/skeleton';
 import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
@@ -19,9 +20,22 @@ export default function Page() {
   });
 
   return (
-    <Suspense fallback={<SpinLoading />}>
+    <Suspense fallback={<BookmarkFeedsSkeleton />}>
       <BookmarkFeeds userId={0} />
     </Suspense>
+  );
+}
+
+function BookmarkFeedsSkeleton() {
+  return (
+    <Grid cols={3}>
+      <Skeleton className="aspect-[3/4] flex-1" />
+      <Skeleton className="aspect-[3/4] flex-1" />
+      <Skeleton className="aspect-[3/4] flex-1" />
+      <Skeleton className="aspect-[3/4] flex-1" />
+      <Skeleton className="aspect-[3/4] flex-1" />
+      <Skeleton className="aspect-[3/4] flex-1" />
+    </Grid>
   );
 }
 

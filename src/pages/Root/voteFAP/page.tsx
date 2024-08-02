@@ -8,6 +8,7 @@ import { MdInfoOutline } from 'react-icons/md';
 import { VoteController } from './components/VoteController';
 import { VotePolicyBottomSheet } from './components/VotePolicyBottomSheet';
 import { Button } from '@Components/ui/button';
+import { useAuthStore } from '@Stores/auth';
 
 export default function Page() {
   useHeader({
@@ -30,14 +31,19 @@ export default function Page() {
 }
 
 function VotingCounter() {
+  const username = useAuthStore((state) => state.user.username);
   const { hasVotedToday, votingCountToday, isVotingInProgress, votingProgress } = useVotingStore();
 
   const shouldVoteToday = !hasVotedToday && votingCountToday === 0;
 
   return (
     <div className="flex flex-row rounded-lg border border-gray-200 bg-white p-3 shadow-bento">
-      {shouldVoteToday && <p className="flex-1">FADE_1234님, 오늘의 투표를 진행해보세요!</p>}
-      {!shouldVoteToday && <p className="flex-1">FADE_1234님은 오늘 {votingCountToday}회 투표했어요!</p>}
+      {shouldVoteToday && <p className="flex-1">{username}님, 오늘의 투표를 진행해보세요!</p>}
+      {!shouldVoteToday && (
+        <p className="flex-1">
+          {username}님은 오늘 {votingCountToday}회 투표했어요!
+        </p>
+      )}
 
       <AnimatePresence>
         {isVotingInProgress && (

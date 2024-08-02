@@ -12,12 +12,16 @@ import { MdCancel, MdClose, MdSearch, MdWarning } from 'react-icons/md';
 import { VscLoading } from 'react-icons/vsc';
 import { useNavigate } from 'react-router-dom';
 
+/** TODO: localStorage Hook 만들어서 관리하기 */
+
 export function SearchAccountView({ onClose }: DefaultModalProps) {
   const navigate = useNavigate();
 
   const [targetUsername, setTargetUsername] = useState('');
   const [isDebouncePending, debouncedUsername] = useDebounce(targetUsername, 350);
   const [results, setResults] = useState<TMatchedUser[]>([]);
+
+  const [searchHistory, setSearchHistory] = useState<TMatchedUser[]>(JSON.parse(localStorage.getItem('FADE_SEARCH_HISTORY') || '[]') as TMatchedUser[]);
 
   const { data, isPending: isQueryPending } = useQuery({
     queryKey: ['search', 'user', debouncedUsername],
@@ -31,9 +35,39 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
     }
   }, [isQueryPending]);
 
-  const handleUserItemClicked = (userId: number) => {
-    navigate(`/user`, { state: { userId } });
+  const handleResultUserItemClick = (userDetail: TMatchedUser) => {
+    const hasAlreadyUser = searchHistory.find(({ id }) => id === userDetail.id);
+
+    if (hasAlreadyUser) {
+      localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.filter(({ id }) => id !== userDetail.id)]));
+    } else {
+      if (searchHistory.length > 4) {
+        localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.slice(0, -1)]));
+      } else {
+        localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory]));
+      }
+    }
+
+    navigate(`/user`, { state: { userId: userDetail.id } });
     onClose();
+  };
+
+  const handleHistoryUserItemClick = (userId: number) => {
+    const matchedItem = searchHistory.find(({ id }) => id === userId)!;
+    const newHistory: TMatchedUser[] = [matchedItem, ...searchHistory.filter(({ id }) => id !== userId)];
+
+    localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
+    setSearchHistory(newHistory);
+
+    navigate('/user', { state: { userId } });
+    onClose();
+  };
+
+  const handleHistoryUserItemDelete = (userId: number) => {
+    const newHistory: TMatchedUser[] = [...searchHistory.filter(({ id }) => id !== userId)];
+
+    localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
+    setSearchHistory(newHistory);
   };
 
   const isHistoryView = debouncedUsername === '';
@@ -61,13 +95,13 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
       <FlexibleLayout.Content>
         <AnimatePresence initial={false} mode="wait">
           {isHistoryView && (
-            <motion.div key={`search-history-view-${1}`} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }}>
-              <SearchHistoryList />
+            <motion.div key={`search-history-view`} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }}>
+              <SearchHistoryList searchHistory={searchHistory} onUserItemClick={handleHistoryUserItemClick} onUserItemDelete={handleHistoryUserItemDelete} />
             </motion.div>
           )}
           {isResultView && (
             <motion.div key={`search-result-view`} initial={{ opacity: 0, y: '12px' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '12px' }} className="h-full">
-              <SearchResultView matchedMembers={results} isPending={isQueryPending} onUserItemClicked={handleUserItemClicked} />
+              <SearchResultView matchedMembers={results} isPending={isQueryPending} onUserItemClicked={handleResultUserItemClick} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -123,8 +157,15 @@ function SearchInput({ value, isPending, onChange, onClear, onSubmit }: SearchIn
   );
 }
 
-function SearchHistoryList() {
-  const searchHistory = JSON.parse(localStorage.getItem('FADE_SEARCH_HISTORY') || '[]') as TMatchedUser[];
+interface TSearchHistoryList {
+  searchHistory: TMatchedUser[];
+  onUserItemClick: (userId: number) => void;
+  onUserItemDelete: (userId: number) => void;
+}
+
+type SearchHistoryListProps = TSearchHistoryList;
+
+function SearchHistoryList({ searchHistory, onUserItemClick, onUserItemDelete }: SearchHistoryListProps) {
   const hasSearchHistory = searchHistory.length !== 0;
 
   return (
@@ -133,14 +174,15 @@ function SearchHistoryList() {
 
       <ul>
         {!hasSearchHistory && <p className="pl-2 text-gray-700">최근 검색한 유저가 없습니다.</p>}
+
         {hasSearchHistory &&
           searchHistory.map((userDetail) => (
-            <li key={`search-histroy-${userDetail.username}`} className="flex flex-row items-center gap-3">
-              <UserItem {...userDetail} onClick={(userId) => console.log({ userId })} />
+            <li key={`search-histroy-${userDetail.id}`} className="flex flex-row items-center gap-3">
+              <UserItem {...userDetail} onClick={onUserItemClick} />
 
-              <button className="group cursor-pointer rounded-lg p-2 touchdevice:active:bg-gray-100 pointerdevice:hover:bg-gray-100">
-                <MdClose className="size-3 text-gray-500 transition-transform group-active:scale-95" />
-              </button>
+              <Button variants="ghost" size="icon" onClick={() => onUserItemDelete(userDetail.id)}>
+                <MdClose className="size-3 text-gray-500" />
+              </Button>
             </li>
           ))}
       </ul>
@@ -168,7 +210,7 @@ function UserItem({ id, profileImageURL, username, onClick }: UserItemPRops) {
 interface TSearchResultView {
   matchedMembers: TMatchedUser[];
   isPending: boolean;
-  onUserItemClicked: (userId: number) => void;
+  onUserItemClicked: (userDetail: TMatchedUser) => void;
 }
 
 type SearchResultViewProps = TSearchResultView;
@@ -185,7 +227,7 @@ function SearchResultView({ matchedMembers, isPending, onUserItemClicked }: Sear
         <ul>
           {matchedMembers.map((userDetail) => (
             <li key={`search-result-${userDetail.username}`} className="flex flex-row items-center gap-3">
-              <UserItem {...userDetail} onClick={onUserItemClicked} />
+              <UserItem {...userDetail} onClick={() => onUserItemClicked(userDetail)} />
             </li>
           ))}
         </ul>

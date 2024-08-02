@@ -32,9 +32,9 @@ export const Toast = forwardRef<ElementRef<typeof RadixToast.Root>, { value: Toa
           className={cn('flex w-full flex-row items-center justify-center gap-1 rounded-md px-4 py-3', {
             ['bg-black text-white']: isBasic || isSuccess,
             ['bg-pink-600 text-white']: isError,
-            ['bg-purple-700 text-white']: isWelcome,
+            ['bg-purple-500 text-white']: isWelcome,
           })}>
-          {isSuccess && <MdCheckCircleOutline className="size-6 text-purple-700" />}
+          {isSuccess && <MdCheckCircleOutline className="size-6 text-purple-500" />}
           {isError && <MdReport className="size-6" />}
 
           <div className="flex-1 pl-1">

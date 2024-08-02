@@ -14,6 +14,7 @@ import { Avatar } from './ui/avatar';
 import { Button } from './ui/button';
 import { Grid } from './ui/grid';
 import { Image } from './ui/image';
+import { UserDetailSkeletonUI, UserFeedsSkeletonUI } from './ProfileDetails.skeleton';
 
 export type ProfileViewType = 'owner' | 'user';
 
@@ -27,11 +28,11 @@ type ProfileDetailsProps = TProfileDetails;
 export function ProfileDetails({ viewType, userId }: ProfileDetailsProps) {
   return (
     <div>
-      <Suspense fallback={<SpinLoading />}>
+      <Suspense fallback={<UserDetailSkeletonUI />}>
         <UserDetail userId={userId} viewType={viewType} />
       </Suspense>
 
-      <Suspense fallback={<SpinLoading />}>
+      <Suspense fallback={<UserFeedsSkeletonUI />}>
         <UserFeeds userId={userId} />
       </Suspense>
     </div>

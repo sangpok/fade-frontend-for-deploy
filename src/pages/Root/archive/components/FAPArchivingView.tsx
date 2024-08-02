@@ -120,6 +120,9 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
   const daysInMonth = getDaysInMonth(calenderDate);
   const firstDayOfWeek = format(startOfDay(calenderDate), 'e');
 
+  const isThisMonth = calenderDate === format(new Date(), 'yyyy-MM');
+  const todayDay = new Date().getDate();
+
   const feeds = data?.feeds;
 
   return (
@@ -131,6 +134,8 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
             feeds={feeds}
             feed={feeds?.find((feed) => getDate(feed.fapSelectedAt) === index + 1)}
             day={index + 1}
+            todayDay={todayDay}
+            isThisMonth={isThisMonth}
             firstDayOfWeek={firstDayOfWeek}
           />
         ))}
@@ -144,12 +149,16 @@ interface TDayItem {
   feeds: TFAPArchivingFeed[] | undefined;
   feed: TFAPArchivingFeed | undefined;
   firstDayOfWeek: string;
+  todayDay: number;
+  isThisMonth: boolean;
 }
 
 type DayItemProps = TDayItem;
 
-function DayItem({ day, feed, feeds, firstDayOfWeek }: DayItemProps) {
+function DayItem({ day, feed, feeds, firstDayOfWeek, isThisMonth, todayDay }: DayItemProps) {
   const { showModal } = useModalActions();
+  const isTodayDay = isThisMonth && day == todayDay;
+  const isOverTodayDay = isThisMonth && day > todayDay;
 
   const handleClick = async () => {
     if (!feed) {
@@ -168,8 +177,20 @@ function DayItem({ day, feed, feeds, firstDayOfWeek }: DayItemProps) {
       className="flex h-full w-full flex-col"
       style={{ gridColumnStart: day === 1 ? firstDayOfWeek : undefined }}
       onClick={handleClick}>
-      <span className="ml-1">{day}</span>
-      <div className={cn('group h-full w-full overflow-hidden rounded-lg bg-gray-200', { ['cursor-pointer']: !!feed, ['animate-pulse']: !feeds })}>
+      <span
+        className={cn('relative ml-1 w-fit', {
+          ['text-white']: isTodayDay,
+          ['text-gray-400']: isOverTodayDay,
+        })}>
+        {isTodayDay && <div className="absolute left-1/2 top-1/2 -z-10 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500" />}
+        {day}
+      </span>
+      <div
+        className={cn('group h-full w-full overflow-hidden rounded-lg bg-gray-200', {
+          ['cursor-pointer']: !!feed,
+          ['animate-pulse']: !feeds,
+          ['bg-gray-50']: isTodayDay || !isTodayDay,
+        })}>
         {feed && <Image src={feed.imageURL} className="transition-transform group-hover:scale-105" />}
       </div>
     </motion.div>

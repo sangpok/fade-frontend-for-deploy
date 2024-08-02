@@ -133,7 +133,13 @@ export const createVoteCandidateDTODummies = (count: number): TVoteCandidateDTO[
 export const createFAPArchivingFeedDTODummies = (baseDate: Date): TFAPArchivingFeedDTO[] => {
   const year = baseDate.getFullYear();
   const month = baseDate.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let daysInMonth = 0;
+
+  if (year === new Date().getFullYear() && month === new Date().getMonth()) {
+    daysInMonth = new Date().getDate() - 1;
+  } else {
+    daysInMonth = new Date(year, month + 1, 0).getDate();
+  }
 
   const dummies: TFAPArchivingFeedDTO[] = [];
   for (let day = 1; day <= daysInMonth; day++) {

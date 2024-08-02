@@ -1,7 +1,7 @@
 import { FeedDetailCard } from '@Components/FeedDetailCard';
 import { ShowNotificationButton } from '@Components/ShowNotificationButton';
-import { SpinLoading } from '@Components/SpinLoading';
 import { Avatar } from '@Components/ui/avatar';
+import { Skeleton } from '@Components/ui/skeleton';
 import { useHeader } from '@Hooks/useHeader';
 import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
 import { requestGetSubscribeFeeds } from '@Services/feed';
@@ -15,18 +15,39 @@ import { MdChevronRight } from 'react-icons/md';
 import { VscLoading } from 'react-icons/vsc';
 import { useNavigate } from 'react-router-dom';
 
+function SubscriberListSkeleton() {
+  return (
+    <div className="flex flex-row gap-3 p-4">
+      <Skeleton className="h-[3.125rem] flex-1" />
+      <Skeleton className="h-[3.125rem] flex-1" />
+      <Skeleton className="h-[3.125rem] flex-1" />
+      <Skeleton className="h-[3.125rem] flex-1" />
+      <Skeleton className="h-[3.125rem] flex-1" />
+    </div>
+  );
+}
+
+function SubscribeFeedListSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col gap-4 p-5">
+      <Skeleton className="h-6 w-1/3" />
+      <Skeleton className="flex-1" />
+    </div>
+  );
+}
+
 export default function Page() {
   useHeader({ title: '구독', rightSlot: () => <ShowNotificationButton /> });
 
   return (
     <div className="relative flex h-full flex-col">
-      <div className="relative h-fit w-full px-5 py-4">
-        <Suspense fallback={<SpinLoading />}>
+      <Suspense fallback={<SubscriberListSkeleton />}>
+        <div className="relative h-fit w-full px-5 py-4">
           <SubscriberList />
-        </Suspense>
-      </div>
+        </div>
+      </Suspense>
 
-      <Suspense fallback={<SpinLoading />}>
+      <Suspense fallback={<SubscribeFeedListSkeleton />}>
         <SubscribeFeedList />
       </Suspense>
     </div>

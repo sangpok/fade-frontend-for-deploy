@@ -3,7 +3,7 @@ import { useToastActions } from '@Hooks/toast';
 import { clearAuthorizationHeader, setAuthorizationHeader } from '@Libs/axios';
 import { requestRefreshToken } from '@Services/auth';
 import { LoaderResponseStatus } from '@Types/loaderResponse';
-import { clearSearchParams, createErrorLoaderResponse, createSuccessLoaderResponse, tryCatcher } from '@Utils/index';
+import { clearSearchParams, createErrorLoaderResponse, createSuccessLoaderResponse, getPayloadFromJWT, tryCatcher } from '@Utils/index';
 import { useEffect } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 
@@ -44,10 +44,12 @@ export default function Page() {
       signIn(payload!);
       clearSearchParams();
       setAuthorizationHeader({ accessToken: payload.accessToken });
+
+      const { username } = getPayloadFromJWT(payload.accessToken);
+      showToast({ type: 'welcome', title: `${username}님, 환영합니다!` });
     }
 
     navigate('/vote-fap');
-    showToast({ type: 'welcome', title: `환영환영` });
   }, []);
 
   return <></>;
