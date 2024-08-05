@@ -1,16 +1,13 @@
-import { cn, prefetchImages } from '@Utils/index';
+import { Image } from '@Components/ui/image';
+import { cn } from '@Utils/index';
 import { motion } from 'framer-motion';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import onboardingImage1 from '@Assets/onboarding_image_1.jpg';
-import onboardingImage2 from '@Assets/onboarding_image_2.jpg';
-import onboardingImage3 from '@Assets/onboarding_image_3.jpg';
+const onboardingImage1 = '/assets/onboarding_image1.png';
+const onboardingImage2 = '/assets/onboarding_image2.png';
+const onboardingImage3 = '/assets/onboarding_image3.png';
 
 const onboardingImages = [onboardingImage1, onboardingImage2, onboardingImage3];
-
-const prefetchOnboardingImages = async () => {
-  prefetchImages(onboardingImages);
-};
 
 export function Carousel() {
   const [currentImageId, setCurrentImageId] = useState(0);
@@ -27,10 +24,6 @@ export function Carousel() {
     setTimerId(createTimer());
   };
 
-  useLayoutEffect(() => {
-    prefetchOnboardingImages();
-  }, []);
-
   useEffect(() => {
     return () => clearInterval(timerId);
   }, []);
@@ -42,7 +35,7 @@ export function Carousel() {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2">
-      <div className="relative aspect-[3/4] h-full rounded-lg shadow-bento">
+      <div className="relative aspect-[3/4] h-full overflow-hidden rounded-lg shadow-bento">
         <DissolveImages currentImageId={currentImageId} />
       </div>
 
@@ -53,13 +46,9 @@ export function Carousel() {
 
 function DissolveImages({ currentImageId }: { currentImageId: number }) {
   return onboardingImages.map((image, index) => (
-    <motion.div
-      key={image}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: index === currentImageId ? 1 : 0 }}
-      style={{ backgroundImage: `url('${image}')` }}
-      className={`absolute inset-0 bg-contain bg-center bg-no-repeat`}
-    />
+    <motion.div key={image} initial={{ opacity: 0 }} animate={{ opacity: index === currentImageId ? 1 : 0 }} className={`absolute inset-0`}>
+      <Image src={image} local />
+    </motion.div>
   ));
 }
 

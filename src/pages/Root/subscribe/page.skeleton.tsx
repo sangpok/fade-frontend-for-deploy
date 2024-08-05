@@ -1,6 +1,9 @@
 import { Skeleton } from '@Components/ui/skeleton';
+import { useHeader } from '@Hooks/useHeader';
 
 export default function Page() {
+  useHeader({ title: '구독' });
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-row gap-3 p-4">

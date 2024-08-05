@@ -23,7 +23,7 @@ export interface TUserDetail {
 }
 
 export interface TMyUserDetail extends TUserDetail {
-  fapSelectedCount: number;
+  selectedFAPCount: number;
   genderType: GenderType;
   subscribedCount: number;
   introduceContent: string;
@@ -46,7 +46,7 @@ export interface TMatchedUser extends Pick<TUserDetail, 'id' | 'username' | 'pro
 
 export interface AuthTokens {
   accessToken: string;
-  csrfToken?: string; // 보류
+  refreshToken: string;
 }
 
 /**
@@ -155,7 +155,7 @@ export interface TMyFeedDTO extends TFeedDetailBaseDTO, TFeedAdittionalDetail {
   isSubscribed: false;
 }
 
-interface TMyFeed extends Omit<TMyFeedDTO, 'styleIds'> {
+export interface TMyFeed extends Omit<TMyFeedDTO, 'styleIds'> {
   styleIds: number[];
 }
 

@@ -7,10 +7,11 @@ import { requestFAPArchiving } from '@Services/feed';
 import { useQuery } from '@tanstack/react-query';
 import { TFAPArchivingFeed } from '@Types/model';
 import { cn, isBetweenDate } from '@Utils/index';
-import { addMonths, format, getDate, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subMonths } from 'date-fns';
+import { addMonths, format, getDate, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subDays, subMonths } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
+import { LastFAPModal, LastFAPModalProps } from './LastFAPModal';
 
 const MIN_DATE = new Date('2024-01-01');
 const MAX_DATE = new Date();
@@ -111,7 +112,8 @@ interface TFAPFeeds {
 type FAPFeedsProps = TFAPFeeds;
 
 function FAPFeeds({ calenderDate }: FAPFeedsProps) {
-  const { data } = useQuery({
+  const { showModal } = useModalActions();
+  const { data, isFetched } = useQuery({
     queryKey: ['archiving', 'fap', calenderDate],
     queryFn: () => requestFAPArchiving({ selectedDate: calenderDate }),
   });
@@ -124,6 +126,37 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
   const todayDay = new Date().getDate();
 
   const feeds = data?.feeds;
+
+  useEffect(() => {
+    if (!isFetched || !feeds) {
+      return;
+    }
+
+    if (feeds.length === 0) {
+      return;
+    }
+
+    const savedLastFAPDate = localStorage.getItem('FADE_LAST_FAP_DATE');
+    const lastFAPDate = format(feeds.at(-1)!.fapSelectedAt, 'yyyy-MM-dd');
+
+    if (savedLastFAPDate === lastFAPDate) {
+      return;
+    }
+
+    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+
+    if (lastFAPDate !== yesterday) {
+      return;
+    }
+
+    showModal({
+      type: 'component',
+      Component: LastFAPModal,
+      props: { feed: feeds.at(-1)! } as LastFAPModalProps,
+    });
+
+    localStorage.setItem('FADE_LAST_FAP_DATE', yesterday);
+  }, [isFetched]);
 
   return (
     <Grid cols={7} rows={weeksInMonth} className="flex-1">

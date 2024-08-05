@@ -12,11 +12,12 @@ import { AuthTokens } from '@Types/model';
  * 때문에 서비스 로직 내 함수는 axios를 호출하기만 합니다.
  */
 
+type RefreshTokenPayload = { refreshToken?: AuthTokens['refreshToken'] | null };
 type RefreshTokenResponse = AuthTokens;
 
 /** RefreshToken으로 AccessToken을 요청 */
-export async function requestRefreshToken() {
-  return await axios.post<RefreshTokenResponse>('/auth/token');
+export async function requestRefreshToken({ refreshToken }: RefreshTokenPayload) {
+  return await axios.post<RefreshTokenResponse>('/auth/token', { refreshToken });
 }
 
 export const enum SignUpType {

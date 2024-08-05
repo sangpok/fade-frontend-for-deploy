@@ -22,19 +22,15 @@ export default function Page() {
     queryKey: ['subscribe', 'subscribers'],
     queryFn: ({ pageParam }) => requestGetSubscribers({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
-      return nextCursor || undefined;
+      return nextCursor !== null ? nextCursor : undefined;
     },
     initialPageParam: -1,
   });
 
-  const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
+  const { disconnect: disconnectObserver } = useInfiniteObserver({
     parentNodeId: 'subscriberList',
     onIntersection: fetchNextPage,
   });
-
-  useEffect(() => {
-    resetObserve();
-  }, [isPending, isFetchingNextPage]);
 
   useEffect(() => {
     !hasNextPage && disconnectObserver();

@@ -71,20 +71,16 @@ function SubscribeFeedList() {
     queryKey: ['subscribe', 'list'],
     queryFn: ({ pageParam }) => requestGetSubscribeFeeds({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
-      return nextCursor || undefined;
+      return nextCursor !== null ? nextCursor : undefined;
     },
     initialPageParam: -1,
   });
 
   useEffect(() => {
-    if (!isPending) {
-      resetObserve();
-    }
-
     setLeftSlot(() => isFetchingNextPage && <VscLoading className="size-6 animate-spin" />);
   }, [isPending, isFetchingNextPage]);
 
-  const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
+  const { disconnect: disconnectObserver } = useInfiniteObserver({
     parentNodeId: 'feedList',
     onIntersection: fetchNextPage,
   });
@@ -110,7 +106,7 @@ export function SubscriberList() {
     queryKey: ['subscribe', 'subscribers'],
     queryFn: ({ pageParam }) => requestGetSubscribers({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
-      return nextCursor || undefined;
+      return nextCursor !== null ? nextCursor : undefined;
     },
     initialPageParam: -1,
   });

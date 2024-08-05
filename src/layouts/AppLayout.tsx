@@ -1,17 +1,27 @@
 import { Header } from '@Components/Header';
 import LockUI from '@Components/LockUI';
 import { NavBar } from '@Components/NavBar';
-import { ToastProvider } from '@Components/ToastProvider';
+import { useAuthActions, useIsAuthenticated } from '@Hooks/auth';
+import { useAuthStore } from '@Stores/auth';
 import { useVotingStore } from '@Stores/vote';
-import { Outlet, useLocation } from 'react-router-dom';
+import { differenceInMinutes } from 'date-fns';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FlexibleLayout } from './FlexibleLayout';
 
 export default function AppLayout() {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { doRefreshToken } = useAuthActions();
+  const isAuthenticated = useIsAuthenticated();
+  const exp = useAuthStore((state) => (state.exp || 0) * 1000);
+  const lastExpireMinutes = exp ? differenceInMinutes(exp, new Date()) : 999;
 
-  const hasVotedToday = useVotingStore((state) => state.hasVotedToday);
-  const isVoteFAPPath = location.pathname === '/vote-fap';
-  const shouldShowLockUI = !hasVotedToday && !isVoteFAPPath;
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (lastExpireMinutes < 10) {
+    doRefreshToken().then((isRefreshed) => !isRefreshed && navigate('/login'));
+  }
 
   return (
     <FlexibleLayout.Root className="w-full flex-1">
@@ -20,15 +30,27 @@ export default function AppLayout() {
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content>
-        {shouldShowLockUI && <LockUI />}
-        {!shouldShowLockUI && <Outlet />}
-
-        <ToastProvider />
+        <ServiceFeatureLockHandler />
       </FlexibleLayout.Content>
 
       <FlexibleLayout.Footer>
-        <NavBar hasVotedToday={hasVotedToday} isVoteFAPPath={isVoteFAPPath} />
+        <NavBar />
       </FlexibleLayout.Footer>
     </FlexibleLayout.Root>
+  );
+}
+
+function ServiceFeatureLockHandler() {
+  const location = useLocation();
+
+  const hasVotedToday = useVotingStore((state) => state.hasVotedToday);
+  const isCurrentVoteFAPPath = location.pathname === '/vote-fap';
+  const shouldShowLockUI = !hasVotedToday && !isCurrentVoteFAPPath;
+
+  return (
+    <>
+      {shouldShowLockUI && <LockUI />}
+      {!shouldShowLockUI && <Outlet />}
+    </>
   );
 }

@@ -1,10 +1,10 @@
-import fadeInImage from '@Assets/vote_fade_in.png';
 import { FeedDetailDialog } from '@Components/FeedDetailDialog';
 import { SpinLoading } from '@Components/SpinLoading';
 import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
 import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
+import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
 import { requestGetVoteHistory } from '@Services/vote';
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { TVoteHistoryFeed } from '@Types/model';
@@ -64,7 +64,7 @@ function VoteHistoryOnlyDownView({ selectedDateLabel, isFadeInMode }: VoteHistor
       return requestGetVoteHistory({ nextCursor, scrollType: '0' });
     },
     initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursorToDownScroll || undefined,
+    getNextPageParam: (lastPage) => (lastPage.nextCursorToDownScroll !== null ? lastPage.nextCursorToDownScroll : undefined),
   });
 
   const voteHistoryFeeds = ([] as TVoteHistoryFeed[]).concat(...data.pages.map((page) => page.feeds));
@@ -72,16 +72,10 @@ function VoteHistoryOnlyDownView({ selectedDateLabel, isFadeInMode }: VoteHistor
 
   const hasNoVoteHistory = !hasNextPage && !hasPreviousPage && !isPending && data && data.pages.at(0)?.feeds.length === 0;
 
-  const lastChildObserver = useRef(new IntersectionObserver(([{ isIntersecting }]) => isIntersecting && fetchNextPage(), { threshold: 0.1 }));
-  const lastChildRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!lastChildRef.current) {
-      return;
-    }
-    lastChildObserver.current.observe(lastChildRef.current!);
-    return () => lastChildObserver.current.disconnect();
-  }, [lastChildRef.current]);
+  useInfiniteObserver({
+    parentNodeId: 'feedList',
+    onIntersection: fetchNextPage,
+  });
 
   if (hasNoVoteHistory) {
     return (
@@ -101,7 +95,6 @@ function VoteHistoryOnlyDownView({ selectedDateLabel, isFadeInMode }: VoteHistor
           .map(([votedAt, feeds]) => (
             <VoteHistoryItem key={`history-item-${0}-${votedAt}`} votedAt={votedAt} feeds={feeds} isFadeInMode={isFadeInMode} />
           ))}
-        {hasNextPage && <div ref={lastChildRef} className="mt-0" />}
         {isFetchingNextPage && <SpinLoading />}
       </div>
 
@@ -278,7 +271,7 @@ function FadeInModeToggleButton({ isFadeInMode, onToggle }: { isFadeInMode: bool
       })}
       onClick={() => onToggle()}>
       <motion.div layout className="rounded-3xl bg-white px-3 py-2">
-        <Image src={fadeInImage} className="h-[.75rem] w-[3.875rem]" />
+        <Image src={'/assets/fade_in_btn.png'} className="h-[.75rem] w-[3.875rem]" local />
       </motion.div>
     </button>
   );

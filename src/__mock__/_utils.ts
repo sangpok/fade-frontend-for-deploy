@@ -1,13 +1,13 @@
-import testFashionImage1 from '@Assets/test_fashion_image.jpg';
-import testFashionImage10 from '@Assets/test_fashion_image_10.jpg';
-import testFashionImage2 from '@Assets/test_fashion_image_2.jpg';
-import testFashionImage3 from '@Assets/test_fashion_image_3.jpg';
-import testFashionImage4 from '@Assets/test_fashion_image_4.jpg';
-import testFashionImage5 from '@Assets/test_fashion_image_5.webp';
-import testFashionImage6 from '@Assets/test_fashion_image_6.jpg';
-import testFashionImage7 from '@Assets/test_fashion_image_7.jpg';
-import testFashionImage8 from '@Assets/test_fashion_image_8.jpg';
-import testFashionImage9 from '@Assets/test_fashion_image_9.jpg';
+const testFashionImage1 = '/assets/test_fashion_image.jpg';
+const testFashionImage10 = '/assets/test_fashion_image_10.jpg';
+const testFashionImage2 = '/assets/test_fashion_image_2.jpg';
+const testFashionImage3 = '/assets/test_fashion_image_3.jpg';
+const testFashionImage4 = '/assets/test_fashion_image_4.jpg';
+const testFashionImage5 = '/assets/test_fashion_image_5.webp';
+const testFashionImage6 = '/assets/test_fashion_image_6.jpg';
+const testFashionImage7 = '/assets/test_fashion_image_7.jpg';
+const testFashionImage8 = '/assets/test_fashion_image_8.jpg';
+const testFashionImage9 = '/assets/test_fashion_image_9.jpg';
 
 const testFahsionImages = [
   testFashionImage1,
@@ -50,7 +50,7 @@ const getRandomNotificationType = (): TNotificationType => getRandomElement(['FE
 
 const getRandomDate = (start: Date, end: Date) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
-function encodeJWT(payload: TMyUserDetail, secret: string, exp: Date) {
+function encodeJWT(payload: TMyUserDetail, secret: string, exp: number) {
   const header = {
     alg: 'HS256',
     typ: 'JWT',
@@ -59,14 +59,14 @@ function encodeJWT(payload: TMyUserDetail, secret: string, exp: Date) {
   const { introduceContent, ...source } = payload;
 
   const encodedHeader = btoa(JSON.stringify(header)).replace(/=+$/, '');
-  const encodedPayload = btoa(JSON.stringify({ ...source, iat: new Date().toUTCString(), exp })).replace(/=+$/, '');
+  const encodedPayload = btoa(JSON.stringify({ ...source, iat: Number(new Date()) / 1000, exp })).replace(/=+$/, '');
 
   const signature = btoa(secret).replace(/=+$/, '');
 
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
 
-const createJWT = (userData: TMyUserDetail, expiresIn: Date) => encodeJWT(userData, 'JWT_SECRET', expiresIn);
+const createJWT = (userData: TMyUserDetail, expiresIn: Date) => encodeJWT(userData, 'JWT_SECRET', Number(expiresIn) / 1000);
 
 export const createAccessToken = (userData: TMyUserDetail) => createJWT(userData, addHours(new Date(), 1));
 export const createRefreshToken = (userData: TMyUserDetail) => createJWT(userData, addDays(new Date(), 14));
@@ -244,7 +244,7 @@ export const createMyUserDetailDummies = (count: number): TMyUserDetail[] =>
     genderType: getRandomGender(),
     subscribedCount: getRandomInt(0, 1000),
     introduceContent: `안녕하세요. ${getRandomUsername()}입니다. 패션에 관심이 많습니다.`,
-    fapSelectedCount: getRandomInt(0, 50),
+    selectedFAPCount: getRandomInt(0, 50),
   }));
 
 // TFeedUserDetail 더미 데이터 생성 함수

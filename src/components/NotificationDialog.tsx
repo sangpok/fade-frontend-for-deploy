@@ -1,7 +1,7 @@
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { requestGetNotifications, requestReadAllNotifications } from '@Services/notification';
 import { DefaultModalProps } from '@Stores/modal';
-import { InfiniteData, useMutation, useSuspenseInfiniteQuery } from '@tanstack/react-query';
+import { InfiniteData, useMutation, useQuery, useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import {
   isFAPDeletedNotification,
   isFAPSelectedNotification,
@@ -21,6 +21,9 @@ import { SpinLoading } from './SpinLoading';
 import { queryClient } from '@Libs/queryclient';
 import { AxiosResponse } from 'axios';
 import { InfiniteResponse } from '@Types/response';
+import { useModalActions } from '@Hooks/modal';
+import { FeedDetailDialog } from './FeedDetailDialog';
+import { requestGetFeedDetails } from '@Services/feed';
 
 type CachedTNotificationsType = InfiniteData<AxiosResponse<InfiniteResponse<{ notifications: TNotification[] }>>>;
 
@@ -95,16 +98,13 @@ function NotificationList() {
     mutationFn: requestReadAllNotifications,
   });
 
-  const { disconnect, startObserve } = useInfiniteObserver({
+  const { disconnect } = useInfiniteObserver({
     parentNodeId: 'notificationList',
     onIntersection: fetchNextPage,
   });
 
   useEffect(() => {
-    startObserve();
-
     readAllNotifications();
-
     return () => disconnect();
   }, []);
 
@@ -149,15 +149,29 @@ const notiDatas: NotificationDataMap = {
 function NotificationItem(notification: TNotification) {
   const { type, isRead } = notification;
   const { IconComponent, iconColor } = notiDatas[type];
+  const { showModal } = useModalActions();
 
   const isFeedReported = type === 'FEED_REPORTED';
+
+  const { data } = useQuery({
+    queryKey: ['feed', 'detail', notification.feedId],
+    queryFn: () => requestGetFeedDetails({ feedId: notification.feedId! }),
+    enabled: isFeedReported,
+  });
+
+  const handleClick = async () => {
+    if (isFeedReported) {
+      await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: FeedDetailDialog, props: { feeds: [data] } });
+    }
+  };
 
   return (
     <li
       className={cn('flex flex-row items-center gap-3 rounded-lg bg-white px-5 py-3', {
         ['bg-purple-50']: !isRead,
         ['cursor-pointer']: isFeedReported,
-      })}>
+      })}
+      onClick={handleClick}>
       {}
       <IconComponent className={`size-6 ${iconColor}`} />
       <div className="flex flex-1 flex-col">

@@ -1,5 +1,6 @@
 import { Button } from '@Components/ui/button';
 import { useToastActions } from '@Hooks/toast';
+import { queryClient } from '@Libs/queryclient';
 import { requestBookmarkFeed } from '@Services/feed';
 import { useMutation } from '@tanstack/react-query';
 import { cn } from '@Utils/index';
@@ -11,11 +12,12 @@ interface TBookmarkButton {
   feedId: number;
   defaultBookmarkStatus: boolean;
   size?: 'default' | 'lg';
+  shadow?: boolean;
 }
 
 type BookmarkButtonProps = TBookmarkButton;
 
-export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default' }: BookmarkButtonProps) {
+export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default', shadow = false }: BookmarkButtonProps) {
   const [isBookmarked, setIsBookmarked] = useState(defaultBookmarkStatus);
   const { showToast } = useToastActions();
 
@@ -37,6 +39,9 @@ export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default'
         wouldBookmark: !defaultBookmarkStatus,
       },
       {
+        onSuccess() {
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'bookmark'] });
+        },
         onError() {
           setIsBookmarked((prev) => !prev);
           showToast({ type: 'error', title: '북마크에 실패했어요.' });
@@ -52,6 +57,7 @@ export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default'
       className={cn({
         ['bg-purple-500']: isBookmarked,
         ['border border-gray-100 py-1']: size === 'default',
+        ['shadow-bento']: shadow,
       })}
       disabled={isPending}
       onClick={handleClick}>

@@ -45,7 +45,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={props.disabled || false}
         {...props}>
         <span
-          className={cn('inline-block transition-transform', {
+          className={cn('flex h-full w-full items-center justify-center transition-transform', {
             [`group-aria-[disabled='false']:touchdevice:group-active:scale-90 group-aria-[disabled='false']:pointerdevice:group-active:scale-90`]:
               interactive === 'default' || interactive === 'onlyScale',
           })}>

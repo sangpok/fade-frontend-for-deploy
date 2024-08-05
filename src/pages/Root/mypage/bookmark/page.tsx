@@ -21,7 +21,7 @@ export default function Page() {
 
   return (
     <Suspense fallback={<BookmarkFeedsSkeleton />}>
-      <BookmarkFeeds userId={0} />
+      <BookmarkFeeds />
     </Suspense>
   );
 }
@@ -51,9 +51,9 @@ function BackButton() {
   );
 }
 
-function BookmarkFeeds({ userId }: { userId: number }) {
+function BookmarkFeeds() {
   const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery({
-    queryKey: ['user', userId, 'bookmark'],
+    queryKey: ['user', 'me', 'bookmark'],
     queryFn: ({ pageParam }) => requestGetBookmarkFeeds({ nextCursor: pageParam }),
     getNextPageParam({ nextCursor }) {
       return nextCursor !== null ? nextCursor : undefined;
@@ -61,14 +61,10 @@ function BookmarkFeeds({ userId }: { userId: number }) {
     initialPageParam: -1,
   });
 
-  const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
+  const { disconnect: disconnectObserver } = useInfiniteObserver({
     parentNodeId: 'feedList',
     onIntersection: fetchNextPage,
   });
-
-  useEffect(() => {
-    resetObserve();
-  }, [isPending, isFetchingNextPage]);
 
   useEffect(() => {
     !hasNextPage && disconnectObserver();

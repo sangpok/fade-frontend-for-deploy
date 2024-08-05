@@ -4,15 +4,14 @@ import { BackButton, Button } from '@Components/ui/button';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { DefaultModalProps } from '@Stores/modal';
 import { GenderType } from '@Types/model';
-import { OutfitStyle } from '@Types/outfitStyle';
 import { PropsWithChildren, useState } from 'react';
 
-export type FilterType = { gender: GenderType | null; selectedStyles: OutfitStyle[] };
+export type FilterType = { gender: GenderType | null; selectedStyles: number[] };
 export type SelectFilterDialogProps = { defaultFilter: FilterType };
 
 export function SelectFilterDialog({ defaultFilter, onClose }: DefaultModalProps<FilterType, SelectFilterDialogProps>) {
   const [selectedGender, setSelectedGender] = useState<FilterType['gender']>(defaultFilter.gender);
-  const [selectedStyles, setSelectedStyles] = useState<OutfitStyle[]>(defaultFilter.selectedStyles);
+  const [selectedStyles, setSelectedStyles] = useState<number[]>(defaultFilter.selectedStyles);
 
   const clearSelectedFilter = () => {
     setSelectedGender(null);

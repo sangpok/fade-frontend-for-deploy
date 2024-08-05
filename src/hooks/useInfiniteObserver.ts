@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 interface TUseInfiniteObserver {
   parentNodeId: string;
@@ -8,57 +8,47 @@ interface TUseInfiniteObserver {
 
 type UseInfiniteObserverProps = TUseInfiniteObserver;
 
-export function useInfiniteObserver({ parentNodeId, targetMode, onIntersection }: UseInfiniteObserverProps) {
-  const intersectionObserver = useMemo(
-    () =>
-      new IntersectionObserver(
-        ([intersection]) => {
-          const { isIntersecting } = intersection;
-          isIntersecting && onIntersection();
-        },
-        { threshold: 0.1 }
-      ),
-    [parentNodeId]
+export function useInfiniteObserver({ parentNodeId, targetMode = 'lastChild', onIntersection }: UseInfiniteObserverProps) {
+  const intersectionObserver = useRef(new IntersectionObserver(([{ isIntersecting }]) => isIntersecting && onIntersection(), { threshold: 0.1 }));
+
+  const mutationObserver = useRef(
+    new MutationObserver((mutations) => {
+      intersectionObserver.current.disconnect();
+
+      const {
+        addedNodes: [targetNode],
+      } = mutations.at(targetMode === 'lastChild' ? -1 : 0)!;
+
+      intersectionObserver.current.observe(targetNode as Element);
+    })
   );
 
-  const mutationObserver = useMemo(
-    () =>
-      new MutationObserver((mutations) => {
-        intersectionObserver.disconnect();
-
-        const [targetNode] = targetMode === 'lastChild' ? mutations.pop()!.addedNodes : mutations.at(0)!.addedNodes;
-        intersectionObserver.observe(targetNode as Element);
-      }),
-    [parentNodeId]
-  );
-
-  const startObserve = () => {
+  const startObserve = useCallback(() => {
     const targetParentNode = document.getElementById(parentNodeId);
 
     if (targetParentNode === null) {
       return;
     }
 
-    mutationObserver.observe(targetParentNode!, { childList: true });
+    mutationObserver.current.observe(targetParentNode, { childList: true });
 
-    if (targetMode === 'lastChild') {
-      intersectionObserver.observe(targetParentNode!.lastElementChild || targetParentNode!);
-    }
+    targetMode === 'lastChild' && intersectionObserver.current.observe(targetParentNode.lastElementChild || targetParentNode);
+    targetMode === 'firstChild' && intersectionObserver.current.observe(targetParentNode.firstElementChild || targetParentNode);
+  }, [parentNodeId]);
 
-    if (targetMode === 'firstChild') {
-      intersectionObserver.observe(targetParentNode!.firstElementChild || targetParentNode!);
-    }
-  };
+  useLayoutEffect(() => {
+    startObserve();
+  }, [parentNodeId]);
 
-  const disconnect = () => {
-    mutationObserver.disconnect();
-    intersectionObserver.disconnect();
-  };
+  const disconnect = useCallback(() => {
+    mutationObserver.current.disconnect();
+    intersectionObserver.current.disconnect();
+  }, []);
 
-  const resetObserve = () => {
+  const resetObserve = useCallback(() => {
     disconnect();
     startObserve();
-  };
+  }, []);
 
   useEffect(() => {
     return () => disconnect();

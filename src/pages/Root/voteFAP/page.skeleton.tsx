@@ -1,7 +1,10 @@
 import { Skeleton } from '@Components/ui/skeleton';
+import { useHeader } from '@Hooks/useHeader';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 
 export default function Page() {
+  useHeader({ title: 'FA:P 투표' });
+
   return (
     <FlexibleLayout.Root className="gap-3 p-5">
       <FlexibleLayout.Header>

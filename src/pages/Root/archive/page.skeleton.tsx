@@ -1,6 +1,9 @@
 import { Skeleton } from '@Components/ui/skeleton';
+import { useHeader } from '@Hooks/useHeader';
 
 export default function Page() {
+  useHeader({ title: 'FA:P 아카이브' });
+
   return (
     <div className="flex h-full flex-col gap-5 px-5">
       <div className="flex flex-row gap-5 pt-5">

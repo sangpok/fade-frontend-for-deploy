@@ -4,9 +4,10 @@ import { Image } from './image';
 interface AvatarProps {
   src: string | undefined;
   size: '32' | '40' | '72' | '124';
+  local?: boolean;
 }
 
-export function Avatar({ src, size }: AvatarProps) {
+export function Avatar({ src, size, local = false }: AvatarProps) {
   return (
     <div
       className={cn('overflow-hidden rounded-lg bg-gray-200', {
@@ -15,7 +16,7 @@ export function Avatar({ src, size }: AvatarProps) {
         ['size-[4.5rem]']: size === '72',
         ['size-[7.75rem]']: size === '124',
       })}>
-      {src && <Image src={src} />}
+      {src && <Image src={src} local={local} />}
     </div>
   );
 }

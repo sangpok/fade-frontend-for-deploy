@@ -26,7 +26,6 @@
     /* Alias */
     "baseUrl": ".",
     "paths": {
-      "@Assets/*": ["src/assets/*"],
       "@Components/*": ["src/components/*"],
       "@Hooks/*": ["src/hooks/*"],
       "@Layouts/*": ["src/layouts/*"],

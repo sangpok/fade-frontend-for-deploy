@@ -4,11 +4,11 @@ import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { cn } from '@Utils/index';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { MdSearch } from 'react-icons/md';
+import { AllArchivingView } from './components/AllArchivingView';
 import { FAPArchivingView } from './components/FAPArchivingView';
 import { SearchAccountView } from './components/SearchAccountView';
-import { AllArchivingView } from './components/AllArchivingView';
 
 /** 여기 레이아웃이 전체적으로 이상하네... */
 
@@ -27,8 +27,6 @@ export default function Page() {
     rightSlot: () => <ShowNotificationButton />,
   });
 
-  // const { showModal } = useModalActions();
-
   const startTransition = useTransition()[1];
 
   const [isTransitionInProgress, setIsTransitionInProgress] = useState(false);
@@ -37,14 +35,6 @@ export default function Page() {
 
   const isFAPTab = currentTabId === 0;
   const isAllTab = currentTabId === 1;
-
-  useEffect(() => {
-    // showModal({
-    //   type: 'component',
-    //   Component: LastFAPModal,
-    //   props: { feed: { id: 0, imageURL: testImage }, user: { id: 0, username: 'fade_test', profileURL: testImage } } as LastFAPModalProps,
-    // });
-  }, []);
 
   const switchToTab = (newTabId: number) => {
     const isSwitchToFAP = currentTabId - newTabId > 0;

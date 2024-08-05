@@ -26,7 +26,7 @@ export type DefaultModalProps<T = unknown, P = Record<string, unknown>> = {
   isStartAnimtionEnd: boolean;
   setCloseHandler: (handler: () => () => Promise<boolean>) => void;
   onClose: (value?: T) => void;
-  onSubmitSuccess: () => void;
+  onSubmitSuccess: (value?: T) => void;
 } & P;
 
 /** type에 따라 animateType을 제한하고 싶은데 ... 모르겠다 */

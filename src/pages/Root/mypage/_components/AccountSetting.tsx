@@ -1,5 +1,6 @@
 import { AccountEditForm } from '@Components/forms/account/AccountEditForm';
 import { BackButton } from '@Components/ui/button';
+import { useRefreshToken } from '@Hooks/auth';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { setAuthorizationHeader } from '@Libs/axios';
 import { queryClient } from '@Libs/queryclient';
@@ -13,21 +14,25 @@ type AccountSettingProps = { details: TMyUserDetail };
 
 export function AccountSetting({ details: userDetails, onClose }: DefaultModalProps<void, AccountSettingProps>) {
   const updateUserDetails = useAuthStore((state) => state.updateUserDetails);
+  const refreshToken = useRefreshToken();
 
-  const { mutate: refreshToken } = useMutation({
+  const { mutate: doRefreshToken } = useMutation({
     mutationKey: ['refreshToken'],
     mutationFn: requestRefreshToken,
   });
 
   const handleSubmited = (value: Pick<TMyUserDetail, 'profileImageURL' | 'username'>) => {
-    refreshToken(null as unknown as void, {
-      onSuccess({ data: { accessToken } }) {
-        setAuthorizationHeader({ accessToken });
-        queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'] });
-        updateUserDetails({ userDetails: { ...value } });
-        onClose();
-      },
-    });
+    doRefreshToken(
+      { refreshToken },
+      {
+        onSuccess({ data: { accessToken } }) {
+          setAuthorizationHeader({ accessToken });
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'] });
+          updateUserDetails({ userDetails: { ...value } });
+          onClose();
+        },
+      }
+    );
   };
 
   return (

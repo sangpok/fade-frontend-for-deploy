@@ -1,6 +1,9 @@
 import { Skeleton } from '@Components/ui/skeleton';
+import { useHeader } from '@Hooks/useHeader';
 
 export default function Page() {
+  useHeader({ title: '마이페이지' });
+
   return (
     <div className="flex h-full flex-col bg-gray-100">
       <div className="flex flex-col items-center justify-center gap-5 rounded-b-2xl bg-white pb-5 pt-10">

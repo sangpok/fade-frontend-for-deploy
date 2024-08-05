@@ -1,8 +1,7 @@
-import voteStartImage from '@Assets/vote_starting_image.jpg';
+import { Button } from '@Components/ui/button';
+import { Image } from '@Components/ui/image';
 import { useModalActions } from '@Hooks/modal';
 import { HowToVoteModal } from './HowToVoteModal';
-import { Image } from '@Components/ui/image';
-import { Button } from '@Components/ui/button';
 
 export function ReadyToVoteView({ onStartClick }: { onStartClick: () => void }) {
   return (
@@ -14,7 +13,11 @@ export function ReadyToVoteView({ onStartClick }: { onStartClick: () => void }) 
 }
 
 function ReadyToVoteCover() {
-  return <Image src={voteStartImage} className="flex-1 rounded-lg bg-gray-200 shadow-bento" size="contain" />;
+  return (
+    <div className="flex-1 overflow-hidden rounded-lg bg-gray-200 shadow-bento">
+      <Image src="/assets/vote_starting_image.png" size="contain" local />
+    </div>
+  );
 }
 
 function HowToVoteButton() {

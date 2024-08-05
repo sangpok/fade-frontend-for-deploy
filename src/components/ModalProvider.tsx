@@ -37,9 +37,9 @@ function Modal({ Component, id, type, props, resolve, animateType }: ModalItem) 
     resolve(params);
   };
 
-  const handleSubmitSuccess = () => {
+  const handleSubmitSuccess = (value?: unknown) => {
     setIsOpen(false);
-    resolve(undefined);
+    resolve(value);
   };
 
   return (

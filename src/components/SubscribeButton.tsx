@@ -40,6 +40,7 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
         onSuccess() {
           onToggle(!initialSubscribedStatus);
           queryClient.invalidateQueries({ queryKey: ['user', userId, 'detail'] });
+          queryClient.invalidateQueries({ queryKey: ['subscribe'] });
         },
         onError() {
           setIsSubscribed((prev) => !prev);
@@ -63,7 +64,7 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
       )}
       disabled={isPending}
       onClick={handleClick}>
-      {isPending && <VscLoading className={cn('ml-1 inline-block size-3 animate-spin text-gray-600')} />}
+      {isPending && <VscLoading className={cn('ml-1 inline-block size-6 animate-spin text-gray-600')} />}
       {!isPending && (isSubscribed ? '구독중' : '구독')}
     </Button>
   );

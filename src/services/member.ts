@@ -2,12 +2,12 @@ import { axios } from '@Libs/axios';
 import { TFeedUserDetail, TMatchedUser, TMyUserDetail, TSubscriber, TSubscriberDTO } from '@Types/model';
 import { InfiniteResponse } from '@Types/response';
 
-type UpdateUserDetailsPayload = Pick<TMyUserDetail, 'username' | 'profileImageURL'>;
+type UpdateUserDetailsPayload = Partial<Pick<TMyUserDetail, 'username' | 'profileImageURL' | 'introduceContent'>>;
 type UpdateUserDetailsResponse = '';
 
 /** 유저 정보 변경 요청 */
 export async function requestUpdateUserDetails(payload: UpdateUserDetailsPayload) {
-  return await axios.put<UpdateUserDetailsResponse>(`/members/me`, payload);
+  return await axios.patch<UpdateUserDetailsResponse>(`/members/me`, payload);
 }
 
 type RequestSubscribeMemberPayload = { toMemberId: number; wouldSubscribe: boolean };

@@ -1,5 +1,5 @@
-import voteFinishImage from '@Assets/vote_ending_image.jpg';
 import { Button } from '@Components/ui/button';
+import { Image } from '@Components/ui/image';
 import { useNavigate } from 'react-router-dom';
 
 export function RestartVotingView({ onRestartVote }: { onRestartVote: () => void }) {
@@ -13,10 +13,9 @@ export function RestartVotingView({ onRestartVote }: { onRestartVote: () => void
 
 function RestartVotingCover() {
   return (
-    <div
-      style={{ backgroundImage: `url('${voteFinishImage}')` }}
-      className="flex max-h-full w-full flex-1 items-center justify-center rounded-lg bg-gray-200 bg-contain bg-center bg-no-repeat shadow-bento"
-    />
+    <div className="flex-1 overflow-hidden rounded-lg bg-gray-200 shadow-bento">
+      <Image src="/assets/vote_ending_image.png" size="contain" local />
+    </div>
   );
 }
 

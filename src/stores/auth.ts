@@ -5,16 +5,16 @@ import { create } from 'zustand';
 export type AuthStore = {
   user: TMyUserDetail;
   accessToken: string | null;
-  csrfToken: string | null;
-  iat: Date | null;
-  exp: Date | null;
+  refreshToken: string | null;
+  iat: number | null; // Unix Timestamp (s)
+  exp: number | null; // Unix Timestamp (s)
   isAuthentication: boolean;
 
   setUser: ({ user }: { user: TMyUserDetail }) => void;
   updateUserDetails: ({ userDetails }: { userDetails: Partial<TMyUserDetail> }) => void;
   setAccessToken: ({ accessToken }: { accessToken: string }) => void;
-  setCSRFToken: ({ csrfToken }: { csrfToken: string }) => void;
-  setTokens: ({ accessToken, csrfToken }: { accessToken: string; csrfToken: string }) => void;
+  setRefreshToken: ({ refreshToken }: { refreshToken: string }) => void;
+  setTokens: ({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }) => void;
   setIsAuthentication: ({ isAuthentication }: { isAuthentication: boolean }) => void;
   setAuthFromToken: ({ accessToken }: { accessToken: string }) => void;
 
@@ -26,7 +26,7 @@ const initialUserDetail: TMyUserDetail = {
   username: '',
   genderType: 'MALE',
   profileImageURL: undefined,
-  fapSelectedCount: 0,
+  selectedFAPCount: 0,
   subscribedCount: 0,
   introduceContent: '',
 };
@@ -34,7 +34,7 @@ const initialUserDetail: TMyUserDetail = {
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: initialUserDetail,
   accessToken: null,
-  csrfToken: null,
+  refreshToken: null,
   iat: null,
   exp: null,
   isAuthentication: false,
@@ -51,13 +51,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ accessToken });
   },
 
-  setCSRFToken({ csrfToken }) {
-    set({ csrfToken });
+  setRefreshToken({ refreshToken }) {
+    set({ refreshToken });
   },
 
-  setTokens({ accessToken, csrfToken }) {
+  setTokens({ accessToken, refreshToken }) {
     get().setAccessToken({ accessToken });
-    get().setCSRFToken({ csrfToken });
+    get().setRefreshToken({ refreshToken });
   },
 
   setIsAuthentication({ isAuthentication }) {
@@ -78,6 +78,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   resetAuth() {
-    set({ user: initialUserDetail, isAuthentication: false, accessToken: null, csrfToken: null, iat: null, exp: null });
+    set({ user: initialUserDetail, isAuthentication: false, accessToken: null, refreshToken: null, iat: null, exp: null });
   },
 }));

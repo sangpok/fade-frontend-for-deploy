@@ -20,7 +20,9 @@ interface VotingState {
   clearVoteResults: () => void;
   setHasVotedToday: (hasVoted: boolean) => void;
   setIsVotingInProgress: (isInProgress: boolean) => void;
+  setVotingCountToday: (votingCountToday: number) => void;
   addVotingCountToday: () => void;
+  setVotingProgress: (votingProgress: number) => void;
   addVotingProgress: () => void;
   clearVotingProgress: () => void;
   setSwipeDirection: (swipeDirection: SwipeDirection) => void;
@@ -28,25 +30,42 @@ interface VotingState {
   handleSelect: (swipeDirection: SwipeDirection) => void;
 }
 
+export interface TLocalVoteData {
+  lastVotedAt: string;
+  isVotingInProgress: boolean;
+  votingCountToday: number;
+  votingProgress: number;
+  viewCards: TVoteCandidateCard[];
+  hasVotedToday: boolean;
+}
+
+const loadSavedVotingData = () => {
+  const savedVoteData = localStorage.getItem('FADE_VOTE_DATA');
+
+  if (savedVoteData === null) {
+    return {};
+  }
+
+  const { lastVotedAt, ...voteData } = JSON.parse(savedVoteData) as TLocalVoteData;
+
+  if (lastVotedAt !== format(new Date(), 'yyyy-MM-dd')) {
+    localStorage.removeItem('FADE_VOTE_DATA');
+    return {};
+  }
+
+  return voteData;
+};
+
 export const useVotingStore = create<VotingState>((set, get) => ({
   cycleId: generateRandomId(),
   viewCards: [],
   voteResults: [],
-  hasVotedToday: (() => {
-    const lastVotedAt = localStorage.getItem('FADE_LAST_VOTED_AT');
-
-    if (lastVotedAt === null) {
-      return false;
-    }
-
-    const votedToday = lastVotedAt === format(new Date(), 'yyyy-MM-dd');
-
-    return votedToday;
-  })(),
+  hasVotedToday: false,
   isVotingInProgress: false,
   votingCountToday: 0,
   votingProgress: 1,
   swipeDirection: 'right',
+  ...loadSavedVotingData(),
 
   generateNewCycleId: () => set({ cycleId: generateRandomId() }),
   setViewCards: (viewCards) => set({ viewCards }),
@@ -54,7 +73,9 @@ export const useVotingStore = create<VotingState>((set, get) => ({
   clearVoteResults: () => set({ voteResults: [] }),
   setHasVotedToday: (hasVotedToday) => set({ hasVotedToday }),
   setIsVotingInProgress: (isVotingInProgress) => set({ isVotingInProgress }),
+  setVotingCountToday: (votingCountToday) => set({ votingCountToday }),
   addVotingCountToday: () => set(({ votingCountToday }) => ({ votingCountToday: votingCountToday + 1 })),
+  setVotingProgress: (votingProgress) => set({ votingProgress }),
   addVotingProgress: () => set(({ votingProgress }) => ({ votingProgress: votingProgress + 1 })),
   clearVotingProgress: () => set({ votingProgress: 1 }),
   setSwipeDirection: (swipeDirection) => set({ swipeDirection }),

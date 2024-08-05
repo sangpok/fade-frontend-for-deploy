@@ -7,7 +7,6 @@ export default defineConfig({
   plugins: [react(), mkcert()],
   resolve: {
     alias: [
-      { find: '@Assets', replacement: '/src/assets' },
       { find: '@Components', replacement: '/src/components' },
       { find: '@Hooks', replacement: '/src/hooks' },
       { find: '@Layouts', replacement: '/src/layouts' },

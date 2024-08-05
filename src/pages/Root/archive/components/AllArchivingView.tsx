@@ -1,4 +1,5 @@
 import { FeedDetailDialog } from '@Components/FeedDetailDialog';
+import { SpinLoading } from '@Components/SpinLoading';
 import { Button } from '@Components/ui/button';
 import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
@@ -11,7 +12,6 @@ import { cn } from '@Utils/index';
 import { Suspense, useEffect, useState } from 'react';
 import { VscLoading } from 'react-icons/vsc';
 import { FilterType, SelectFilterDialog, SelectFilterDialogProps } from './SelectFilterDialog';
-import { SpinLoading } from '@Components/SpinLoading';
 
 export function AllArchivingView() {
   const [filters, setFilters] = useState<FilterType>({
@@ -53,14 +53,10 @@ function FeedList({ filters }: FeedListProps) {
     initialPageParam: -1,
   });
 
-  const { disconnect: disconnectObserver, resetObserve } = useInfiniteObserver({
+  const { disconnect: disconnectObserver } = useInfiniteObserver({
     parentNodeId: `feedList`,
     onIntersection: fetchNextPage,
   });
-
-  useEffect(() => {
-    resetObserve();
-  }, [filters]);
 
   useEffect(() => {
     !hasNextPage && disconnectObserver();

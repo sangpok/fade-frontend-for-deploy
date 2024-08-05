@@ -1,6 +1,9 @@
 import { Skeleton } from '@Components/ui/skeleton';
+import { useHeader } from '@Hooks/useHeader';
 
 export default function Page() {
+  useHeader({ title: '구독 목록' });
+
   return (
     <div className="relative flex h-full flex-col space-y-8 py-3">
       <div className="flex flex-row gap-3 px-3">

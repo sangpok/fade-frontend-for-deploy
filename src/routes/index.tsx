@@ -2,7 +2,6 @@ import RootLayout from '@Layouts/RootLayout';
 import RootPage from '@Pages/Root/page';
 import { lazy, Suspense } from 'react';
 import { createRoutesFromElements, Route } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
 
 /**
  * React Router Dom에서는 lazy 기능을 지원하지만,
@@ -17,11 +16,14 @@ const AppLayout = lazy(() => import('@Layouts/AppLayout').then((module) => ({ de
 /** Skeleton */
 import AppLayoutSkeletonUI from '@Layouts/AppLayout.skeleton';
 import ArchiveSkeletonUI from '@Pages/Root/archive/page.skeleton';
-import VoteFAPSkeletonUI from '@Pages/Root/voteFAP/page.skeleton';
-import SubscribeSkeletonUI from '@Pages/Root/subscribe/page.skeleton';
-import SubscribeListSkeletonUI from '@Pages/Root/subscribe/list/page.skeleton';
 import MyPageSkeletonUI from '@Pages/Root/mypage/page.skeleton';
+import MyPageFeedSkeletonUI from '@Pages/Root/mypage/feed/page.skeleton';
 import VoteHistorySkeletonUI from '@Pages/Root/mypage/voteHistory/page.skeleton';
+import BoomarkSkeltonUI from '@Pages/Root/mypage/bookmark/page.skeleton';
+import SubscribeListSkeletonUI from '@Pages/Root/subscribe/list/page.skeleton';
+import SubscribeSkeletonUI from '@Pages/Root/subscribe/page.skeleton';
+import VoteFAPSkeletonUI from '@Pages/Root/voteFAP/page.skeleton';
+import UserFeedSkeletonUI from '@Pages/Root/user/page.skeleton';
 
 /** Root */
 const LoginPage = lazy(() => import('@Pages/Root/login/page').then((module) => ({ default: module.default })));
@@ -49,86 +51,91 @@ export const routesFromElements = createRoutesFromElements(
           <GlobalErrorPage />
         </Suspense>
       }>
-      <Route index element={<RootPage />} loader={async () => (await import('@Pages/Root/page')).loader()} />
+      <Route index element={<RootPage />} />
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignUpPage />} />
-      <Route element={<ProtectedRoute />}>
+      <Route
+        element={
+          <Suspense fallback={<AppLayoutSkeletonUI />}>
+            <AppLayout />
+          </Suspense>
+        }>
         <Route
+          path="archive"
           element={
-            <Suspense fallback={<AppLayoutSkeletonUI />}>
-              <AppLayout />
+            <Suspense fallback={<ArchiveSkeletonUI />}>
+              <ArchivePage />
             </Suspense>
-          }>
+          }
+        />
+        <Route
+          path="vote-fap"
+          element={
+            <Suspense fallback={<VoteFAPSkeletonUI />}>
+              <VoteFAPPage />
+            </Suspense>
+          }
+        />
+        <Route path="subscribe">
           <Route
-            path="archive"
+            index
             element={
-              <Suspense fallback={<ArchiveSkeletonUI />}>
-                <ArchivePage />
+              <Suspense fallback={<SubscribeSkeletonUI />}>
+                <SubscribePage />
               </Suspense>
             }
           />
           <Route
-            path="vote-fap"
+            path="list"
             element={
-              <Suspense fallback={<VoteFAPSkeletonUI />}>
-                <VoteFAPPage />
+              <Suspense fallback={<SubscribeListSkeletonUI />}>
+                <SubscribeListPage />
               </Suspense>
             }
           />
-          <Route path="subscribe">
-            <Route
-              index
-              element={
-                <Suspense fallback={<SubscribeSkeletonUI />}>
-                  <SubscribePage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="list"
-              element={
-                <Suspense fallback={<SubscribeListSkeletonUI />}>
-                  <SubscribeListPage />
-                </Suspense>
-              }
-            />
-          </Route>
-          <Route path="mypage">
-            <Route
-              index
-              element={
-                <Suspense fallback={<MyPageSkeletonUI />}>
-                  <MyPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="feed"
-              element={
-                <Suspense>
-                  <MyPageFeed />
-                </Suspense>
-              }
-            />
-            <Route
-              path="vote-history"
-              element={
-                <Suspense fallback={<VoteHistorySkeletonUI />}>
-                  <MyPageVoteHistory />
-                </Suspense>
-              }
-            />
-            <Route
-              path="bookmark"
-              element={
-                <Suspense>
-                  <MyPageBookmark />
-                </Suspense>
-              }
-            />
-          </Route>
-          <Route path="user" element={<UserFeedPage />} />
         </Route>
+        <Route path="mypage">
+          <Route
+            index
+            element={
+              <Suspense fallback={<MyPageSkeletonUI />}>
+                <MyPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="feed"
+            element={
+              <Suspense fallback={<MyPageFeedSkeletonUI />}>
+                <MyPageFeed />
+              </Suspense>
+            }
+          />
+          <Route
+            path="vote-history"
+            element={
+              <Suspense fallback={<VoteHistorySkeletonUI />}>
+                <MyPageVoteHistory />
+              </Suspense>
+            }
+          />
+          <Route
+            path="bookmark"
+            element={
+              <Suspense fallback={<BoomarkSkeltonUI />}>
+                <MyPageBookmark />
+              </Suspense>
+            }
+          />
+        </Route>
+        <Route
+          path="user"
+          element={
+            <Suspense fallback={<UserFeedSkeletonUI />}>
+              <UserFeedPage />
+            </Suspense>
+          }
+        />
       </Route>
     </Route>
 

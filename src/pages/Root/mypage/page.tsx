@@ -128,7 +128,7 @@ function MyDetails({ details }: { details: TMyUserDetail | undefined }) {
         <div className="space-x-1 text-detail">
           <span className="text-gray-500">{details?.genderType === 'MALE' ? '남자' : '여자'}</span>
           <span>·</span>
-          <span>FA:P 선정 {details?.fapSelectedCount === undefined ? '-' : details?.fapSelectedCount}회</span>
+          <span>FA:P 선정 {details?.selectedFAPCount === undefined ? '-' : details?.selectedFAPCount}회</span>
         </div>
       </div>
 

@@ -17,7 +17,7 @@ export function ConfirmModal({ title, description, onClose }: DefaultModalProps<
 
           <div>
             <p className="text-center text-2xl font-semibold">{title}</p>
-            <p className="text-center text-lg">{description}</p>
+            <p className="whitespace-pre-line text-center text-lg">{description}</p>
           </div>
         </div>
       </FlexibleLayout.Content>

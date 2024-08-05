@@ -1,4 +1,5 @@
-import testFashionImage1 from '@Assets/test_fashion_image.jpg';
+const testFashionImage1 = '/assets/test_fashion_image.jpg';
+
 import { TMyUserDetail, TVoteCandidateDTO } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
 import { generateRandomId } from '@Utils/index';
@@ -29,7 +30,7 @@ const userData: TMyUserDetail = {
   genderType: 'MALE',
   profileImageURL: testFashionImage1,
   introduceContent: '안녕',
-  fapSelectedCount: 0,
+  selectedFAPCount: 0,
   subscribedCount: 0,
 };
 
@@ -38,8 +39,9 @@ export const handlers = [
    * MSW는 fetch 정책 상 Header에 Set-Cookie를 지정해주는 대신
    * document.cookie로 지정해주기 때문에, HttpOnly 속성을 넣으면 안 된다(😇)
    */
-  http.post(`${BASE_URL}/auth/token`, async ({ cookies }) => {
-    const { refreshToken } = cookies;
+  http.post(`${BASE_URL}/auth/token`, async ({ request }) => {
+    // const { refreshToken } = cookies;
+    const { refreshToken } = (await request.json()) as { refreshToken: string };
 
     await delay(NETWORK_DELAY);
     /**
@@ -69,12 +71,12 @@ export const handlers = [
     return new HttpResponse(
       JSON.stringify({
         accessToken: createAccessToken(userData),
-        csrfToken: 'ctct',
+        refreshToken: createRefreshToken(userData),
       }),
       {
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()}, csrfToken=ctct; Path=/;`,
+          'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()};`,
         },
       }
     );
@@ -85,7 +87,7 @@ export const handlers = [
 
     return new HttpResponse(null, {
       headers: {
-        'Set-Cookie': `refreshToken=; Path=/; expires=${new Date(0).toUTCString()}, csrfToken=; Path=/; expires=${new Date(0).toUTCString()};`,
+        'Set-Cookie': `refreshToken=; Path=/; expires=${new Date(0).toUTCString()};`,
       },
     });
   }),
@@ -115,12 +117,12 @@ export const handlers = [
     return new HttpResponse(
       JSON.stringify({
         accessToken: createAccessToken(userData),
-        csrfToken: 'ctct',
+        refreshToken: createRefreshToken(userData),
       }),
       {
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()}, csrfToken=ctct; Path=/;`,
+          'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()};`,
         },
       }
     );
@@ -134,12 +136,12 @@ export const handlers = [
       return new HttpResponse(
         JSON.stringify({
           accessToken: createAccessToken(userData),
-          csrfToken: 'ctct',
+          refreshToken: createRefreshToken(userData),
         }),
         {
           headers: {
             'Content-Type': 'application/json',
-            'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()}, csrfToken=ctct; Path=/;`,
+            'Set-Cookie': `refreshToken=${createRefreshToken(userData)}; Path=/; expires=${addDays(new Date(), 14).toUTCString()};`,
           },
         }
       );
@@ -279,6 +281,18 @@ export const handlers = [
     return HttpResponse.json({ feeds: createAllFashionFeedDTODummies(+limit), nextCursor: generateRandomId() }, { status: HttpStatusCode.Ok });
   }),
 
+  http.get(`${BASE_URL}/feeds/:feedId`, async () => {
+    return HttpResponse.json(...createAllFashionFeedDTODummies(1), { status: HttpStatusCode.Ok });
+  }),
+
+  http.delete(`${BASE_URL}/feeds/:feedId`, async () => {
+    return HttpResponse.json({}, { status: HttpStatusCode.Ok });
+  }),
+
+  http.patch(`${BASE_URL}/feeds/:feedId`, async () => {
+    return HttpResponse.json({}, { status: HttpStatusCode.Ok });
+  }),
+
   http.get(`${BASE_URL}/subscribe/subscribers`, async () => {
     // const { searchParams } = new URL(request.url);
 
@@ -295,7 +309,7 @@ export const handlers = [
     return HttpResponse.json(createMyUserDetailDummies(1)[0], { status: HttpStatusCode.Ok });
   }),
 
-  http.put(`${BASE_URL}/members/me`, async () => {
+  http.patch(`${BASE_URL}/members/me`, async () => {
     await delay(NETWORK_DELAY);
 
     return HttpResponse.json({}, { status: HttpStatusCode.Ok });

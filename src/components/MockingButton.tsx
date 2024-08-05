@@ -1,9 +1,9 @@
 import * as Popover from '@radix-ui/react-popover';
-import { Button } from './ui/button';
-import { MdSettings } from 'react-icons/md';
-import { useRef, useState } from 'react';
-import { cn } from '@Utils/index';
 import { useVotingStore } from '@Stores/vote';
+import { cn } from '@Utils/index';
+import { useRef, useState } from 'react';
+import { MdSettings } from 'react-icons/md';
+import { Button } from './ui/button';
 
 const LOCALSTORAGE_KEY = 'FADE_API_MOCKING_ENABLED' as const;
 
@@ -64,6 +64,11 @@ export function MockingButton() {
             <li className="w-full">
               <Button variants="ghost" className="w-full" onClick={() => setHasVotedToday(true)}>
                 Bypass the vote check today
+              </Button>
+            </li>
+            <li className="w-full">
+              <Button variants="ghost" className="w-full" onClick={() => localStorage.removeItem('FADE_LAST_FAP_DATE')}>
+                Reset yesterday's FA:P alerts
               </Button>
             </li>
           </ul>

@@ -1,19 +1,25 @@
 import { OUTFIT_STYLE_LIST } from '@/constants';
-import fapBadgeImage from '@Assets/fap_badge.png';
 import { ItemBadge } from '@Components/ItemBadge';
 import { ReportButton } from '@Components/ReportButton';
 import { SubscribeButton } from '@Components/SubscribeButton';
 import { Avatar } from '@Components/ui/avatar';
 import { Image } from '@Components/ui/image';
+import { useConfirm, useModalActions } from '@Hooks/modal';
+import { useToastActions } from '@Hooks/toast';
+import { queryClient } from '@Libs/queryclient';
+import { requestDeleteMyFeed } from '@Services/feed';
+import { useMutation } from '@tanstack/react-query';
 import { isTMyFeed, isTVoteHistoryFeed, TFeed, TFeedAdittionalDetail } from '@Types/model';
 import { cn } from '@Utils/index';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { ReactNode, useEffect, useRef } from 'react';
-import { MdBookmark, MdHowToVote, MdReport } from 'react-icons/md';
+import { MdBookmark, MdHowToVote, MdMoreHoriz, MdReport } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { BookmarkButton } from './BookmarkButton';
+import { EditFeedDialog } from './EditFeedDialog';
+import { EditMyFeedBottomSheet } from './EditMyFeedBottomSheet';
 import { OutfitCard } from './OutfitCard';
 import { Button } from './ui/button';
 
@@ -21,11 +27,13 @@ interface TFeedDetailCard {
   focus?: boolean;
   isStartAnimtionEnd?: boolean;
   onUsernameClicked?: () => void;
+  onFeedEdited?: () => void;
+  onFeedDeleted?: () => void;
 }
 
 type FeedDetailCardProps = TFeedDetailCard & TFeed;
 
-export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, ...feedDetail }: FeedDetailCardProps) {
+export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isVoteType = isTVoteHistoryFeed(feedDetail);
   const isMineType = isTMyFeed(feedDetail);
@@ -47,10 +55,19 @@ export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, .
     }
   }, [focus, containerRef.current, isStartAnimtionEnd]);
 
+  const handleFeedEdited = () => {
+    onFeedEdited && onFeedEdited();
+  };
+
+  const handleFeedDeleted = () => {
+    onFeedDeleted && onFeedDeleted();
+  };
+
   return (
     <div ref={containerRef} className="flex h-full snap-start">
       <section className="relative flex h-full w-full flex-col gap-3 p-5">
-        {isFAPFeed && <Image src={fapBadgeImage} className="absolute right-5 top-3 size-10" />}
+        {isFAPFeed && <Image src={'/assets/fap_badge.png'} className={cn('absolute right-5 top-5 size-8', { ['right-[3.75rem]']: isMine })} local />}
+        {isMine && <FeedMoreButton feedDetail={feedDetail} onFeedEdited={handleFeedEdited} onFeedDeleted={handleFeedDeleted} />}
         {isVoteType && <p className="text-h6">{format(feedDetail.votedAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
         {!isVoteType && <p className="text-h6">{format(feedDetail.createdAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
 
@@ -70,10 +87,99 @@ export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, .
         {isMineType && <FeedAdiitionalDetails {...feedDetail} />}
         {!isMineType && <MemberDetailCard {...feedDetail} onUsernameClicked={() => onUsernameClicked && onUsernameClicked()} />}
         {haveStyleIds && <StyleCard {...feedDetail} />}
-        {haveOutfits && <OutfitCard {...outfits.at(0)!} wouldShowDetail={false} />}
+        {haveOutfits && <OutfitCard {...outfits.sort((a, b) => a.categoryId - b.categoryId).at(0)!} wouldShowDetail={false} />}
         {haveOutfitsMoreThanOwn && <ShowAllOutfitsButton />}
       </section>
     </div>
+  );
+}
+
+interface TFeedMoreButton {
+  feedDetail: TFeed;
+  onFeedEdited: () => void;
+  onFeedDeleted: () => void;
+}
+
+type FeedMoreButtonProps = TFeedMoreButton;
+
+function FeedMoreButton({ feedDetail, onFeedEdited, onFeedDeleted }: FeedMoreButtonProps) {
+  const { showModal } = useModalActions();
+  const confirm = useConfirm();
+  const { showToast } = useToastActions();
+
+  const { mutate: deleteMyFeed } = useMutation({
+    mutationKey: ['deleteMyFeed'],
+    mutationFn: requestDeleteMyFeed,
+  });
+
+  const handleClick = async () => {
+    const result = await showModal<{ menuId: number }>({
+      type: 'bottomSheet',
+      Component: EditMyFeedBottomSheet,
+    });
+
+    if (result === undefined) {
+      return;
+    }
+
+    const doesEditClick = result.menuId === 0;
+    const doesDeleteClick = result.menuId === 1;
+
+    doesEditClick && startEditFeedFlow();
+    doesDeleteClick && startDeleteFeedFlow();
+  };
+
+  const startEditFeedFlow = async () => {
+    const result = await showModal<boolean>({
+      type: 'fullScreenDialog',
+      animateType: 'slideInFromRight',
+      Component: EditFeedDialog,
+      props: { defaultFeedDetails: feedDetail },
+    });
+
+    if (result) {
+      onFeedEdited();
+      queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'] });
+    }
+  };
+
+  const startDeleteFeedFlow = async () => {
+    const result = await confirm(
+      feedDetail.isFAPFeed
+        ? {
+            title: 'FA:P 선정 사진 삭제',
+            description: 'FA:P 선정 사진 3회 삭제 시 이용이 제한됩니다.\n정말 삭제하시겠습니까?\n\nFA:P 선정 사진 삭제 횟수 0/3',
+          }
+        : {
+            title: '사진 삭제',
+            description: '사진 삭제 시 복구가 불가능합니다.\n정말 삭제하시겠습니까?',
+          }
+    );
+
+    if (!result) {
+      return;
+    }
+
+    deleteMyFeed(
+      { feedId: feedDetail.id },
+      {
+        onSuccess() {
+          onFeedDeleted();
+          queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'] });
+
+          showToast({ type: 'success', title: '사진을 삭제했습니다.' });
+        },
+        onError() {
+          showToast({ type: 'error', title: '사진 삭제에 실패했어요.' });
+        },
+      }
+    );
+  };
+
+  return (
+    <Button variants="ghost" size="icon" className="absolute right-5 top-5" onClick={handleClick}>
+      <MdMoreHoriz className="size-5" />
+    </Button>
   );
 }
 
@@ -100,11 +206,13 @@ function StyleCard({ styleIds }: TFeed) {
   return (
     <div>
       <ul className="flex flex-row gap-2 overflow-y-scroll whitespace-nowrap">
-        {styleIds.map((value, index) => (
-          <ItemBadge key={`style-badge-${index}`} variants="primary">
-            {OUTFIT_STYLE_LIST.at(value)}
-          </ItemBadge>
-        ))}
+        {styleIds
+          .sort((a, b) => a - b)
+          .map((value, index) => (
+            <ItemBadge key={`style-badge-${index}`} variants="primary">
+              {OUTFIT_STYLE_LIST.at(value)}
+            </ItemBadge>
+          ))}
       </ul>
     </div>
   );

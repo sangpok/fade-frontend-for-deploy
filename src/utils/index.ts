@@ -16,8 +16,8 @@ export function getPayloadFromJWT(jwt: string) {
     id: string;
     username: string; // username
     genderType: GenderType;
-    exp: Date;
-    iat: Date;
+    exp: number;
+    iat: number;
   };
 }
 
@@ -291,4 +291,25 @@ export function objectToQueryParam(obj: object) {
   }
 
   return params.length > 0 ? params.join('&') : '';
+}
+
+export function generateImagePath(imagePath: string, scale: number) {
+  if (scale !== 1 && scale !== 2 && scale !== 3) {
+    throw new Error('Scale must be 1, 2, or 3');
+  }
+
+  const lastDotIndex = imagePath.lastIndexOf('.');
+
+  if (lastDotIndex === -1) {
+    throw new Error('Invalid image path: no file extension found');
+  }
+
+  const name = imagePath.substring(0, lastDotIndex);
+  const extension = imagePath.substring(lastDotIndex);
+
+  return scale === 1 ? imagePath : `${name}@${scale}x${extension}`;
+}
+
+export function createSrcSet(imagePath: string) {
+  return [1, 2, 3].map((scale) => `${generateImagePath(imagePath, scale)} ${scale}x`).join(', ');
 }
