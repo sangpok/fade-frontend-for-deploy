@@ -124,7 +124,7 @@ function UserFeeds({ userId }: { userId: number }) {
       </Grid>
 
       {isFetchingNextPage && <SpinLoading />}
-      {!isPending && !hasNextPage && <p className="text-detail text-gray-700">내 모든 피드를 불러왔어요.</p>}
+      {!isPending && !hasNextPage && <p className="text-detail text-gray-700">모든 피드를 불러왔어요.</p>}
     </div>
   );
 }

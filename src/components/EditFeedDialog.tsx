@@ -7,6 +7,8 @@ import { MdClose, MdInfoOutline } from 'react-icons/md';
 import { UploadGuideBottomSheet } from './UploadGuideBottomSheet';
 import { EditFeedForm } from './forms/feed/EditFeedForm';
 import { Button } from './ui/button';
+import { queryClient } from '@Libs/queryclient';
+import { useAuthStore } from '@Stores/auth';
 
 interface TEditFeedDialog {
   defaultFeedDetails: TMyFeed;
@@ -16,6 +18,7 @@ type EditFeedDialogProps = DefaultModalProps<boolean, TEditFeedDialog>;
 
 export function EditFeedDialog({ defaultFeedDetails, setCloseHandler, onClose, onSubmitSuccess }: EditFeedDialogProps) {
   const dirtyRef = useRef(false);
+  const myId = useAuthStore((state) => state.user.id);
 
   const confirm = useConfirm();
 
@@ -32,6 +35,13 @@ export function EditFeedDialog({ defaultFeedDetails, setCloseHandler, onClose, o
     return true;
   };
 
+  const handleSubmitSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['archiving'], refetchType: 'all' });
+    queryClient.invalidateQueries({ queryKey: ['user', myId, 'feed'], refetchType: 'all' });
+
+    onSubmitSuccess(true);
+  };
+
   return (
     <FlexibleLayout.Root>
       <FlexibleLayout.Header>
@@ -39,7 +49,7 @@ export function EditFeedDialog({ defaultFeedDetails, setCloseHandler, onClose, o
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content className="space-y-8 p-5">
-        <EditFeedForm defaultFeedDetails={defaultFeedDetails} onValueChanged={(value) => (dirtyRef.current = value)} onSubmitSuccess={() => onSubmitSuccess(true)} />
+        <EditFeedForm defaultFeedDetails={defaultFeedDetails} onValueChanged={(value) => (dirtyRef.current = value)} onSubmitSuccess={handleSubmitSuccess} />
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>
   );

@@ -62,8 +62,8 @@ function UploadFeedView({ onClose, onSubmitSuccess, onValueChanged }: UploadFeed
   const myId = useAuthStore((state) => state.user.id);
 
   const handleSubmitSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['archiving', 'all'], refetchType: 'all' });
-    queryClient.invalidateQueries({ queryKey: ['user', myId, 'detail'], refetchType: 'all' });
+    queryClient.invalidateQueries({ queryKey: ['archiving'], refetchType: 'all' });
+    queryClient.invalidateQueries({ queryKey: ['user', myId, 'feed'], refetchType: 'all' });
 
     onSubmitSuccess();
   };
