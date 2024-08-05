@@ -3,6 +3,7 @@ import { ReportButton } from '@Components/ReportButton';
 import { SubscribeButton } from '@Components/SubscribeButton';
 import { Image } from '@Components/ui/image';
 import { useToastActions } from '@Hooks/toast';
+import { queryClient } from '@Libs/queryclient';
 import { requestGetVoteCandidates, requestSendVoteResult } from '@Services/vote';
 import { SwipeDirection, TLocalVoteData, useVotingStore } from '@Stores/vote';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -14,7 +15,6 @@ import { format } from 'date-fns';
 import { AnimatePresence, motion, MotionValue, useMotionValue, useTransform, Variants } from 'framer-motion';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
 import { RandomAvatar } from './RandomAvatar';
-import { queryClient } from '@Libs/queryclient';
 
 const voteFadeInImage = '/assets/fade_in_btn.png';
 const voteFadeOutImage = '/assets/fade_out_btn.png';
@@ -50,13 +50,15 @@ const outputOpacity = [1, 0, 1];
 
 type VotingViewType = 'loading' | 'voting' | 'submitting';
 
+/** TODO: 최초 local정보 불러오기 분리 */
+
 export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
   const { showToast } = useToastActions();
 
   const cycleId = useVotingStore((state) => state.cycleId);
   const isVotingInProgress = useVotingStore((state) => state.isVotingInProgress);
-  const setVotingCountToday = useVotingStore((state) => state.setVotingCountToday);
   const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
+  const setVoteResults = useVotingStore((state) => state.setVoteResults);
   const setVotingProgress = useVotingStore((state) => state.setVotingProgress);
   const setIsVotingInProgress = useVotingStore((state) => state.setIsVotingInProgress);
   const setViewCards = useVotingStore((state) => state.setViewCards);
@@ -65,35 +67,32 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
   const [viewId, setViewId] = useState<VotingViewType>(isVotingInProgress ? 'voting' : 'loading');
 
   const localVoteData = localStorage.getItem('FADE_VOTE_DATA');
-  const isLocalVoteDataValid =
-    localVoteData !== null && (JSON.parse(localVoteData || `{"lastVotedAt":"undefined"}`) as TLocalVoteData).lastVotedAt === format(new Date(), 'yyyy-MM-dd');
 
   const isLoadingView = viewId === 'loading';
   const isVotingView = viewId === 'voting';
   const isSubmittingView = viewId === 'submitting';
 
-  // TODO: localStorage 정보에 오늘 거 있으면 그걸로, 없으면 패칭
-
   const { data: response } = useQuery({
     queryKey: ['vote', 'candidates', cycleId],
     queryFn: () => requestGetVoteCandidates(),
-    enabled: viewId === 'loading' && !isLocalVoteDataValid,
+    enabled: viewId === 'loading' && localVoteData === null,
   });
 
   useEffect(() => {
-    if (!isLocalVoteDataValid) {
+    if (localVoteData === null) {
       return;
     }
 
-    const { isVotingInProgress, viewCards, votingCountToday, votingProgress } = JSON.parse(localVoteData) as TLocalVoteData;
+    const { viewCards, voteResults } = JSON.parse(localVoteData) as TLocalVoteData;
 
     setViewCards(viewCards);
-    setIsVotingInProgress(isVotingInProgress);
-    setVotingCountToday(votingCountToday);
-    setVotingProgress(votingProgress);
-    setViewId('voting');
+    setVoteResults(voteResults);
+
     setIsVotingInProgress(true);
-  }, [isLocalVoteDataValid]);
+    setVotingProgress(voteResults.length);
+
+    setViewId('voting');
+  }, [localVoteData]);
 
   useEffect(() => {
     if (isVotingInProgress || !response) {
@@ -107,19 +106,9 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
     if (hasNoVoteCandidate) {
       showToast({ type: 'basic', title: '오늘 투표할 페이더들의 사진이 없습니다.' });
 
-      localStorage.setItem(
-        'FADE_VOTE_DATA',
-        JSON.stringify({
-          hasVotedToday: true,
-          lastVotedAt: format(new Date(), 'yyyy-MM-dd'),
-          isVotingInProgress: false,
-          viewCards: [],
-          votingCountToday: 0,
-          votingProgress: 0,
-        } as TLocalVoteData)
-      );
+      localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+      localStorage.removeItem('FADE_VOTE_DATA');
 
-      setHasVotedToday(true);
       setIsVotingInProgress(false);
       handleSubmitDone();
       return;
@@ -147,22 +136,24 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
     localStorage.setItem(
       'FADE_VOTE_DATA',
       JSON.stringify({
-        lastVotedAt: format(new Date(), 'yyyy-MM-dd'),
-        isVotingInProgress: true,
         viewCards: voteCandidateCards,
-        votingCountToday: 0,
-        votingProgress: 1,
+        voteResults: [],
       } as TLocalVoteData)
     );
   }, [response]);
 
   const handleVoteFinish = () => {
+    localStorage.removeItem('FADE_VOTE_DATA');
+
     setViewId('submitting');
     setIsVotingInProgress(false);
   };
 
   const handleSubmitDone = () => {
-    queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'] });
+    queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
+    localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+
+    setHasVotedToday(true);
 
     generateNewCycleId();
     onSubmitDone();
@@ -279,28 +270,17 @@ function LoadingVoteCandidatesView() {
 
 function AwaitedVotingView({ onVoteFinish }: { onVoteFinish: () => void }) {
   const clearVotingProgress = useVotingStore((state) => state.clearVotingProgress);
-  const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
-  const hasVotedToday = useVotingStore((state) => state.hasVotedToday);
   const viewCards = useVotingStore((state) => state.viewCards);
 
   useLayoutEffect(() => {
     if (viewCards.length === 0) {
-      !hasVotedToday && setHasVotedToday(true);
-      // localStorage.setItem(
-      //   'FADE_VOTE_DATA',
-      //   JSON.stringify({
-      //     lastVotedAt: format(new Date(), 'yyyy-MM-dd'),
-      //     isVotingInProgress: false,
-      //     viewCards: [],
-      //     votingCountToday: 0,
-      //     votingProgress: 0,
-      //   } as TLocalVoteData)
-      // );
-      // localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
-
       clearVotingProgress();
       onVoteFinish();
+      return;
     }
+
+    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
+    localStorage.setItem('FADE_VOTE_DATA', JSON.stringify({ ...voteData, viewCards }));
   }, [viewCards]);
 
   return (
@@ -461,11 +441,21 @@ function UserDetailCard() {
   const isSubscribed = useVotingStore(({ viewCards }) => viewCards.at(-1)?.isSubscribed || false);
   const memberId = useVotingStore(({ viewCards }) => viewCards.at(-1)?.memberId || -1);
 
+  const handleSubscribeToggle = (value: boolean) => {
+    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
+    const matchedItem = voteData.viewCards.at(-1)!; // 구독은 마지막 아이템에만 할 수 있음
+
+    localStorage.setItem(
+      'FADE_VOTE_DATA',
+      JSON.stringify({ ...voteData, viewCards: [...voteData.viewCards.slice(0, -1), { ...matchedItem, isSubscribed: value }] } as TLocalVoteData)
+    );
+  };
+
   return (
     <div className="flex flex-row items-center justify-center gap-3 rounded-lg bg-white px-3 py-2 shadow-bento">
       <RandomAvatar />
       <AnimatedUsername name={anonName} />
-      <SubscribeButton initialSubscribedStatus={isSubscribed} userId={memberId} onToggle={(value) => console.log(value)} />
+      <SubscribeButton initialSubscribedStatus={isSubscribed} userId={memberId} onToggle={handleSubscribeToggle} />
     </div>
   );
 }
@@ -507,6 +497,16 @@ function VotingTools() {
   const feedId = useVotingStore(({ viewCards }) => viewCards.at(-1)?.feedId || -1);
   const isBookmarked = useVotingStore(({ viewCards }) => viewCards.at(-1)?.isBookmarked || false);
 
+  const handleBookmarkToggle = (value: boolean) => {
+    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
+    const matchedItem = voteData.viewCards.at(-1)!; // 구독은 마지막 아이템에만 할 수 있음
+
+    localStorage.setItem(
+      'FADE_VOTE_DATA',
+      JSON.stringify({ ...voteData, viewCards: [...voteData.viewCards.slice(0, -1), { ...matchedItem, isBookmarked: value }] } as TLocalVoteData)
+    );
+  };
+
   return (
     <div className="flex w-full flex-col gap-3">
       <UserDetailCard />
@@ -514,7 +514,7 @@ function VotingTools() {
       <div className="flex flex-row gap-3">
         <VoteButton type="fadeOut" onClick={() => handleSelect('left')} />
         <VoteButton type="fadeIn" onClick={() => handleSelect('right')} />
-        <BookmarkButton feedId={feedId} defaultBookmarkStatus={isBookmarked} shadow />
+        <BookmarkButton feedId={feedId} defaultBookmarkStatus={isBookmarked} shadow onToggle={handleBookmarkToggle} />
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export function AccountSetting({ details: userDetails, onClose }: DefaultModalPr
       {
         onSuccess({ data: { accessToken } }) {
           setAuthorizationHeader({ accessToken });
-          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'] });
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'detail'], refetchType: 'all' });
           updateUserDetails({ userDetails: { ...value } });
           onClose();
         },

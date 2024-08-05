@@ -11,13 +11,14 @@ import { VscLoading } from 'react-icons/vsc';
 interface TBookmarkButton {
   feedId: number;
   defaultBookmarkStatus: boolean;
+  onToggle?: (value: boolean) => void;
   size?: 'default' | 'lg';
   shadow?: boolean;
 }
 
 type BookmarkButtonProps = TBookmarkButton;
 
-export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default', shadow = false }: BookmarkButtonProps) {
+export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default', shadow = false, onToggle }: BookmarkButtonProps) {
   const [isBookmarked, setIsBookmarked] = useState(defaultBookmarkStatus);
   const { showToast } = useToastActions();
 
@@ -40,7 +41,8 @@ export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default'
       },
       {
         onSuccess() {
-          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'bookmark'] });
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'bookmark'], refetchType: 'all' });
+          onToggle && onToggle(!defaultBookmarkStatus);
         },
         onError() {
           setIsBookmarked((prev) => !prev);

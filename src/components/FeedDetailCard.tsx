@@ -139,7 +139,7 @@ function FeedMoreButton({ feedDetail, onFeedEdited, onFeedDeleted }: FeedMoreBut
 
     if (result) {
       onFeedEdited();
-      queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'] });
+      queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'], refetchType: 'all' });
     }
   };
 
@@ -165,7 +165,7 @@ function FeedMoreButton({ feedDetail, onFeedEdited, onFeedDeleted }: FeedMoreBut
       {
         onSuccess() {
           onFeedDeleted();
-          queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'] });
+          queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'], refetchType: 'all' });
 
           showToast({ type: 'success', title: '사진을 삭제했습니다.' });
         },

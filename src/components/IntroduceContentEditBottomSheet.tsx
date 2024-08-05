@@ -47,7 +47,7 @@ export const IntroduceContentEditBottomSheet = forwardRef<HTMLDivElement, Defaul
           onSuccess() {
             onClose();
             showToast({ type: 'success', title: '자기소개를 수정했어요.' });
-            queryClient.invalidateQueries({ queryKey: ['user', myId, 'detail'] });
+            queryClient.invalidateQueries({ queryKey: ['user', myId, 'detail'], refetchType: 'all' });
           },
           onError() {
             showToast({ type: 'error', title: '자기소개를 수정하다가 오류가 났어요.' });

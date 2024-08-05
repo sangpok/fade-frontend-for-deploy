@@ -39,8 +39,8 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
       {
         onSuccess() {
           onToggle(!initialSubscribedStatus);
-          queryClient.invalidateQueries({ queryKey: ['user', userId, 'detail'] });
-          queryClient.invalidateQueries({ queryKey: ['subscribe'] });
+          queryClient.invalidateQueries({ queryKey: ['user', userId, 'detail'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['subscribe'], refetchType: 'all' });
         },
         onError() {
           setIsSubscribed((prev) => !prev);

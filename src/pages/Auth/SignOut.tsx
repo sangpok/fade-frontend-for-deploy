@@ -17,7 +17,7 @@ export default function SignOut() {
   useEffect(() => {
     signOut();
     clearAuthorizationHeader();
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries({ refetchType: 'all' });
     resetAuth();
   }, []);
 
