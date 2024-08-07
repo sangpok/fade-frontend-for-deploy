@@ -9,7 +9,7 @@ import { useToastActions } from '@Hooks/toast';
 import { queryClient } from '@Libs/queryclient';
 import { requestDeleteMyFeed } from '@Services/feed';
 import { useMutation } from '@tanstack/react-query';
-import { isTMyFeed, isTVoteHistoryFeed, TFAPArchivingFeed, TFeed, TFeedAdittionalDetail } from '@Types/model';
+import { isTMyFeed, isTVoteHistoryFeed, TFAPArchivingFeed, TFeed, TFeedAdittionalDetail, TOutfitItem } from '@Types/model';
 import { cn } from '@Utils/index';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -22,6 +22,7 @@ import { EditFeedDialog } from './EditFeedDialog';
 import { EditMyFeedBottomSheet } from './EditMyFeedBottomSheet';
 import { FeedDetailDialgoViewType } from './FeedDetailDialog';
 import { OutfitCard } from './OutfitCard';
+import { OutfitDialog } from './OutfitDialog';
 import { Button } from './ui/button';
 
 interface TFeedDetailCard {
@@ -95,7 +96,7 @@ export function FeedDetailCard({ focus, viewType = 'default', isStartAnimtionEnd
         {!isMineType && <MemberDetailCard {...feedDetail} onUsernameClicked={() => onUsernameClicked && onUsernameClicked()} />}
         {haveStyleIds && <StyleCard {...feedDetail} />}
         {haveOutfits && <OutfitCard {...outfits.sort((a, b) => a.categoryId - b.categoryId).at(0)!} />}
-        {haveOutfitsMoreThanOwn && <ShowAllOutfitsButton />}
+        {haveOutfitsMoreThanOwn && <ShowAllOutfitsButton outfits={outfits} />}
       </section>
     </div>
   );
@@ -265,6 +266,22 @@ function FeedAdiitionalDetailItem({ IconRender, detailName, count }: { IconRende
   );
 }
 
-function ShowAllOutfitsButton() {
-  return <Button variants="ghost">착장 정보 전체보기</Button>;
+interface TShowAllOutfitsButton {
+  outfits: TOutfitItem[];
+}
+
+type ShowAllOutfitsButtonProps = TShowAllOutfitsButton;
+
+function ShowAllOutfitsButton({ outfits }: ShowAllOutfitsButtonProps) {
+  const { showModal } = useModalActions();
+
+  const handleClick = () => {
+    showModal({ type: 'fullScreenDialog', Component: OutfitDialog, animateType: 'slideInFromRight', props: { outfits } });
+  };
+
+  return (
+    <Button variants="ghost" onClick={handleClick}>
+      착장 정보 전체보기
+    </Button>
+  );
 }
