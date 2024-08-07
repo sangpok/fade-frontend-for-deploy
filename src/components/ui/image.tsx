@@ -18,7 +18,7 @@ export function Image({ children, src, className, alt, size = 'cover', local = f
     <div className={cn('relative grid h-full w-full place-content-center', className)}>
       <img
         src={src}
-        srcSet={local ? createSrcSet(src) : src}
+        srcSet={local ? createSrcSet(src) : `${src}?w=720&q=10`}
         alt={alt}
         className={cn('pointer-events-none absolute inset-0 block h-full w-full', {
           ['[display:none]']: isError,

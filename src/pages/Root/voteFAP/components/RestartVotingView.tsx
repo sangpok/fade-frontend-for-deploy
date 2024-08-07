@@ -2,11 +2,11 @@ import { Button } from '@Components/ui/button';
 import { Image } from '@Components/ui/image';
 import { useNavigate } from 'react-router-dom';
 
-export function RestartVotingView({ onRestartVote }: { onRestartVote: () => void }) {
+export function RestartVotingView({ onVoteRestart }: { onVoteRestart: () => void }) {
   return (
     <div className="flex h-full flex-col justify-between gap-5">
       <RestartVotingCover />
-      <RestartVotingTools onRestartVote={onRestartVote} />
+      <RestartVotingTools onVoteRestart={onVoteRestart} />
     </div>
   );
 }
@@ -19,12 +19,12 @@ function RestartVotingCover() {
   );
 }
 
-function RestartVotingTools({ onRestartVote }: { onRestartVote: () => void }) {
+function RestartVotingTools({ onVoteRestart }: { onVoteRestart: () => void }) {
   const navigate = useNavigate();
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <Button className="text-xl" onClick={onRestartVote}>
+      <Button className="text-xl" onClick={onVoteRestart}>
         투표 다시하기
       </Button>
 

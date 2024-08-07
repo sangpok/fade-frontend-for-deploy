@@ -184,6 +184,10 @@ export function isTVoteHistoryFeed(feedDetail: TFeed): feedDetail is TVoteHistor
   return feedDetail.votedAt !== undefined;
 }
 
+export function TFAPArchivingFeed(feedDetail: TFeed): feedDetail is TFAPArchivingFeed {
+  return feedDetail.fapSelectedAt !== undefined;
+}
+
 /**
  * TFeedBase
  *  TVoteCandidate

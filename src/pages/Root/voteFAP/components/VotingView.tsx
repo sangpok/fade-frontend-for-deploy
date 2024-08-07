@@ -50,52 +50,43 @@ const outputOpacity = [1, 0, 1];
 
 type VotingViewType = 'loading' | 'voting' | 'submitting';
 
-/** TODO: 최초 local정보 불러오기 분리 */
+/**
+ * VotingView에 들어올 수 있는 엔트리 포인트
+ * 1. 서비스 최초로 접속 (voteData 없음)
+ * 2. 오늘 투표를 안 했는데, 투표를 하다가 재접속한 경우 (voteData 있음)
+ * 3. 오늘 투표를 했고 재투표하는 경우 (voteData 없음)
+ *
+ * 2번의 케이스를 처리하기 위해 voteData가 있으면 해당 데이터를 넘겨주고,
+ * 없으면 새로 패칭해야 함.
+ */
 
-export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
+export function VotingView({ onVoteFlowDone }: { onVoteFlowDone: () => void }) {
   const { showToast } = useToastActions();
 
   const cycleId = useVotingStore((state) => state.cycleId);
   const isVotingInProgress = useVotingStore((state) => state.isVotingInProgress);
-  const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
+
+  const setViewCards = useVotingStore((state) => state.setViewCards);
   const setVoteResults = useVotingStore((state) => state.setVoteResults);
   const setVotingProgress = useVotingStore((state) => state.setVotingProgress);
+  const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
   const setIsVotingInProgress = useVotingStore((state) => state.setIsVotingInProgress);
-  const setViewCards = useVotingStore((state) => state.setViewCards);
-  const generateNewCycleId = useVotingStore((state) => state.generateNewCycleId);
-
-  const [viewId, setViewId] = useState<VotingViewType>(isVotingInProgress ? 'voting' : 'loading');
 
   const localVoteData = localStorage.getItem('FADE_VOTE_DATA');
+  const hasLocalVoteData = localVoteData !== null;
+  const parsedVoteData = hasLocalVoteData ? (JSON.parse(localVoteData) as TLocalVoteData) : null;
 
-  const isLoadingView = viewId === 'loading';
-  const isVotingView = viewId === 'voting';
-  const isSubmittingView = viewId === 'submitting';
-
-  const { data: response } = useQuery({
+  const { data: response, isSuccess } = useQuery({
     queryKey: ['vote', 'candidates', cycleId],
     queryFn: () => requestGetVoteCandidates(),
-    enabled: viewId === 'loading' && localVoteData === null,
+    enabled: !isVotingInProgress && !hasLocalVoteData, // 새로 패칭해야 하는 경우는 투표를 진행할 때가 아니고, 저장된 투표 정보가 없을 때
   });
 
-  useEffect(() => {
-    if (localVoteData === null) {
-      return;
-    }
-
-    const { viewCards, voteResults } = JSON.parse(localVoteData) as TLocalVoteData;
-
-    setViewCards(viewCards);
-    setVoteResults(voteResults);
-
-    setIsVotingInProgress(true);
-    setVotingProgress(voteResults.length);
-
-    setViewId('voting');
-  }, [localVoteData]);
+  /** 로컬 투표 정보 or Fetching 데이터가 설정되면 true로 변경 */
+  const [isDataAwaited, setIsDataAwaited] = useState(false);
 
   useEffect(() => {
-    if (isVotingInProgress || !response) {
+    if (!isSuccess || isVotingInProgress) {
       return;
     }
 
@@ -106,11 +97,17 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
     if (hasNoVoteCandidate) {
       showToast({ type: 'basic', title: '오늘 투표할 페이더들의 사진이 없습니다.' });
 
-      localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+      /** 투표 진행 정보 제거 */
       localStorage.removeItem('FADE_VOTE_DATA');
 
+      /** 오늘 투표 완료 설정 */
+      setHasVotedToday(true);
+      localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+
+      /** 투표 Flow 종료 */
       setIsVotingInProgress(false);
-      handleSubmitDone();
+      onVoteFlowDone();
+
       return;
     }
 
@@ -123,51 +120,98 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
     setViewCards(voteCandidateCards);
 
     /** 비동기로 투표 후보지 사진 Prefetch */
-    const candidateImages = voteCandidates.map(({ imageURL }) => imageURL);
+    const candidateImages = voteCandidates.map(({ imageURL }) => `${imageURL}?w=720&q=10`);
 
     prefetchImages(candidateImages)
       .catch(() => showToast({ type: 'error', title: '사진을 불러오지 못했어요.' }))
       .finally(() => {
-        setViewId('voting');
         setIsVotingInProgress(true);
+        setIsDataAwaited(true);
       });
 
-    /** localStorage 저장 */
-    localStorage.setItem(
-      'FADE_VOTE_DATA',
-      JSON.stringify({
-        viewCards: voteCandidateCards,
-        voteResults: [],
-      } as TLocalVoteData)
-    );
-  }, [response]);
+    /** 투표 진행 정보 저장 */
+    const newLocalVoteData: TLocalVoteData = {
+      viewCards: voteCandidateCards,
+      voteResults: [],
+    };
 
+    localStorage.setItem('FADE_VOTE_DATA', JSON.stringify(newLocalVoteData));
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (!parsedVoteData) {
+      return;
+    }
+
+    const { viewCards, voteResults } = parsedVoteData;
+
+    setViewCards(viewCards);
+    setVoteResults(voteResults);
+
+    setIsVotingInProgress(true);
+    setVotingProgress(voteResults.length + 1);
+
+    setIsDataAwaited(true);
+  }, [parsedVoteData]);
+
+  return (
+    <AnimatePresence mode="wait">
+      {!isDataAwaited && (
+        <motion.div key="loading-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
+          <LoadingVoteCandidatesView />
+        </motion.div>
+      )}
+
+      {isDataAwaited && (
+        <motion.div key="awaited-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
+          <VoteFlowHandler onVoteFlowDone={onVoteFlowDone} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+interface TVoteFlowHandler {
+  onVoteFlowDone: () => void;
+}
+
+type VoteFlowHandlerProps = TVoteFlowHandler;
+
+function VoteFlowHandler({ onVoteFlowDone }: VoteFlowHandlerProps) {
+  const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
+  const setIsVotingInProgress = useVotingStore((state) => state.setIsVotingInProgress);
+
+  const [viewId, setViewId] = useState<VotingViewType>('voting');
+
+  const isVotingView = viewId === 'voting';
+  const isSubmittingView = viewId === 'submitting';
+
+  /** 사용자의 투표 동작이 끝남 */
   const handleVoteFinish = () => {
-    localStorage.removeItem('FADE_VOTE_DATA');
-
-    setViewId('submitting');
     setIsVotingInProgress(false);
+    setViewId('submitting');
   };
 
-  const handleSubmitDone = () => {
-    queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
+  /** 서버에 투표 정보 제출 완료 */
+  const handleSubmitDone = (isSuccess: boolean) => {
+    /** 제출 실패 시 로컬 투표 정보은 남겨둠 */
+    if (!isSuccess) {
+      return onVoteFlowDone();
+    }
+
+    localStorage.removeItem('FADE_VOTE_DATA');
     localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
 
-    setHasVotedToday(true);
+    queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
 
-    generateNewCycleId();
-    onSubmitDone();
+    setHasVotedToday(true);
+    setIsVotingInProgress(false);
+    onVoteFlowDone();
   };
 
   return (
     <div className="flex h-full flex-col items-center justify-center">
       <AnimatePresence mode="wait">
-        {isLoadingView && (
-          <motion.div key="loading-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
-            <LoadingVoteCandidatesView />
-          </motion.div>
-        )}
-
         {isVotingView && (
           <motion.div key="awaited-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
             <AwaitedVotingView onVoteFinish={handleVoteFinish} />
@@ -184,7 +228,13 @@ export function VotingView({ onSubmitDone }: { onSubmitDone: () => void }) {
   );
 }
 
-function SubmittingView({ onSubmitDone }: { onSubmitDone: () => void }) {
+interface TSubmittingView {
+  onSubmitDone: (isSucess: boolean) => void;
+}
+
+type SubmittingViewProps = TSubmittingView;
+
+function SubmittingView({ onSubmitDone }: SubmittingViewProps) {
   const { showToast } = useToastActions();
 
   const startTransition = useTransition()[1];
@@ -200,7 +250,13 @@ function SubmittingView({ onSubmitDone }: { onSubmitDone: () => void }) {
     /** Initial Animation 보장을 위한 Transition */
     startTransition(() => {
       sendVoteResult(voteResults, {
+        onSuccess() {
+          onSubmitDone(true);
+          clearVoteResults();
+        },
         onError(error) {
+          onSubmitDone(false);
+
           /** TODO: showErrorToast 전역으로 빼기 */
           if (isAxiosError<ServiceErrorResponse>(error) && error.response) {
             const { errorCode } = error.response!.data.result;
@@ -213,10 +269,6 @@ function SubmittingView({ onSubmitDone }: { onSubmitDone: () => void }) {
           }
 
           showToast({ type: 'error', title: `알 수 없는 오류(${error.name})`, description: error.message });
-        },
-        onSettled() {
-          clearVoteResults();
-          onSubmitDone();
         },
       });
     });

@@ -3,11 +3,11 @@ import { Image } from '@Components/ui/image';
 import { useModalActions } from '@Hooks/modal';
 import { HowToVoteModal } from './HowToVoteModal';
 
-export function ReadyToVoteView({ onStartClick }: { onStartClick: () => void }) {
+export function ReadyToVoteView({ onVoteStart }: { onVoteStart: () => void }) {
   return (
     <div className="flex h-full flex-col justify-between gap-5">
       <ReadyToVoteCover />
-      <ReadyToVoteTools onStartClick={onStartClick} />
+      <ReadyToVoteTools onVoteStart={onVoteStart} />
     </div>
   );
 }
@@ -34,10 +34,10 @@ function HowToVoteButton() {
   );
 }
 
-function ReadyToVoteTools({ onStartClick }: { onStartClick: () => void }) {
+function ReadyToVoteTools({ onVoteStart }: { onVoteStart: () => void }) {
   return (
     <div className="flex w-full flex-col gap-3">
-      <StartVoteButton onClick={onStartClick} />
+      <StartVoteButton onClick={onVoteStart} />
       <HowToVoteButton />
     </div>
   );

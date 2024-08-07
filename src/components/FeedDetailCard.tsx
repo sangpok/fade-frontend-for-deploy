@@ -9,7 +9,7 @@ import { useToastActions } from '@Hooks/toast';
 import { queryClient } from '@Libs/queryclient';
 import { requestDeleteMyFeed } from '@Services/feed';
 import { useMutation } from '@tanstack/react-query';
-import { isTMyFeed, isTVoteHistoryFeed, TFeed, TFeedAdittionalDetail } from '@Types/model';
+import { isTMyFeed, isTVoteHistoryFeed, TFAPArchivingFeed, TFeed, TFeedAdittionalDetail } from '@Types/model';
 import { cn } from '@Utils/index';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -20,10 +20,12 @@ import { useNavigate } from 'react-router-dom';
 import { BookmarkButton } from './BookmarkButton';
 import { EditFeedDialog } from './EditFeedDialog';
 import { EditMyFeedBottomSheet } from './EditMyFeedBottomSheet';
+import { FeedDetailDialgoViewType } from './FeedDetailDialog';
 import { OutfitCard } from './OutfitCard';
 import { Button } from './ui/button';
 
 interface TFeedDetailCard {
+  viewType?: FeedDetailDialgoViewType;
   focus?: boolean;
   isStartAnimtionEnd?: boolean;
   onUsernameClicked?: () => void;
@@ -33,9 +35,13 @@ interface TFeedDetailCard {
 
 type FeedDetailCardProps = TFeedDetailCard & TFeed;
 
-export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
+export function FeedDetailCard({ focus, viewType = 'default', isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isVoteType = isTVoteHistoryFeed(feedDetail);
+
+  const isDefaultType = viewType === 'default';
+  const isFAPType = viewType === 'fapArchiving' && TFAPArchivingFeed(feedDetail);
+  const isVoteType = viewType === 'voteHistory' && isTVoteHistoryFeed(feedDetail);
+
   const isMineType = isTMyFeed(feedDetail);
 
   const { id: feedId, imageURL, isFAPFeed, isMine, outfits, styleIds } = feedDetail;
@@ -68,8 +74,9 @@ export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, o
       <section className="relative flex h-full w-full flex-col gap-3 p-5">
         {isFAPFeed && <Image src={'/assets/fap_badge.png'} className={cn('absolute right-5 top-5 size-8', { ['right-[3.75rem]']: isMine })} local />}
         {isMine && <FeedMoreButton feedDetail={feedDetail} onFeedEdited={handleFeedEdited} onFeedDeleted={handleFeedDeleted} />}
+        {isFAPType && <p className="text-h6">{format(feedDetail.fapSelectedAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
         {isVoteType && <p className="text-h6">{format(feedDetail.votedAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
-        {!isVoteType && <p className="text-h6">{format(feedDetail.createdAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
+        {isDefaultType && <p className="text-h6">{format(feedDetail.createdAt, 'yyyy년 M월 dd일 eeee', { locale: ko })}</p>}
 
         <Image
           src={imageURL}
@@ -87,7 +94,7 @@ export function FeedDetailCard({ focus, isStartAnimtionEnd, onUsernameClicked, o
         {isMineType && <FeedAdiitionalDetails {...feedDetail} />}
         {!isMineType && <MemberDetailCard {...feedDetail} onUsernameClicked={() => onUsernameClicked && onUsernameClicked()} />}
         {haveStyleIds && <StyleCard {...feedDetail} />}
-        {haveOutfits && <OutfitCard {...outfits.sort((a, b) => a.categoryId - b.categoryId).at(0)!} wouldShowDetail={false} />}
+        {haveOutfits && <OutfitCard {...outfits.sort((a, b) => a.categoryId - b.categoryId).at(0)!} />}
         {haveOutfitsMoreThanOwn && <ShowAllOutfitsButton />}
       </section>
     </div>

@@ -38,9 +38,12 @@ export function SubscribeButton({ size = 'default', userId, initialSubscribedSta
       { toMemberId: userId, wouldSubscribe: !initialSubscribedStatus },
       {
         onSuccess() {
-          onToggle(!initialSubscribedStatus);
           queryClient.invalidateQueries({ queryKey: ['user', userId, 'detail'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
           queryClient.invalidateQueries({ queryKey: ['subscribe'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['archiving'], refetchType: 'all' });
+
+          onToggle(!initialSubscribedStatus);
         },
         onError() {
           setIsSubscribed((prev) => !prev);

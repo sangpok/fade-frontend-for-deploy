@@ -42,6 +42,10 @@ export function BookmarkButton({ feedId, defaultBookmarkStatus, size = 'default'
       {
         onSuccess() {
           queryClient.invalidateQueries({ queryKey: ['user', 'me', 'bookmark'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['archiving'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['subscribe', 'list'] });
+
           onToggle && onToggle(!defaultBookmarkStatus);
         },
         onError() {

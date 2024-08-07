@@ -24,7 +24,7 @@ export const enum SignUpType {
   KAKAO = 'KAKAO',
 }
 
-type SignUpPayload = { signUpType: SignUpType; accessToken: string; username: string; gender: string };
+type SignUpPayload = { signUpType: SignUpType; accessToken: string; username: string; genderType: string };
 type SignUpResponse = AuthTokens;
 
 /** 회원가입 요청 */
@@ -32,7 +32,7 @@ export async function requestSignUp(payload: SignUpPayload) {
   return await axios.post<SignUpResponse>(`/auth/social-login/${payload.signUpType}/signup`, {
     socialAccessToken: payload.accessToken,
     username: payload.username,
-    genderType: payload.gender,
+    genderType: payload.genderType,
   });
 }
 

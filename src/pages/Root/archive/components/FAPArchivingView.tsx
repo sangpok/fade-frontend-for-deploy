@@ -113,7 +113,7 @@ type FAPFeedsProps = TFAPFeeds;
 
 function FAPFeeds({ calenderDate }: FAPFeedsProps) {
   const { showModal } = useModalActions();
-  const { data, isFetched } = useQuery({
+  const { data, isSuccess } = useQuery({
     queryKey: ['archiving', 'fap', calenderDate],
     queryFn: () => requestFAPArchiving({ selectedDate: calenderDate }),
   });
@@ -128,11 +128,7 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
   const feeds = data?.feeds;
 
   useEffect(() => {
-    if (!isFetched || !feeds) {
-      return;
-    }
-
-    if (feeds.length === 0) {
+    if (!isSuccess || !feeds || feeds.length === 0) {
       return;
     }
 
@@ -156,7 +152,7 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
     });
 
     localStorage.setItem('FADE_LAST_FAP_DATE', yesterday);
-  }, [isFetched]);
+  }, [isSuccess]);
 
   return (
     <Grid cols={7} rows={weeksInMonth} className="flex-1">
@@ -193,12 +189,23 @@ function DayItem({ day, feed, feeds, firstDayOfWeek, isThisMonth, todayDay }: Da
   const isTodayDay = isThisMonth && day == todayDay;
   const isOverTodayDay = isThisMonth && day > todayDay;
 
+  const feedIndex = feeds?.findIndex(({ id }) => id === feed?.id);
+
   const handleClick = async () => {
     if (!feed) {
       return;
     }
 
-    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: FeedDetailDialog, props: { feeds, defaultViewIndex: day - 1 } });
+    await showModal({
+      type: 'fullScreenDialog',
+      animateType: 'slideInFromRight',
+      Component: FeedDetailDialog,
+      props: {
+        feeds,
+        defaultViewIndex: feedIndex,
+        viewType: 'fapArchiving',
+      },
+    });
   };
 
   return (

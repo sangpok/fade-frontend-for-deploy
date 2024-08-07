@@ -4,9 +4,17 @@ import { TFeed } from '@Types/model';
 import { FeedDetailCard } from './FeedDetailCard';
 import { BackButton } from './ui/button';
 
-type FeedDialogDialogProps = { feeds: TFeed[]; defaultViewIndex: number };
+export type FeedDetailDialgoViewType = 'default' | 'fapArchiving' | 'voteHistory';
 
-export function FeedDetailDialog({ feeds, defaultViewIndex = 0, isStartAnimtionEnd, onClose }: DefaultModalProps<void, FeedDialogDialogProps>) {
+interface TFeedDetailDialog {
+  feeds: TFeed[];
+  defaultViewIndex: number;
+  viewType?: FeedDetailDialgoViewType;
+}
+
+type FeedDialogDialogProps = DefaultModalProps<void, TFeedDetailDialog>;
+
+export function FeedDetailDialog({ feeds, defaultViewIndex = 0, viewType = 'default', isStartAnimtionEnd, onClose }: FeedDialogDialogProps) {
   return (
     <FlexibleLayout.Root>
       <FlexibleLayout.Header>
@@ -19,6 +27,7 @@ export function FeedDetailDialog({ feeds, defaultViewIndex = 0, isStartAnimtionE
       <FlexibleLayout.Content>
         <Feeds
           feeds={feeds}
+          viewType={viewType}
           defaultViewIndex={defaultViewIndex}
           onUsernameClicked={onClose}
           isStartAnimtionEnd={isStartAnimtionEnd}
@@ -33,6 +42,7 @@ export function FeedDetailDialog({ feeds, defaultViewIndex = 0, isStartAnimtionE
 interface TFeeds {
   feeds: TFeed[];
   defaultViewIndex: number;
+  viewType: FeedDetailDialgoViewType;
   isStartAnimtionEnd: boolean;
   onUsernameClicked: () => void;
   onFeedEdited: () => void;
@@ -41,13 +51,14 @@ interface TFeeds {
 
 type FeedsProps = TFeeds;
 
-function Feeds({ feeds, defaultViewIndex, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted }: FeedsProps) {
+function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted }: FeedsProps) {
   return (
     <div id="feedList" className="h-full snap-y snap-mandatory overflow-y-scroll">
       {feeds.map((feedDetail, index) => (
         <FeedDetailCard
           key={feedDetail.id}
           {...feedDetail}
+          viewType={viewType}
           focus={index === defaultViewIndex}
           isStartAnimtionEnd={isStartAnimtionEnd}
           onUsernameClicked={onUsernameClicked}

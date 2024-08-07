@@ -313,7 +313,16 @@ function FeedItem({ feeds, index, ...feed }: FeedItemProps) {
   const { showModal } = useModalActions();
 
   const handleClick = async () => {
-    await showModal({ type: 'fullScreenDialog', animateType: 'slideInFromRight', Component: FeedDetailDialog, props: { feeds, defaultViewIndex: index } });
+    await showModal({
+      type: 'fullScreenDialog',
+      animateType: 'slideInFromRight',
+      Component: FeedDetailDialog,
+      props: {
+        feeds,
+        defaultViewIndex: index,
+        viewType: 'voteHistory',
+      },
+    });
   };
 
   return (

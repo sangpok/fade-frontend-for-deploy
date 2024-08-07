@@ -20,39 +20,53 @@ const enum VoteViewType {
 }
 
 export function VoteController() {
+  const generateNewCycleId = useVotingStore((state) => state.generateNewCycleId);
   const isVotingInProgress = useVotingStore((state) => state.isVotingInProgress);
+
   const [viewId, setViewId] = useState<VoteViewType>(isVotingInProgress ? VoteViewType.VOTING : VoteViewType.BEFORE_VOTING);
 
   const isBeforeVoting = viewId === VoteViewType.BEFORE_VOTING;
   const isVoting = viewId === VoteViewType.VOTING;
   const isAfterVoting = viewId === VoteViewType.AFTER_VOTING;
 
+  const handleVoteStart = () => {
+    generateNewCycleId();
+    setViewId(VoteViewType.VOTING);
+  };
+
+  const handleVoteFlowDone = () => {
+    setViewId(VoteViewType.AFTER_VOTING);
+  };
+
+  const handleVoteRestart = () => {
+    generateNewCycleId();
+    setViewId(VoteViewType.VOTING);
+  };
+
   return (
-    <>
-      <div className="h-full">
-        <BackgroundEllipse />
+    <div className="h-full">
+      <BackgroundEllipse />
 
-        <AnimatePresence mode="wait">
-          {isBeforeVoting && (
-            <motion.div {...baseAnimateProps} key="view-1" variants={viewVariants} className="h-full">
-              <ReadyToVoteView onStartClick={() => setViewId(VoteViewType.VOTING)} />
-            </motion.div>
-          )}
+      <AnimatePresence mode="wait">
+        {isBeforeVoting && (
+          <motion.div {...baseAnimateProps} key="view-1" variants={viewVariants} className="h-full">
+            <ReadyToVoteView onVoteStart={handleVoteStart} />
+          </motion.div>
+        )}
 
-          {isVoting && (
-            <motion.div {...baseAnimateProps} key="view-2" variants={viewVariants} className="h-full">
-              <VotingView onSubmitDone={() => setViewId(VoteViewType.AFTER_VOTING)} />
-            </motion.div>
-          )}
+        {isVoting && (
+          <motion.div {...baseAnimateProps} key="view-2" variants={viewVariants} className="h-full">
+            <VotingView onVoteFlowDone={handleVoteFlowDone} />
+          </motion.div>
+        )}
 
-          {isAfterVoting && (
-            <motion.div {...baseAnimateProps} key="view-3" variants={viewVariants} className="h-full">
-              <RestartVotingView onRestartVote={() => setViewId(VoteViewType.VOTING)} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </>
+        {isAfterVoting && (
+          <motion.div {...baseAnimateProps} key="view-3" variants={viewVariants} className="h-full">
+            <RestartVotingView onVoteRestart={handleVoteRestart} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

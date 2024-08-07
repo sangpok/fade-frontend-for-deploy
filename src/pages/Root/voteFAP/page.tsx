@@ -1,14 +1,14 @@
 import { ShowNotificationButton } from '@Components/ShowNotificationButton';
+import { Button } from '@Components/ui/button';
 import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { FlexibleLayout } from '@Layouts/FlexibleLayout';
+import { useAuthStore } from '@Stores/auth';
 import { useVotingStore } from '@Stores/vote';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MdInfoOutline } from 'react-icons/md';
 import { VoteController } from './components/VoteController';
 import { VotePolicyBottomSheet } from './components/VotePolicyBottomSheet';
-import { Button } from '@Components/ui/button';
-import { useAuthStore } from '@Stores/auth';
 
 export default function Page() {
   useHeader({
