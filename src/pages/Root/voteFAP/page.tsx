@@ -37,7 +37,10 @@ function VotingCounter() {
   const shouldVoteToday = !hasVotedToday && votingCountToday === 0;
 
   return (
-    <div className="flex flex-row rounded-lg border border-gray-200 bg-white p-3 shadow-bento">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-row rounded-lg border border-gray-200 bg-white p-3 shadow-bento">
       {shouldVoteToday && <p className="flex-1">{username}님, 오늘의 투표를 진행해보세요!</p>}
       {!shouldVoteToday && (
         <p className="flex-1">
@@ -52,7 +55,7 @@ function VotingCounter() {
           </motion.span>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 

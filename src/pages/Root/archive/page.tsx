@@ -50,7 +50,7 @@ export default function Page() {
 
   return (
     <div className="flex h-full flex-col">
-      <menu className="flex flex-row bg-white px-5">
+      <motion.menu initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="flex flex-row bg-white px-5">
         <li className="flex-1">
           <button className="relative h-full w-full py-3" onClick={() => switchToTab(0)} disabled={isTransitionInProgress}>
             <span className={cn('text-h6 font-semibold text-gray-500 transition-colors', { ['text-current']: isFAPTab })}>FA:P 아카이브</span>
@@ -63,9 +63,9 @@ export default function Page() {
             {isAllTab && <TabIndicator />}
           </button>
         </li>
-      </menu>
+      </motion.menu>
 
-      <div className="relative flex h-full">
+      <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="relative flex h-full">
         <AnimatePresence custom={direction} initial={false} onExitComplete={() => setIsTransitionInProgress(false)}>
           {isFAPTab && (
             <motion.div key="fap-view" className="absolute flex h-full w-full" custom={direction} variants={transitionVariants} {...baseAnimationProps}>
@@ -78,7 +78,7 @@ export default function Page() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
   );
 }

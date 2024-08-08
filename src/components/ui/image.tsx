@@ -1,6 +1,8 @@
 import { cn, createSrcSet } from '@Utils/index';
+import { motion } from 'framer-motion';
 import { PropsWithChildren, useState } from 'react';
 import { MdOutlineImageNotSupported } from 'react-icons/md';
+import { VscLoading } from 'react-icons/vsc';
 
 interface ImageProps {
   src: string;
@@ -11,30 +13,41 @@ interface ImageProps {
 }
 
 export function Image({ children, src, className, alt, size = 'cover', local = false }: PropsWithChildren<ImageProps>) {
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, setIsPending] = useState(true);
   const [isError, setIsError] = useState(false);
 
   return (
     <div className={cn('relative grid h-full w-full place-content-center', className)}>
-      <img
+      <motion.img
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isPending ? 0 : 1 }}
         src={src}
         srcSet={local ? createSrcSet(src) : `${src}?w=720&q=10`}
         alt={alt}
         className={cn('pointer-events-none absolute inset-0 block h-full w-full', {
-          ['[display:none]']: isError,
+          ['[display:none]']: isError || isPending,
           ['object-cover']: size === 'cover',
           ['object-contain']: size === 'contain',
           ['object-none']: size === 'fit',
         })}
-        onLoadStart={() => setIsPending(true)}
         onLoad={() => setIsPending(false)}
-        onError={() => setIsError(true)}
-        // loading="lazy"
+        onError={() => {
+          setIsError(true);
+          setIsPending(false);
+        }}
       />
-      {isPending && <div className="absolute inset-0 animate-pulse bg-gray-200" />}
+      {isPending && <PendingSpinner />}
       {isError && <MdOutlineImageNotSupported className="size-4 text-pink-400" />}
       <PreventImageDragging />
       {children}
+    </div>
+  );
+}
+
+function PendingSpinner() {
+  return (
+    <div className="absolute inset-0 grid place-items-center bg-gray-200">
+      <VscLoading className="animate-spin" />
     </div>
   );
 }

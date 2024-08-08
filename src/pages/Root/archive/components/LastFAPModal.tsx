@@ -26,7 +26,7 @@ export const LastFAPModal = forwardRef<HTMLDivElement, DefaultModalProps<void, L
     return (
       <FlexibleLayout.Root
         style={{
-          backgroundImage: `image-set(url('/assets/fap_modal_bg.jpg') 1x, url('/assets/fap_modal_bg@2.jpg') 2x, url('/assets/fap_modal_bg@3.jpg') 3x)`,
+          backgroundImage: `image-set(url('/assets/fap_modal_bg.jpg') 1x, url('/assets/fap_modal_bg@2x.jpg') 2x, url('/assets/fap_modal_bg@3x.jpg') 3x)`,
         }}
         ref={ref}
         className="h-[32rem] rounded-2xl bg-cover bg-center bg-no-repeat">

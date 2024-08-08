@@ -3,6 +3,7 @@ import { Button } from '@Components/ui/button';
 import { useHeader } from '@Hooks/useHeader';
 import { requestGetMyDetails } from '@Services/member';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { MdChevronLeft } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,5 +24,9 @@ export default function Page() {
     queryFn: () => requestGetMyDetails(),
   });
 
-  return <div className="flex h-full flex-col">{data && <ProfileDetails viewType="owner" userId={data.data.id} />}</div>;
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="flex h-full flex-col">
+      {data && <ProfileDetails viewType="owner" userId={data.data.id} />}
+    </motion.div>
+  );
 }

@@ -7,6 +7,7 @@ import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
 import { requestGetSubscribers } from '@Services/member';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { TSubscriber } from '@Types/model';
+import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,14 +38,14 @@ export default function Page() {
   }, [hasNextPage]);
 
   return (
-    <div className="relative flex h-full flex-col space-y-8">
+    <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="relative flex h-full flex-col space-y-8">
       <ul id="subscriberList">
         {data?.pages.map((page) => page.subscribers.map((subscriber) => <SubscribeItem key={`subscriber-${subscriber.userId}`} {...subscriber} />))}
       </ul>
 
       {isFetchingNextPage && <SpinLoading />}
       {isPending && !hasNextPage && <p className="pl-3 text-detail text-gray-700">모든 페이더들의 패션을 불러왔어요.</p>}
-    </div>
+    </motion.div>
   );
 }
 

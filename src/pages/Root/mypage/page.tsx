@@ -6,6 +6,7 @@ import { requestGetMyDetails } from '@Services/member';
 import { useAuthStore } from '@Stores/auth';
 import { useQuery } from '@tanstack/react-query';
 import { TMyUserDetail } from '@Types/model';
+import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { IconType } from 'react-icons/lib';
 import { MdBook, MdBookmark, MdHowToVote, MdPerson } from 'react-icons/md';
@@ -101,7 +102,7 @@ export default function Page() {
     <div className="flex h-full flex-col bg-gray-100">
       <MyDetails details={data?.data} />
 
-      <div className="flex min-h-1 flex-1 flex-col">
+      <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="flex min-h-1 flex-1 flex-col">
         <ul className="min-h-1 flex-1 space-y-3 overflow-y-scroll px-5 py-3">
           {mypageMenus.map((menuItem) => (
             <li key={`menu-${menuItem.id}`} onClick={() => handleMenuClick(menuItem)} className="flex cursor-pointer flex-row gap-1 rounded-lg bg-white px-5 py-3">
@@ -112,14 +113,17 @@ export default function Page() {
         </ul>
 
         <LogoutButton />
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 function MyDetails({ details }: { details: TMyUserDetail | undefined }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-5 rounded-b-2xl bg-white pb-5 pt-10">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center gap-5 rounded-b-2xl bg-white pb-5 pt-10">
       <Avatar src={details?.profileImageURL} size="124" />
 
       <div className="flex flex-col items-center justify-center gap-1">
@@ -133,7 +137,7 @@ function MyDetails({ details }: { details: TMyUserDetail | undefined }) {
       </div>
 
       <ManageAccountButton details={details} />
-    </div>
+    </motion.div>
   );
 }
 

@@ -2,6 +2,7 @@ import { FeedDetailDialog } from '@Components/FeedDetailDialog';
 import { SpinLoading } from '@Components/SpinLoading';
 import { Grid } from '@Components/ui/grid';
 import { Image } from '@Components/ui/image';
+import { Skeleton } from '@Components/ui/skeleton';
 import { useModalActions } from '@Hooks/modal';
 import { useHeader } from '@Hooks/useHeader';
 import { useInfiniteObserver } from '@Hooks/useInfiniteObserver';
@@ -33,6 +34,8 @@ export default function Page() {
           id="datePicker"
           type="date"
           value={format(selectedDate, 'yyyy-MM-dd')}
+          min={'2024-07-30'}
+          max={format(new Date(), 'yyyy-MM-dd')}
           onInput={(e) => {
             setSelectedDate(e.currentTarget.valueAsDate || selectedDate);
             setSearchMode('bidirection');
@@ -42,10 +45,48 @@ export default function Page() {
         <FadeInModeToggleButton isFadeInMode={isFadeInMode} onToggle={() => setIsFadeInMode((prev) => !prev)} />
       </div>
 
-      <Suspense fallback={'로딩중'}>
-        {searchMode === 'bidirection' && <p>기능 준비중입니다...</p>}
+      <Suspense fallback={<VoteHistoryGridSkeleton />}>
+        {searchMode === 'bidirection' && <p className="ml-5">특정 투표 일자를 보는 기능은 준비중입니다! 빠른 시일 안에 구현하겠습니다 :)</p>}
         {searchMode === 'onlyDown' && <VoteHistoryOnlyDownView isFadeInMode={isFadeInMode} selectedDateLabel={selectedDateLabel} />}
       </Suspense>
+    </div>
+  );
+}
+
+function VoteHistoryGridSkeleton() {
+  return (
+    <div id="feedList" className="flex-1 space-y-[3.75rem] overflow-y-scroll p-5">
+      <section className="space-y-2">
+        <Skeleton className="h-5 w-[16rem]" />
+        <Grid id="feedList" cols={5}>
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+        </Grid>
+      </section>
+
+      <section className="space-y-2">
+        <Skeleton className="h-5 w-[16rem]" />
+        <Grid id="feedList" cols={5}>
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+          <Skeleton className="aspect-[3/4] flex-1" />
+        </Grid>
+      </section>
     </div>
   );
 }

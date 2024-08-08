@@ -10,6 +10,7 @@ import { useHeaderStore } from '@Stores/header';
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { TSubscriber } from '@Types/model';
 import { cn } from '@Utils/index';
+import { motion } from 'framer-motion';
 import { Suspense, useEffect } from 'react';
 import { MdChevronRight } from 'react-icons/md';
 import { VscLoading } from 'react-icons/vsc';
@@ -42,13 +43,17 @@ export default function Page() {
   return (
     <div className="relative flex h-full flex-col">
       <Suspense fallback={<SubscriberListSkeleton />}>
-        <div className="relative h-fit w-full px-5 py-4">
-          <SubscriberList />
-        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }}>
+          <div className="relative h-fit w-full px-5 py-4">
+            <SubscriberList />
+          </div>
+        </motion.div>
       </Suspense>
 
       <Suspense fallback={<SubscribeFeedListSkeleton />}>
-        <SubscribeFeedList />
+        <motion.div initial={{ opacity: 0, scale: 0.9, transformOrigin: 'top' }} animate={{ opacity: 1, scale: 1 }} className="flex h-full min-h-1 flex-1">
+          <SubscribeFeedList />
+        </motion.div>
       </Suspense>
     </div>
   );
