@@ -6,6 +6,7 @@ import { requestSearchUser } from '@Services/member';
 import { DefaultModalProps } from '@Stores/modal';
 import { useQuery } from '@tanstack/react-query';
 import { TMatchedUser } from '@Types/model';
+import { loadLocalData, saveLocalData } from '@Utils/index';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { MdCancel, MdClose, MdSearch, MdWarning } from 'react-icons/md';
@@ -21,7 +22,7 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
   const [isDebouncePending, debouncedUsername] = useDebounce(targetUsername, 350);
   const [results, setResults] = useState<TMatchedUser[]>([]);
 
-  const [searchHistory, setSearchHistory] = useState<TMatchedUser[]>(JSON.parse(localStorage.getItem('FADE_SEARCH_HISTORY') || '[]') as TMatchedUser[]);
+  const [searchHistory, setSearchHistory] = useState<TMatchedUser[]>(JSON.parse(loadLocalData('FADE_SEARCH_HISTORY') || '[]') as TMatchedUser[]);
 
   const { data, isPending: isQueryPending } = useQuery({
     queryKey: ['search', 'user', debouncedUsername],
@@ -39,12 +40,12 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
     const hasAlreadyUser = searchHistory.find(({ id }) => id === userDetail.id);
 
     if (hasAlreadyUser) {
-      localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.filter(({ id }) => id !== userDetail.id)]));
+      saveLocalData('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.filter(({ id }) => id !== userDetail.id)]));
     } else {
       if (searchHistory.length > 4) {
-        localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.slice(0, -1)]));
+        saveLocalData('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory.slice(0, -1)]));
       } else {
-        localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory]));
+        saveLocalData('FADE_SEARCH_HISTORY', JSON.stringify([userDetail, ...searchHistory]));
       }
     }
 
@@ -56,7 +57,7 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
     const matchedItem = searchHistory.find(({ id }) => id === userId)!;
     const newHistory: TMatchedUser[] = [matchedItem, ...searchHistory.filter(({ id }) => id !== userId)];
 
-    localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
+    saveLocalData('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
     setSearchHistory(newHistory);
 
     navigate('/user', { state: { userId } });
@@ -66,7 +67,7 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
   const handleHistoryUserItemDelete = (userId: number) => {
     const newHistory: TMatchedUser[] = [...searchHistory.filter(({ id }) => id !== userId)];
 
-    localStorage.setItem('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
+    saveLocalData('FADE_SEARCH_HISTORY', JSON.stringify(newHistory));
     setSearchHistory(newHistory);
   };
 

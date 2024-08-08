@@ -5,7 +5,7 @@ import { requestRefreshToken } from '@Services/auth';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { AuthTokens } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
-import { getPayloadFromJWT } from '@Utils/index';
+import { getPayloadFromJWT, loadLocalData } from '@Utils/index';
 import { isAxiosError } from 'axios';
 import { useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 
 export default function Page() {
   const isAuthenticated = useIsAuthenticated();
-  const savedRefreshToken = atob(localStorage.getItem('_fert') || ''); // 암호화된 RT를 특정하지 못하도록 키를 줄임, FADE Encrypted Refresh Token
+  const savedRefreshToken = atob(loadLocalData('_fert') || ''); // 암호화된 RT를 특정하지 못하도록 키를 줄임, FADE Encrypted Refresh Token
 
   if (isAuthenticated) {
     return <Navigate to="/vote-fap" />;

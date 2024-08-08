@@ -14,6 +14,78 @@
     { "purpose": "maskable", "sizes": "512x512", "type": "image/png", "src": "/icons/maskable_icon_x512.png" },
     { "purpose": "any", "sizes": "512x512", "type": "image/png", "src": "/icons/icon_rounded.png" }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "투표로 만들어가는 패션 트렌드, FADE"
+    },
+    {
+      "src": "/screenshot2.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "마음에 드는 패션에 투표하세요"
+    },
+    {
+      "src": "/screenshot3.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "매일 선정된 FA:P로 트렌드를 확인하세요"
+    },
+    {
+      "src": "/screenshot4.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "내 취향에 맞는 계정을 구독하세요"
+    },
+    {
+      "src": "/screenshot5.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "나만의 패션 감각을 다른 사람과 공유하세요"
+    },
+    {
+      "src": "/screenshot1.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "투표로 만들어가는 패션 트렌드, FADE"
+    },
+    {
+      "src": "/screenshot2.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "마음에 드는 패션에 투표하세요"
+    },
+    {
+      "src": "/screenshot3.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "매일 선정된 FA:P로 트렌드를 확인하세요"
+    },
+    {
+      "src": "/screenshot4.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "내 취향에 맞는 계정을 구독하세요"
+    },
+    {
+      "src": "/screenshot5.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "나만의 패션 감각을 다른 사람과 공유하세요"
+    }
+  ],
   "orientation": "any",
   "display_override": ["fullscreen", "minimal-ui"],
   "display": "standalone",

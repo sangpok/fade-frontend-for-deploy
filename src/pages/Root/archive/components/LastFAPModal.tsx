@@ -26,7 +26,7 @@ export const LastFAPModal = forwardRef<HTMLDivElement, DefaultModalProps<void, L
     return (
       <FlexibleLayout.Root
         style={{
-          backgroundImage: `image-set(url('/assets/fap_modal_bg.png') 1x, url('/assets/fap_modal_bg@2.png') 2x, url('/assets/fap_modal_bg@3.png') 3x)`,
+          backgroundImage: `image-set(url('/assets/fap_modal_bg.jpg') 1x, url('/assets/fap_modal_bg@2.jpg') 2x, url('/assets/fap_modal_bg@3.jpg') 3x)`,
         }}
         ref={ref}
         className="h-[32rem] rounded-2xl bg-cover bg-center bg-no-repeat">
@@ -45,7 +45,7 @@ export const LastFAPModal = forwardRef<HTMLDivElement, DefaultModalProps<void, L
 
           <div className="mx-auto flex flex-row items-center gap-3">
             <div className="relative">
-              <Avatar src="/assets/test_fashion_image.jpg" size="40" />
+              <Avatar src={feed.profileImageURL} size="40" />
               <FaCrown className="absolute -left-3 -top-4 size-6 -rotate-[25deg] text-yellow-700" />
             </div>
 

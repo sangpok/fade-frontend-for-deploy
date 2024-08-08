@@ -26,7 +26,7 @@ export function UploadFeedDialog({ setCloseHandler, onClose, onSubmitSuccess }: 
 
   const confirmUnsavedChanges = async () => {
     if (dirtyRef.current) {
-      const wouldExit = await confirm({ title: '변경되지 않은 머시깽이가 있어요.', description: '그래도 나감? 리얼로?' });
+      const wouldExit = await confirm({ title: '저장되지 않은 변경 사항이 있습니다.', description: '저장하지 않고 나가시겠습니까?' });
       return wouldExit || false;
     }
 

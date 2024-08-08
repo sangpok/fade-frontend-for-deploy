@@ -313,3 +313,18 @@ export function generateImagePath(imagePath: string, scale: number) {
 export function createSrcSet(imagePath: string) {
   return [1, 2, 3].map((scale) => `${generateImagePath(imagePath, scale)} ${scale}x`).join(', ');
 }
+
+export function loadLocalData(key: string) {
+  const isMockingEnabled = document.querySelector('html')!.dataset.mockingEnabled === 'true';
+  return localStorage.getItem(isMockingEnabled ? `MOCKING_${key}` : key);
+}
+
+export function saveLocalData(key: string, value: string) {
+  const isMockingEnabled = document.querySelector('html')!.dataset.mockingEnabled === 'true';
+  localStorage.setItem(isMockingEnabled ? `MOCKING_${key}` : key, value);
+}
+
+export function removeLocalData(key: string) {
+  const isMockingEnabled = document.querySelector('html')!.dataset.mockingEnabled === 'true';
+  localStorage.removeItem(isMockingEnabled ? `MOCKING_${key}` : key);
+}

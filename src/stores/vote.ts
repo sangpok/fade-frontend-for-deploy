@@ -1,5 +1,5 @@
 import { TVoteCandidateCard, TVoteResult } from '@Types/model';
-import { generateRandomId } from '@Utils/index';
+import { generateRandomId, loadLocalData, saveLocalData } from '@Utils/index';
 import { format } from 'date-fns';
 import { create } from 'zustand';
 
@@ -47,11 +47,11 @@ export interface TLocalVoteData {
 }
 
 const loadSavedVotingData = () => {
-  const lastVotedAt = localStorage.getItem('FADE_LAST_VOTED_AT');
-  const savedVoteData = localStorage.getItem('FADE_VOTE_DATA');
+  const lastVotedAt = loadLocalData('FADE_LAST_VOTED_AT');
+  const savedVoteData = loadLocalData('FADE_VOTE_DATA');
 
   const hasVotedToday = lastVotedAt === null ? false : lastVotedAt === format(new Date(), 'yyyy-MM-dd');
-  const votingCountToday = lastVotedAt === null || hasVotedToday ? Number(localStorage.getItem('FADE_VOTE_COUNT') || 0) : 0; // 오늘 투표를 진행하지 않았지만(10번) 투표를 하고 있었을 수 있음.
+  const votingCountToday = lastVotedAt === null || hasVotedToday ? Number(loadLocalData('FADE_VOTE_COUNT') || 0) : 0; // 오늘 투표를 진행하지 않았지만(10번) 투표를 하고 있었을 수 있음.
 
   if (savedVoteData === null) {
     return { hasVotedToday, votingCountToday };
@@ -108,8 +108,8 @@ export const useVotingStore = create<VotingState>((set, get) => ({
         voteType: swipeDirection === 'left' ? 'FADE_OUT' : 'FADE_IN',
       };
 
-      const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
-      localStorage.setItem('FADE_VOTE_DATA', JSON.stringify({ ...voteData, voteResults: [...voteData.voteResults, newVoteResult] } as TLocalVoteData));
+      const voteData = JSON.parse(loadLocalData('FADE_VOTE_DATA')!) as TLocalVoteData;
+      saveLocalData('FADE_VOTE_DATA', JSON.stringify({ ...voteData, voteResults: [...voteData.voteResults, newVoteResult] } as TLocalVoteData));
 
       updateVoteResult(newVoteResult);
     }
@@ -120,6 +120,6 @@ export const useVotingStore = create<VotingState>((set, get) => ({
     addVotingProgress();
     addVotingCountToday();
 
-    localStorage.setItem('FADE_VOTE_COUNT', String(votingCountToday + 1));
+    saveLocalData('FADE_VOTE_COUNT', String(votingCountToday + 1));
   },
 }));

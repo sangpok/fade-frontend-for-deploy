@@ -174,6 +174,7 @@ function FeedMoreButton({ feedDetail, onFeedEdited, onFeedDeleted }: FeedMoreBut
         onSuccess() {
           onFeedDeleted();
           queryClient.invalidateQueries({ queryKey: ['user', feedDetail.memberId, 'feed'], refetchType: 'all' });
+          queryClient.invalidateQueries({ queryKey: ['archiving'], refetchType: 'all' });
 
           showToast({ type: 'success', title: '사진을 삭제했습니다.' });
         },

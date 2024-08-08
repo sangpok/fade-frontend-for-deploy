@@ -9,11 +9,12 @@ import { SwipeDirection, TLocalVoteData, useVotingStore } from '@Stores/vote';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { TVoteCandidateCard } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
-import { cn, generateAnonName, prefetchImages } from '@Utils/index';
+import { cn, generateAnonName, loadLocalData, prefetchImages, removeLocalData, saveLocalData } from '@Utils/index';
 import { isAxiosError } from 'axios';
 import { format } from 'date-fns';
 import { AnimatePresence, motion, MotionValue, useMotionValue, useTransform, Variants } from 'framer-motion';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
+import { VscLoading } from 'react-icons/vsc';
 import { RandomAvatar } from './RandomAvatar';
 
 const voteFadeInImage = '/assets/fade_in_btn.png';
@@ -72,7 +73,7 @@ export function VotingView({ onVoteFlowDone }: { onVoteFlowDone: () => void }) {
   const setHasVotedToday = useVotingStore((state) => state.setHasVotedToday);
   const setIsVotingInProgress = useVotingStore((state) => state.setIsVotingInProgress);
 
-  const localVoteData = localStorage.getItem('FADE_VOTE_DATA');
+  const localVoteData = loadLocalData('FADE_VOTE_DATA');
   const hasLocalVoteData = localVoteData !== null;
   const parsedVoteData = hasLocalVoteData ? (JSON.parse(localVoteData) as TLocalVoteData) : null;
 
@@ -98,11 +99,11 @@ export function VotingView({ onVoteFlowDone }: { onVoteFlowDone: () => void }) {
       showToast({ type: 'basic', title: '오늘 투표할 페이더들의 사진이 없습니다.' });
 
       /** 투표 진행 정보 제거 */
-      localStorage.removeItem('FADE_VOTE_DATA');
+      removeLocalData('FADE_VOTE_DATA');
 
       /** 오늘 투표 완료 설정 */
       setHasVotedToday(true);
-      localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+      saveLocalData('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
 
       /** 투표 Flow 종료 */
       setIsVotingInProgress(false);
@@ -135,7 +136,7 @@ export function VotingView({ onVoteFlowDone }: { onVoteFlowDone: () => void }) {
       voteResults: [],
     };
 
-    localStorage.setItem('FADE_VOTE_DATA', JSON.stringify(newLocalVoteData));
+    saveLocalData('FADE_VOTE_DATA', JSON.stringify(newLocalVoteData));
   }, [isSuccess]);
 
   useEffect(() => {
@@ -199,13 +200,14 @@ function VoteFlowHandler({ onVoteFlowDone }: VoteFlowHandlerProps) {
       return onVoteFlowDone();
     }
 
-    localStorage.removeItem('FADE_VOTE_DATA');
-    localStorage.setItem('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
+    removeLocalData('FADE_VOTE_DATA');
+    saveLocalData('FADE_LAST_VOTED_AT', format(new Date(), 'yyyy-MM-dd'));
 
     queryClient.invalidateQueries({ queryKey: ['user', 'me', 'voteHistory'], refetchType: 'all' });
 
     setHasVotedToday(true);
     setIsVotingInProgress(false);
+    setViewId('loading'); // 필요 없는 구분인데 fake progress의 동작을 위해!
     onVoteFlowDone();
   };
 
@@ -213,7 +215,7 @@ function VoteFlowHandler({ onVoteFlowDone }: VoteFlowHandlerProps) {
     <div className="flex h-full flex-col items-center justify-center">
       <AnimatePresence mode="wait">
         {isVotingView && (
-          <motion.div key="awaited-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
+          <motion.div key="awaited-data-view" variants={viewVariants} {...baseAnimateProps} className="h-full w-full">
             <AwaitedVotingView onVoteFinish={handleVoteFinish} />
           </motion.div>
         )}
@@ -274,11 +276,33 @@ function SubmittingView({ onSubmitDone }: SubmittingViewProps) {
     });
   }, []);
 
+  const [fakeProgress, setFakeProgress] = useState(10);
+
+  useEffect(() => {
+    const randomInterval = 500 + Math.floor(Math.random() * 500);
+
+    const timerId = setInterval(() => {
+      const randomProgressValue = Math.floor(Math.random() * 25);
+      setFakeProgress((prevValue) => prevValue + randomProgressValue);
+    }, randomInterval);
+
+    return () => clearInterval(timerId);
+  }, []);
+
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <div>
-        {/* TODO: Loading Indicator */}
-        <span className="block animate-spin text-center text-[6rem]">😇</span>
+    <div className="relative flex h-full w-full items-center justify-center">
+      <div className="absolute left-0 top-0 h-1 w-full">
+        <motion.div
+          key="fake-progress-2"
+          className="h-full bg-purple-500 shadow-bento"
+          initial={{ width: 0 }}
+          animate={{ width: `${fakeProgress > 90 ? 90 : fakeProgress}%` }}
+          exit={{ width: `100%` }}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <VscLoading className="mx-auto animate-spin fill-purple-500 text-[4rem]" />
         <p className="text-center text-lg">투표 결과를 안전하게 전송 중이에요</p>
       </div>
     </div>
@@ -311,10 +335,9 @@ function LoadingVoteCandidatesView() {
         />
       </div>
 
-      <div>
-        {/* TODO: Loading Indicator */}
-        <span className="block animate-spin text-center text-[6rem]">😇</span>
-        <p className="text-center text-lg">투표 목록을 불러오는 중입니당</p>
+      <div className="space-y-4">
+        <VscLoading className="mx-auto animate-spin fill-purple-500 text-[4rem]" />
+        <p className="text-center text-lg">투표 목록을 불러오는 중입니다</p>
       </div>
     </div>
   );
@@ -331,8 +354,8 @@ function AwaitedVotingView({ onVoteFinish }: { onVoteFinish: () => void }) {
       return;
     }
 
-    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
-    localStorage.setItem('FADE_VOTE_DATA', JSON.stringify({ ...voteData, viewCards }));
+    const voteData = JSON.parse(loadLocalData('FADE_VOTE_DATA')!) as TLocalVoteData;
+    saveLocalData('FADE_VOTE_DATA', JSON.stringify({ ...voteData, viewCards }));
   }, [viewCards]);
 
   return (
@@ -494,10 +517,10 @@ function UserDetailCard() {
   const memberId = useVotingStore(({ viewCards }) => viewCards.at(-1)?.memberId || -1);
 
   const handleSubscribeToggle = (value: boolean) => {
-    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
+    const voteData = JSON.parse(loadLocalData('FADE_VOTE_DATA')!) as TLocalVoteData;
     const matchedItem = voteData.viewCards.at(-1)!; // 구독은 마지막 아이템에만 할 수 있음
 
-    localStorage.setItem(
+    saveLocalData(
       'FADE_VOTE_DATA',
       JSON.stringify({ ...voteData, viewCards: [...voteData.viewCards.slice(0, -1), { ...matchedItem, isSubscribed: value }] } as TLocalVoteData)
     );
@@ -550,10 +573,10 @@ function VotingTools() {
   const isBookmarked = useVotingStore(({ viewCards }) => viewCards.at(-1)?.isBookmarked || false);
 
   const handleBookmarkToggle = (value: boolean) => {
-    const voteData = JSON.parse(localStorage.getItem('FADE_VOTE_DATA')!) as TLocalVoteData;
+    const voteData = JSON.parse(loadLocalData('FADE_VOTE_DATA')!) as TLocalVoteData;
     const matchedItem = voteData.viewCards.at(-1)!; // 구독은 마지막 아이템에만 할 수 있음
 
-    localStorage.setItem(
+    saveLocalData(
       'FADE_VOTE_DATA',
       JSON.stringify({ ...voteData, viewCards: [...voteData.viewCards.slice(0, -1), { ...matchedItem, isBookmarked: value }] } as TLocalVoteData)
     );

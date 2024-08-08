@@ -4,6 +4,7 @@ import { requestRefreshToken } from '@Services/auth';
 import { useAuthStore } from '@Stores/auth';
 import { AuthTokens } from '@Types/model';
 import { ServiceErrorResponse } from '@Types/serviceError';
+import { removeLocalData, saveLocalData } from '@Utils/index';
 import { isAxiosError } from 'axios';
 import { useCallback, useMemo } from 'react';
 
@@ -27,7 +28,7 @@ export const useAuthActions = () => {
       setTokens({ accessToken, refreshToken });
       setAuthFromToken({ accessToken });
       setAuthorizationHeader({ accessToken });
-      localStorage.setItem('_fert', btoa(refreshToken));
+      saveLocalData('_fert', btoa(refreshToken));
     },
     [setTokens, setAuthFromToken]
   );
@@ -35,7 +36,7 @@ export const useAuthActions = () => {
   const signOut = useCallback(() => {
     resetAuth();
     clearAuthorizationHeader();
-    localStorage.removeItem('_fert');
+    removeLocalData('_fert');
   }, [resetAuth]);
 
   const doRefreshToken = useCallback(async () => {

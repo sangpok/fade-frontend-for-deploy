@@ -8,6 +8,7 @@ import { isAxiosError } from 'axios';
 import { ChangeEvent, forwardRef, useEffect, useRef, useState } from 'react';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { UploadGuideBottomSheet } from '../../../UploadGuideBottomSheet';
+import { VscLoading } from 'react-icons/vsc';
 
 export function InputImageFile(props: { value: number; onChange: (value: number) => void }) {
   const { showModal } = useModalActions();
@@ -73,8 +74,7 @@ export function InputImageFile(props: { value: number; onChange: (value: number)
 }
 
 function PendingIcon() {
-  /* TODO: 로딩 아이콘으로 바꿔야 함 */
-  return <p className="absolute right-3 top-2 animate-spin">😇</p>;
+  return <VscLoading className="absolute right-3 top-2 animate-spin" />;
 }
 
 function NoImageIcon() {

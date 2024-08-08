@@ -6,7 +6,7 @@ import { useModalActions } from '@Hooks/modal';
 import { requestFAPArchiving } from '@Services/feed';
 import { useQuery } from '@tanstack/react-query';
 import { TFAPArchivingFeed } from '@Types/model';
-import { cn, isBetweenDate } from '@Utils/index';
+import { cn, isBetweenDate, loadLocalData, saveLocalData } from '@Utils/index';
 import { addMonths, format, getDate, getDaysInMonth, getWeeksInMonth, isSameMonth, isSameYear, startOfDay, subDays, subMonths } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -132,7 +132,7 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
       return;
     }
 
-    const savedLastFAPDate = localStorage.getItem('FADE_LAST_FAP_DATE');
+    const savedLastFAPDate = loadLocalData('FADE_LAST_FAP_DATE');
     const lastFAPDate = format(feeds.at(-1)!.fapSelectedAt, 'yyyy-MM-dd');
 
     if (savedLastFAPDate === lastFAPDate) {
@@ -151,7 +151,7 @@ function FAPFeeds({ calenderDate }: FAPFeedsProps) {
       props: { feed: feeds.at(-1)! } as LastFAPModalProps,
     });
 
-    localStorage.setItem('FADE_LAST_FAP_DATE', yesterday);
+    saveLocalData('FADE_LAST_FAP_DATE', yesterday);
   }, [isSuccess]);
 
   return (

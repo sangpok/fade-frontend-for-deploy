@@ -158,7 +158,10 @@ function LogoutButton() {
   const handleClick = async () => {
     const result = await confirm({ title: '로그아웃 하시겠습니까?', description: '언제든 다시 로그인 할 수 있어요.' });
 
-    result && navigate('/auth/signout', { replace: true });
+    if (result) {
+      window.dispatchEvent(new CustomEvent('mockingEnd'));
+      navigate('/auth/signout', { replace: true });
+    }
   };
 
   return (
