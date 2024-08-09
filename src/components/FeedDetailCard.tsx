@@ -32,11 +32,12 @@ interface TFeedDetailCard {
   onUsernameClicked?: () => void;
   onFeedEdited?: () => void;
   onFeedDeleted?: () => void;
+  onFeedReported?: () => void;
 }
 
 type FeedDetailCardProps = TFeedDetailCard & TFeed;
 
-export function FeedDetailCard({ feedIndex, viewType = 'default', onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
+export function FeedDetailCard({ feedIndex, viewType = 'default', onUsernameClicked, onFeedEdited, onFeedDeleted, onFeedReported, ...feedDetail }: FeedDetailCardProps) {
   const isDefaultType = viewType === 'default';
   const isFAPType = viewType === 'fapArchiving' && TFAPArchivingFeed(feedDetail);
   const isVoteType = viewType === 'voteHistory' && isTVoteHistoryFeed(feedDetail);
@@ -74,7 +75,7 @@ export function FeedDetailCard({ feedIndex, viewType = 'default', onUsernameClic
           size="contain">
           {!isMine && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn('absolute right-4 top-4')}>
-              <ReportButton feedId={feedId} />
+              <ReportButton feedId={feedId} onReportEnd={onFeedReported} />
             </motion.div>
           )}
         </Image>

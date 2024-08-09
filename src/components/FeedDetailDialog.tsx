@@ -34,6 +34,7 @@ export function FeedDetailDialog({ feeds, defaultViewIndex = 0, viewType = 'defa
           isStartAnimtionEnd={isStartAnimtionEnd}
           onFeedEdited={onClose}
           onFeedDeleted={onClose}
+          onFeedReported={onClose}
         />
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>
@@ -48,11 +49,12 @@ interface TFeeds {
   onUsernameClicked: () => void;
   onFeedEdited: () => void;
   onFeedDeleted: () => void;
+  onFeedReported: () => void;
 }
 
 type FeedsProps = TFeeds;
 
-function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted }: FeedsProps) {
+function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted, onFeedReported }: FeedsProps) {
   const feedListRef = useRef<HTMLDivElement>(null);
 
   const beforeFeeds = feeds
@@ -67,6 +69,7 @@ function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUserna
         onUsernameClicked={onUsernameClicked}
         onFeedEdited={onFeedEdited}
         onFeedDeleted={onFeedDeleted}
+        onFeedReported={onFeedReported}
       />
     ));
 
@@ -82,6 +85,7 @@ function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUserna
         onUsernameClicked={onUsernameClicked}
         onFeedEdited={onFeedEdited}
         onFeedDeleted={onFeedDeleted}
+        onFeedReported={onFeedReported}
       />
     ));
 
