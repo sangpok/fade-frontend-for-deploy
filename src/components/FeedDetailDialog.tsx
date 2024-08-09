@@ -52,20 +52,49 @@ interface TFeeds {
 type FeedsProps = TFeeds;
 
 function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted }: FeedsProps) {
+  const beforeFeeds = feeds
+    .slice(0, defaultViewIndex)
+    .map((feedDetail) => (
+      <FeedDetailCard
+        key={feedDetail.id}
+        {...feedDetail}
+        viewType={viewType}
+        isStartAnimtionEnd={isStartAnimtionEnd}
+        onUsernameClicked={onUsernameClicked}
+        onFeedEdited={onFeedEdited}
+        onFeedDeleted={onFeedDeleted}
+      />
+    ));
+
+  const afterFeeds = feeds
+    .slice(defaultViewIndex + 1)
+    .map((feedDetail) => (
+      <FeedDetailCard
+        key={feedDetail.id}
+        {...feedDetail}
+        viewType={viewType}
+        isStartAnimtionEnd={isStartAnimtionEnd}
+        onUsernameClicked={onUsernameClicked}
+        onFeedEdited={onFeedEdited}
+        onFeedDeleted={onFeedDeleted}
+      />
+    ));
+
+  const targetFeed = feeds[defaultViewIndex];
+
   return (
     <div id="feedList" className="h-full snap-y snap-mandatory overflow-y-scroll">
-      {feeds.map((feedDetail, index) => (
-        <FeedDetailCard
-          key={feedDetail.id}
-          {...feedDetail}
-          viewType={viewType}
-          focus={index === defaultViewIndex}
-          isStartAnimtionEnd={isStartAnimtionEnd}
-          onUsernameClicked={onUsernameClicked}
-          onFeedEdited={onFeedEdited}
-          onFeedDeleted={onFeedDeleted}
-        />
-      ))}
+      {isStartAnimtionEnd && beforeFeeds}
+      <FeedDetailCard
+        key={targetFeed.id}
+        {...targetFeed}
+        viewType={viewType}
+        isStartAnimtionEnd={isStartAnimtionEnd}
+        onUsernameClicked={onUsernameClicked}
+        onFeedEdited={onFeedEdited}
+        onFeedDeleted={onFeedDeleted}
+      />
+      {isStartAnimtionEnd && afterFeeds}
     </div>
   );
 }

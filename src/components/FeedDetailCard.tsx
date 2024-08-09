@@ -14,7 +14,7 @@ import { cn } from '@Utils/index';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode } from 'react';
 import { MdBookmark, MdHowToVote, MdMoreHoriz, MdReport } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { BookmarkButton } from './BookmarkButton';
@@ -27,7 +27,6 @@ import { Button } from './ui/button';
 
 interface TFeedDetailCard {
   viewType?: FeedDetailDialgoViewType;
-  focus?: boolean;
   isStartAnimtionEnd?: boolean;
   onUsernameClicked?: () => void;
   onFeedEdited?: () => void;
@@ -36,9 +35,7 @@ interface TFeedDetailCard {
 
 type FeedDetailCardProps = TFeedDetailCard & TFeed;
 
-export function FeedDetailCard({ focus, viewType = 'default', isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
+export function FeedDetailCard({ viewType = 'default', onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
   const isDefaultType = viewType === 'default';
   const isFAPType = viewType === 'fapArchiving' && TFAPArchivingFeed(feedDetail);
   const isVoteType = viewType === 'voteHistory' && isTVoteHistoryFeed(feedDetail);
@@ -52,16 +49,6 @@ export function FeedDetailCard({ focus, viewType = 'default', isStartAnimtionEnd
   const haveOutfits = outfits.length !== 0;
   const haveOutfitsMoreThanOwn = outfits.length > 1;
 
-  useEffect(() => {
-    if (containerRef.current == null) {
-      return;
-    }
-
-    if (isStartAnimtionEnd && focus) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [focus, containerRef.current, isStartAnimtionEnd]);
-
   const handleFeedEdited = () => {
     onFeedEdited && onFeedEdited();
   };
@@ -71,7 +58,7 @@ export function FeedDetailCard({ focus, viewType = 'default', isStartAnimtionEnd
   };
 
   return (
-    <div ref={containerRef} className="flex h-full snap-start">
+    <div className="flex h-full snap-start">
       <section className="relative flex h-full w-full flex-col gap-3 p-5">
         {isFAPFeed && <Image src={'/assets/fap_badge.png'} className={cn('absolute right-5 top-5 size-8', { ['right-[3.75rem]']: isMine })} local />}
         {isMine && <FeedMoreButton feedDetail={feedDetail} onFeedEdited={handleFeedEdited} onFeedDeleted={handleFeedDeleted} />}
