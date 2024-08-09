@@ -26,6 +26,7 @@ import { OutfitDialog } from './OutfitDialog';
 import { Button } from './ui/button';
 
 interface TFeedDetailCard {
+  feedIndex?: number;
   viewType?: FeedDetailDialgoViewType;
   isStartAnimtionEnd?: boolean;
   onUsernameClicked?: () => void;
@@ -35,7 +36,7 @@ interface TFeedDetailCard {
 
 type FeedDetailCardProps = TFeedDetailCard & TFeed;
 
-export function FeedDetailCard({ viewType = 'default', onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
+export function FeedDetailCard({ feedIndex, viewType = 'default', onUsernameClicked, onFeedEdited, onFeedDeleted, ...feedDetail }: FeedDetailCardProps) {
   const isDefaultType = viewType === 'default';
   const isFAPType = viewType === 'fapArchiving' && TFAPArchivingFeed(feedDetail);
   const isVoteType = viewType === 'voteHistory' && isTVoteHistoryFeed(feedDetail);
@@ -45,7 +46,6 @@ export function FeedDetailCard({ viewType = 'default', onUsernameClicked, onFeed
   const { id: feedId, imageURL, isFAPFeed, isMine, outfits, styleIds } = feedDetail;
 
   const haveStyleIds = styleIds.length !== 0;
-
   const haveOutfits = outfits.length !== 0;
   const haveOutfitsMoreThanOwn = outfits.length > 1;
 
@@ -58,7 +58,7 @@ export function FeedDetailCard({ viewType = 'default', onUsernameClicked, onFeed
   };
 
   return (
-    <div className="flex h-full snap-start">
+    <div data-feed-index={feedIndex} className="flex h-full snap-start">
       <section className="relative flex h-full w-full flex-col gap-3 p-5">
         {isFAPFeed && <Image src={'/assets/fap_badge.png'} className={cn('absolute right-5 top-5 size-8', { ['right-[3.75rem]']: isMine })} local />}
         {isMine && <FeedMoreButton feedDetail={feedDetail} onFeedEdited={handleFeedEdited} onFeedDeleted={handleFeedDeleted} />}

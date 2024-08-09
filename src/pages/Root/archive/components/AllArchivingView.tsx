@@ -58,6 +58,8 @@ function FeedList({ filters }: FeedListProps) {
     onIntersection: fetchNextPage,
   });
 
+  const allFeeds = data?.pages.flatMap(({ feeds }) => feeds.map((feed) => feed));
+
   useEffect(() => {
     !hasNextPage && disconnectObserver();
   }, [hasNextPage]);
@@ -66,7 +68,9 @@ function FeedList({ filters }: FeedListProps) {
     <div className="h-full min-h-1 flex-1 space-y-10 overflow-y-scroll">
       <div className="w-full flex-1 gap-1">
         <Grid id={`feedList`} cols={3} className="w-full">
-          {data?.pages.map(({ feeds }) => feeds.map((feed, index) => <FeedItem key={`item-${feed.id}`} feeds={feeds} index={index} {...feed} />))}
+          {allFeeds.map((feed, index) => (
+            <FeedItem key={`item-${feed.id}`} feeds={allFeeds} index={index} {...feed} />
+          ))}
         </Grid>
       </div>
 

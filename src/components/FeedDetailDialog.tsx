@@ -3,6 +3,7 @@ import { DefaultModalProps } from '@Stores/modal';
 import { TFeed } from '@Types/model';
 import { FeedDetailCard } from './FeedDetailCard';
 import { BackButton } from './ui/button';
+import { useEffect, useRef } from 'react';
 
 export type FeedDetailDialgoViewType = 'default' | 'fapArchiving' | 'voteHistory';
 
@@ -52,12 +53,15 @@ interface TFeeds {
 type FeedsProps = TFeeds;
 
 function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUsernameClicked, onFeedEdited, onFeedDeleted }: FeedsProps) {
+  const feedListRef = useRef<HTMLDivElement>(null);
+
   const beforeFeeds = feeds
     .slice(0, defaultViewIndex)
-    .map((feedDetail) => (
+    .map((feedDetail, index) => (
       <FeedDetailCard
         key={feedDetail.id}
         {...feedDetail}
+        feedIndex={index}
         viewType={viewType}
         isStartAnimtionEnd={isStartAnimtionEnd}
         onUsernameClicked={onUsernameClicked}
@@ -68,10 +72,11 @@ function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUserna
 
   const afterFeeds = feeds
     .slice(defaultViewIndex + 1)
-    .map((feedDetail) => (
+    .map((feedDetail, index) => (
       <FeedDetailCard
         key={feedDetail.id}
         {...feedDetail}
+        feedIndex={defaultViewIndex + index}
         viewType={viewType}
         isStartAnimtionEnd={isStartAnimtionEnd}
         onUsernameClicked={onUsernameClicked}
@@ -82,12 +87,24 @@ function Feeds({ feeds, defaultViewIndex, viewType, isStartAnimtionEnd, onUserna
 
   const targetFeed = feeds[defaultViewIndex];
 
+  useEffect(() => {
+    const mutationObserver = new MutationObserver(() => {
+      const targetFeed = feedListRef.current!.querySelector(`div[data-feed-index='${defaultViewIndex}']`)!;
+
+      targetFeed.scrollIntoView({ behavior: 'instant' });
+      mutationObserver.disconnect();
+    });
+
+    mutationObserver.observe(feedListRef.current!, { childList: true });
+  }, []);
+
   return (
-    <div id="feedList" className="h-full snap-y snap-mandatory overflow-y-scroll">
+    <div ref={feedListRef} id="feedList" className="h-full snap-y snap-mandatory overflow-y-scroll">
       {isStartAnimtionEnd && beforeFeeds}
       <FeedDetailCard
         key={targetFeed.id}
         {...targetFeed}
+        feedIndex={defaultViewIndex}
         viewType={viewType}
         isStartAnimtionEnd={isStartAnimtionEnd}
         onUsernameClicked={onUsernameClicked}

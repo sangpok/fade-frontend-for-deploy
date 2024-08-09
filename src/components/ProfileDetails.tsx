@@ -113,6 +113,8 @@ function UserFeeds({ userId }: { userId: number }) {
     onIntersection: fetchNextPage,
   });
 
+  const allFeeds = data?.pages.flatMap(({ feeds }) => feeds.map((feed) => feed));
+
   useEffect(() => {
     !hasNextPage && disconnectObserver();
   }, [hasNextPage]);
@@ -120,7 +122,9 @@ function UserFeeds({ userId }: { userId: number }) {
   return (
     <div className="space-y-10 p-1">
       <Grid id="feedList" cols={3}>
-        {data?.pages.map((page) => page.feeds.map((feed, index) => <FeedItem key={`feed-item-${feed.id}`} {...feed} feeds={page.feeds} index={index} />))}
+        {allFeeds.map((feed, index) => (
+          <FeedItem key={`item-${feed.id}`} feeds={allFeeds} index={index} {...feed} />
+        ))}
       </Grid>
 
       {isFetchingNextPage && <SpinLoading />}
