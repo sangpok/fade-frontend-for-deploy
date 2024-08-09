@@ -1,6 +1,5 @@
 import { FadeLogo } from '@Components/FadeLogo';
 import { Carousel } from './components/Carousel';
-import { ExploreServiceButton } from './components/ExploreServiceButton';
 import { KakaoLoginButton } from './components/KakaoLoginButton';
 
 export default function Page() {
@@ -17,7 +16,7 @@ export default function Page() {
       <div className="flex flex-[0.8] items-center">
         <div className="flex flex-col gap-3">
           <KakaoLoginButton />
-          <ExploreServiceButton />
+          {/* <ExploreServiceButton /> */}
         </div>
       </div>
     </section>
