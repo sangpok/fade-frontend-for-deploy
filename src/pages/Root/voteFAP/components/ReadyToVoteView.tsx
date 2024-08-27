@@ -15,7 +15,7 @@ export function ReadyToVoteView({ onVoteStart }: { onVoteStart: () => void }) {
 function ReadyToVoteCover() {
   return (
     <div className="flex-1 overflow-hidden rounded-lg bg-gray-200 shadow-bento">
-      <Image src="/assets/vote_starting_image.png" size="contain" local />
+      <Image src="/assets/vote_starting_image.webp" size="contain" local />
     </div>
   );
 }

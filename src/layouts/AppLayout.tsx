@@ -1,12 +1,10 @@
-import { Header } from '@Components/Header';
-import LockUI from '@Components/LockUI';
-import { NavBar } from '@Components/NavBar';
 import { useAuthActions, useIsAuthenticated } from '@Hooks/auth';
 import { useAuthStore } from '@Stores/auth';
-import { useVotingStore } from '@Stores/vote';
 import { differenceInMinutes } from 'date-fns';
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { FlexibleLayout } from './FlexibleLayout';
+import { lazy, Suspense } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+
+const AppLayoutComponent = lazy(() => import('./AppLayout.component'));
 
 export default function AppLayout() {
   const navigate = useNavigate();
@@ -24,33 +22,8 @@ export default function AppLayout() {
   }
 
   return (
-    <FlexibleLayout.Root className="w-full flex-1">
-      <FlexibleLayout.Header>
-        <Header />
-      </FlexibleLayout.Header>
-
-      <FlexibleLayout.Content>
-        <ServiceFeatureLockHandler />
-      </FlexibleLayout.Content>
-
-      <FlexibleLayout.Footer>
-        <NavBar />
-      </FlexibleLayout.Footer>
-    </FlexibleLayout.Root>
-  );
-}
-
-function ServiceFeatureLockHandler() {
-  const location = useLocation();
-
-  const hasVotedToday = useVotingStore((state) => state.hasVotedToday);
-  const isCurrentVoteFAPPath = location.pathname === '/vote-fap';
-  const shouldShowLockUI = !hasVotedToday && !isCurrentVoteFAPPath;
-
-  return (
-    <>
-      {shouldShowLockUI && <LockUI />}
-      {!shouldShowLockUI && <Outlet />}
-    </>
+    <Suspense>
+      <AppLayoutComponent />
+    </Suspense>
   );
 }

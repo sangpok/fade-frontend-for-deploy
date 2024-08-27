@@ -19,6 +19,7 @@ export default function Page() {
   const savedRefreshToken = atob(loadLocalData('_fert') || ''); // 암호화된 RT를 특정하지 못하도록 키를 줄임, FADE Encrypted Refresh Token
 
   if (isAuthenticated) {
+    import('@Layouts/AppLayout.skeleton');
     return <Navigate to="/vote-fap" />;
   }
 

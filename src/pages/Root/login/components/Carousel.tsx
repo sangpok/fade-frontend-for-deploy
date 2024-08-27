@@ -3,9 +3,9 @@ import { cn } from '@Utils/index';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const onboardingImage1 = '/assets/onboarding_image1.png';
-const onboardingImage2 = '/assets/onboarding_image2.png';
-const onboardingImage3 = '/assets/onboarding_image3.png';
+const onboardingImage1 = '/assets/onboarding_image1.webp';
+const onboardingImage2 = '/assets/onboarding_image2.webp';
+const onboardingImage3 = '/assets/onboarding_image3.webp';
 
 const onboardingImages = [onboardingImage1, onboardingImage2, onboardingImage3];
 
@@ -47,20 +47,19 @@ export function Carousel() {
 function DissolveImages({ currentImageId }: { currentImageId: number }) {
   return onboardingImages.map((image, index) => (
     <motion.div key={image} initial={{ opacity: 0 }} animate={{ opacity: index === currentImageId ? 1 : 0 }} className={`absolute inset-0`}>
-      <Image src={image} local />
+      <Image src={image} alt={`onboarding image ${index + 1}`} local />
     </motion.div>
   ));
 }
 
 function NavButtons({ currentImageId, onNavClicked }: { currentImageId: number; onNavClicked: (index: number) => void }) {
   return (
-    <ul className="flex flex-row justify-center gap-3">
+    <ul className="flex flex-row justify-center">
       {onboardingImages.map((_, index) => (
         <li key={`nav-${index}`}>
-          <button
-            className={cn('size-2 rounded-full bg-gray-200 transition-colors', { ['bg-purple-500']: index === currentImageId })}
-            onClick={() => onNavClicked(index)}
-          />
+          <button className="grid size-6 place-items-center" aria-label={`Carousel Nav Button${index + 1}`} onClick={() => onNavClicked(index)}>
+            <span className={cn('size-2 rounded-full bg-gray-200 transition-colors', { ['bg-purple-500']: index === currentImageId })} />
+          </button>
         </li>
       ))}
     </ul>

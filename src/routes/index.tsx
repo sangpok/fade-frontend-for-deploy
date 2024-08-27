@@ -9,21 +9,21 @@ import { createRoutesFromElements, Route } from 'react-router-dom';
  * */
 
 /** Common */
-const NotFoundPage = lazy(() => import('@Pages/NotFoundPage'));
+const NotFoundPage = lazy(() => import('@Pages/NotFoundPage').then((module) => ({ default: module.default })));
 const GlobalErrorPage = lazy(() => import('@Pages/GlobalErrorPage').then((module) => ({ default: module.default })));
 const AppLayout = lazy(() => import('@Layouts/AppLayout').then((module) => ({ default: module.default })));
 
 /** Skeleton */
-import AppLayoutSkeletonUI from '@Layouts/AppLayout.skeleton';
-import ArchiveSkeletonUI from '@Pages/Root/archive/page.skeleton';
-import MyPageSkeletonUI from '@Pages/Root/mypage/page.skeleton';
-import MyPageFeedSkeletonUI from '@Pages/Root/mypage/feed/page.skeleton';
-import VoteHistorySkeletonUI from '@Pages/Root/mypage/voteHistory/page.skeleton';
-import BoomarkSkeltonUI from '@Pages/Root/mypage/bookmark/page.skeleton';
-import SubscribeListSkeletonUI from '@Pages/Root/subscribe/list/page.skeleton';
-import SubscribeSkeletonUI from '@Pages/Root/subscribe/page.skeleton';
-import VoteFAPSkeletonUI from '@Pages/Root/voteFAP/page.skeleton';
-import UserFeedSkeletonUI from '@Pages/Root/user/page.skeleton';
+const AppLayoutSkeletonUI = lazy(() => import('@Layouts/AppLayout.skeleton').then((module) => ({ default: module.default })));
+const ArchiveSkeletonUI = lazy(() => import('@Pages/Root/archive/page.skeleton').then((module) => ({ default: module.default })));
+const BoomarkSkeltonUI = lazy(() => import('@Pages/Root/mypage/bookmark/page.skeleton').then((module) => ({ default: module.default })));
+const MyPageFeedSkeletonUI = lazy(() => import('@Pages/Root/mypage/feed/page.skeleton').then((module) => ({ default: module.default })));
+const MyPageSkeletonUI = lazy(() => import('@Pages/Root/mypage/page.skeleton').then((module) => ({ default: module.default })));
+const VoteHistorySkeletonUI = lazy(() => import('@Pages/Root/mypage/voteHistory/page.skeleton').then((module) => ({ default: module.default })));
+const SubscribeListSkeletonUI = lazy(() => import('@Pages/Root/subscribe/list/page.skeleton').then((module) => ({ default: module.default })));
+const SubscribeSkeletonUI = lazy(() => import('@Pages/Root/subscribe/page.skeleton').then((module) => ({ default: module.default })));
+const UserFeedSkeletonUI = lazy(() => import('@Pages/Root/user/page.skeleton').then((module) => ({ default: module.default })));
+const VoteFAPSkeletonUI = lazy(() => import('@Pages/Root/voteFAP/page.skeleton').then((module) => ({ default: module.default })));
 
 /** Root */
 const LoginPage = lazy(() => import('@Pages/Root/login/page').then((module) => ({ default: module.default })));

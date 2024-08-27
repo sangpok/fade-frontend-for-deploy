@@ -1,4 +1,5 @@
 import { useAuthActions } from '@Hooks/auth';
+import { useToastActions } from '@Hooks/toast';
 import { clearAuthorizationHeader } from '@Libs/axios';
 import { requestSignInWithCode } from '@Services/auth';
 import { LoaderResponseStatus } from '@Types/loaderResponse';
@@ -27,6 +28,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function KakaoCallback() {
   const navigate = useNavigate();
+  const { showToast } = useToastActions();
 
   const loaderResponse = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { signIn } = useAuthActions();
@@ -53,6 +55,11 @@ export default function KakaoCallback() {
     if (isErrorWithData(result, 'NOT_MATCH_SOCIAL_MEMBER')) {
       const { socialAccessToken } = result.data;
       return navigate('/signup', { state: { socialAccessToken }, replace: true });
+    }
+
+    if (result.errorCode === 'SIGN_IN_WITH_RESIGNED_MEMBER') {
+      showToast({ type: 'error', title: '탈퇴한 계정으로 로그인할 수 없습니다.' });
+      return navigate('/', { replace: true });
     }
   }, [loaderResponse]);
 

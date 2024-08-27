@@ -13,7 +13,7 @@ export default function RootLayout() {
   return (
     <div
       id="rootLayout"
-      style={{ backgroundImage: isLoginPage ? `url('/assets/onboarding_bg.jpg')` : '' }}
+      style={{ backgroundImage: isLoginPage ? `url('/assets/onboarding_bg.webp')` : '' }}
       className={cn('relative mx-auto h-1 min-h-dvh w-full overflow-hidden pt-[var(--sat)] md:max-w-[48rem] md:border-x', {
         ['bg-cover bg-center bg-no-repeat']: isLoginPage,
       })}>

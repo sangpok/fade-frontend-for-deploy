@@ -6,6 +6,7 @@ import { FlexibleLayout } from '@Layouts/FlexibleLayout';
 import { useAuthStore } from '@Stores/auth';
 import { useVotingStore } from '@Stores/vote';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useLayoutEffect } from 'react';
 import { MdInfoOutline } from 'react-icons/md';
 import { VoteController } from './components/VoteController';
 import { VotePolicyBottomSheet } from './components/VotePolicyBottomSheet';
@@ -16,6 +17,28 @@ export default function Page() {
     leftSlot: () => <ShowVotePolicyButton />,
     rightSlot: () => <ShowNotificationButton />,
   });
+
+  useLayoutEffect(() => {
+    /** Prefetch the tab components */
+    Promise.all([
+      import('@Pages/Root/archive/page'), // 아카이브 탭
+      import('@Pages/Root/archive/page.skeleton'), // 아카이브 탭
+      import('@Pages/Root/subscribe/page'), // 구독 탭
+      import('@Pages/Root/subscribe/page.skeleton'), // 구독 탭
+      import('@Pages/Root/subscribe/list/page'), // 구독 목록 탭
+      import('@Pages/Root/subscribe/list/page.skeleton'), // 구독 목록 탭
+      import('@Pages/Root/mypage/page'), // 마이페이지 탭
+      import('@Pages/Root/mypage/page.skeleton'), // 마이페이지 탭
+      import('@Pages/Root/mypage/feed/page'), // 마이페이지/피드
+      import('@Pages/Root/mypage/feed/page.skeleton'), // 마이페이지/피드
+      import('@Pages/Root/mypage/voteHistory/page'), // 마이페이지/투표내역
+      import('@Pages/Root/mypage/voteHistory/page.skeleton'), // 마이페이지/투표내역
+      import('@Pages/Root/mypage/bookmark/page'), // 마이페이지/북마크
+      import('@Pages/Root/mypage/bookmark/page.skeleton'), // 마이페이지/북마크
+      import('@Pages/Root/user/page'), // 유저 피드
+      import('@Pages/Root/user/page.skeleton'), // 유저 피드
+    ]);
+  }, []);
 
   return (
     <FlexibleLayout.Root className="gap-3 p-5">
