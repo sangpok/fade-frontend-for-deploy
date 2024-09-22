@@ -135,7 +135,7 @@ function CommentBox({ bonId }: CommentBoxProps) {
   return (
     <form onSubmit={handeSubmit} className="flex flex-row gap-3 p-2">
       <CommentInput
-        className="flex-1"
+        className="w-full flex-1"
         placeholder={hasCommented ? '댓글은 하나만 남길 수 있어요.' : hasVoted ? '댓글을 입력해주세요.' : '투표하면 댓글을 남길 수 있어요.'}
         value={contents}
         onInput={({ target }) => setContents((target as HTMLInputElement).value)}
@@ -164,7 +164,7 @@ function CommentSubmitButton({ className, disabled, ...props }: CommentSubmitPro
   return (
     <button
       type="submit"
-      className={cn('rounded-lg bg-gray-900 px-4 py-2 font-medium text-white transition-colors disabled:bg-grey-300 disabled:text-gray-500', className)}
+      className={cn('min-w-fit rounded-lg bg-gray-900 px-4 py-2 font-medium text-white transition-colors disabled:bg-grey-300 disabled:text-gray-500', className)}
       disabled={disabled}
       {...props}>
       게시
