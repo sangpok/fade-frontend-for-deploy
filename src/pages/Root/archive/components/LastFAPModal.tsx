@@ -32,7 +32,7 @@ export const LastFAPModal = forwardRef<HTMLDivElement, DefaultModalProps<void, L
         className="h-[32rem] rounded-2xl bg-cover bg-center bg-no-repeat">
         <FlexibleLayout.Header>
           <header className="relative p-5">
-            <p className="text-2xl font-semibold">어제의 FA:P</p>
+            <p className="text-lg font-semibold">어제의 FA:P</p>
             <CloseButton onClick={onClose} />
           </header>
         </FlexibleLayout.Header>

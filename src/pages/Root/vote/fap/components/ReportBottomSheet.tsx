@@ -74,7 +74,7 @@ export const ReportBottomSheet = forwardRef<HTMLDivElement, DefaultModalProps<Re
       <FlexibleLayout.Header>
         <header className="relative px-5 py-4">
           {isInputStep && <BackButton onClick={() => changeStep(0)} />}
-          <p className="text-center text-2xl font-semibold">신고</p>
+          <p className="text-center text-lg font-semibold">신고</p>
         </header>
       </FlexibleLayout.Header>
 

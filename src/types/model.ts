@@ -194,3 +194,51 @@ export function TFAPArchivingFeed(feedDetail: TFeed): feedDetail is TFAPArchivin
  *    TVoteCandidateCard
  *  TFAPArchivingFeed
  */
+
+/** Buy or Not 목록 아이템 */
+export interface TBoNItem {
+  id: number;
+  title: string;
+  imageURL: string;
+  voteCount: number;
+  commentCount: number;
+  hasVoted: boolean;
+  isHot: boolean;
+  isMine: boolean;
+  createdAt: Date;
+}
+
+/** Buy or Not 본문 */
+export interface TBoNDetail {
+  title: string;
+  contents: string;
+  imageURL: string;
+  voteCount: number;
+  commentCount: number;
+  myVotedValue: BoNVotedValue;
+  bonCount: TBoNCount;
+  hasCommented: boolean;
+  isMine: boolean;
+}
+
+export type BoNVotedValue = 'yes' | 'no' | 'not';
+
+export interface TBoNCount {
+  yes: number;
+  no: number;
+}
+
+/** Buy or Not 댓글 */
+export interface TBoNComment {
+  id: number;
+  votedValue: BoNCommentVotedValue;
+  anonName: string;
+  contents: string;
+  likeCount: number;
+  hasLiked: boolean;
+  isBestComment: boolean;
+  isMine: boolean;
+  createdAt: Date;
+}
+
+export type BoNCommentVotedValue = Omit<BoNVotedValue, 'not'>;

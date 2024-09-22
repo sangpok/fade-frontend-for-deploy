@@ -3,9 +3,7 @@ import { cn } from '@Utils/index';
 import { IconType } from 'react-icons/lib';
 import { MdAccountBox, MdAdd, MdHowToVote, MdOutlineGridOn, MdPerson } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Tooltip from './Tooltip';
 import { UploadFeedDialog } from './UploadFeedDialog';
-import { useVotingStore } from '@Stores/vote';
 
 interface NavItem {
   link: string | null;
@@ -18,7 +16,7 @@ const navList: NavItem[] = [
     IconComponent: MdOutlineGridOn,
   },
   {
-    link: '/vote-fap',
+    link: '/vote/fap',
     IconComponent: MdHowToVote,
   },
   {
@@ -38,17 +36,8 @@ const navList: NavItem[] = [
 export function NavBar() {
   const location = useLocation();
 
-  const hasVotedToday = useVotingStore((state) => state.hasVotedToday);
-  const isVoteFAPPath = location.pathname === '/vote-fap';
-
   const createNavItem = (navItem: NavItem) => (
-    <NavItem
-      key={navItem.link}
-      {...navItem}
-      isActive={navItem.link ? location.pathname.startsWith(navItem.link) : false}
-      hasVotedToday={hasVotedToday}
-      isVoteFAPPath={isVoteFAPPath}
-    />
+    <NavItem key={navItem.link} {...navItem} isActive={navItem.link ? location.pathname.startsWith(`/${navItem.link.split('/')[1]}`) : false} />
   );
 
   return (
@@ -58,12 +47,10 @@ export function NavBar() {
   );
 }
 
-type NavItemProps = { isActive: boolean; hasVotedToday: boolean; isVoteFAPPath: boolean } & NavItem;
+type NavItemProps = { isActive: boolean } & NavItem;
 
-function NavItem({ link, IconComponent, isActive, hasVotedToday, isVoteFAPPath }: NavItemProps) {
+function NavItem({ link, IconComponent, isActive }: NavItemProps) {
   const navigate = useNavigate();
-
-  const shouldShowTooltip = !hasVotedToday && link === '/vote-fap' && !isVoteFAPPath;
 
   const buttonClassName = cn('block h-full w-full py-5 group', {
     ['text-purple-700']: isActive,
@@ -72,7 +59,6 @@ function NavItem({ link, IconComponent, isActive, hasVotedToday, isVoteFAPPath }
   if (link) {
     return (
       <li className="relative flex-1">
-        {shouldShowTooltip && <Tooltip />}
         <button type="button" className={buttonClassName} onClick={() => navigate(link)}>
           <IconComponent className="mx-auto size-6 transition-transform touchdevice:group-active:rotate-3 touchdevice:group-active:scale-75 pointerdevice:group-hover:rotate-3 pointerdevice:group-hover:scale-125 pointerdevice:group-active:scale-95" />
         </button>
@@ -80,16 +66,14 @@ function NavItem({ link, IconComponent, isActive, hasVotedToday, isVoteFAPPath }
     );
   }
 
-  return <UploadImageButton buttonClassName={buttonClassName} IconComponent={IconComponent} hasVotedToday={hasVotedToday} />;
+  return <UploadImageButton buttonClassName={buttonClassName} IconComponent={IconComponent} />;
 }
 
-function UploadImageButton({ buttonClassName, IconComponent, hasVotedToday }: { buttonClassName: string; IconComponent: IconType; hasVotedToday: boolean }) {
+function UploadImageButton({ buttonClassName, IconComponent }: { buttonClassName: string; IconComponent: IconType }) {
   const { showModal } = useModalActions();
 
   const handleClick = async () => {
-    if (hasVotedToday) {
-      return await startUploadImageFlow();
-    }
+    return await startUploadImageFlow();
   };
 
   const startUploadImageFlow = async () => {
@@ -98,7 +82,7 @@ function UploadImageButton({ buttonClassName, IconComponent, hasVotedToday }: { 
 
   return (
     <li className="flex-1">
-      <button type="button" className={buttonClassName} onClick={handleClick} disabled={!hasVotedToday}>
+      <button type="button" className={buttonClassName} onClick={handleClick}>
         <IconComponent className="mx-auto size-6 transition-transform touchdevice:group-active:rotate-3 touchdevice:group-active:scale-75 pointerdevice:group-hover:rotate-3 pointerdevice:group-hover:scale-125 pointerdevice:group-active:scale-95" />
       </button>
     </li>

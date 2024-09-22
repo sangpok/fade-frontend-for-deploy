@@ -9,6 +9,7 @@ import { ChangeEvent, forwardRef, useEffect, useRef, useState } from 'react';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { UploadGuideBottomSheet } from '../../../UploadGuideBottomSheet';
 import { VscLoading } from 'react-icons/vsc';
+import { ImageCropperModal } from './ImageCropperModal';
 
 export function InputImageFile(props: { value: number; onChange: (value: number) => void }) {
   const { showModal } = useModalActions();
@@ -91,8 +92,9 @@ type FileHandlerProps = {
 
 const FileHandler = forwardRef<HTMLInputElement, FileHandlerProps>(({ onUploadStart, onUploadSuccess, onUploadError }: FileHandlerProps, ref) => {
   const { showToast } = useToastActions();
+  const { showModal } = useModalActions();
 
-  const imageFileRef = useRef<File | null>(null);
+  const imageFileRef = useRef<Blob | null>(null);
   const [imageHash, setImageHash] = useState('');
 
   const presignedURLQuery = useQuery({
@@ -158,7 +160,7 @@ const FileHandler = forwardRef<HTMLInputElement, FileHandlerProps>(({ onUploadSt
     showToast({ type: 'error', title: `알 수 없는 오류(${error.name})`, description: error.message });
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     /** 예외 처리 1. 파일을 선택했는가? */
     const doneSelectImageFile = event.currentTarget.files !== null;
 
@@ -174,20 +176,32 @@ const FileHandler = forwardRef<HTMLInputElement, FileHandlerProps>(({ onUploadSt
       return showToast({ type: 'error', title: message });
     }
 
+    /** 이미지 Cropper 모달을 띄웁니다. */
+    const croppedImageFile = await showModal<Blob>({
+      type: 'fullScreenDialog',
+      animateType: 'slideUp',
+      Component: ImageCropperModal,
+      props: { imageFile: currentImageFile },
+    });
+
+    if (croppedImageFile === undefined) {
+      return;
+    }
+
     /** 업로드를 위한 계산 로직을 진행합니다. */
-    readyToUpload(currentImageFile);
+    readyToUpload(croppedImageFile);
   };
 
-  const readyToUpload = async (imageFile: File) => {
+  const readyToUpload = async (imageFile: Blob) => {
     try {
       const [imageData, imageHash] = await Promise.all([getBase64Image(imageFile), calculateFileHash(imageFile)]);
       startUploadFlow(imageFile, imageData, imageHash);
-    } catch {
+    } catch (error) {
       showToast({ type: 'error', title: '업로드에 필요한 값을 계산하다가 오류가 발생했어요.' });
     }
   };
 
-  const startUploadFlow = (imageFile: File, imageData: string, imageHash: string) => {
+  const startUploadFlow = (imageFile: Blob, imageData: string, imageHash: string) => {
     imageFileRef.current = imageFile;
     setImageHash(imageHash);
     onUploadStart(imageData);

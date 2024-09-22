@@ -77,7 +77,7 @@ export default function ResignServiceDialog({ onClose }: DefaultModalProps) {
       <FlexibleLayout.Header>
         <header className="relative py-2">
           <BackButton onClick={onClose} />
-          <p className="text-center text-2xl font-semibold">계정 관리</p>
+          <p className="text-center text-lg font-semibold">계정 관리</p>
         </header>
       </FlexibleLayout.Header>
 
@@ -115,7 +115,7 @@ function ResignReasonSelectView({
 }) {
   return (
     <div className="p-5">
-      <p className="text-h3 font-semibold">탈퇴 사유를 선택해주세요</p>
+      <p className="text-h5 font-semibold">탈퇴 사유를 선택해주세요</p>
       <RadioGroup.Root defaultValue="men" className="flex w-full flex-col" value={resignReason.type} onValueChange={(value) => onReasonUpdate({ type: value })}>
         {resignReasonTexts.map((resignReasonText, index) => (
           <ResignReasonItem key={`reason-${index}`} value={String(index)} reason={resignReasonText} />
@@ -149,7 +149,7 @@ function ResignReasonItem({ value, reason }: { value: string; reason: string }) 
 function ResignConfirmView({ isConfirm, onConfirmToggle }: { isConfirm: boolean; onConfirmToggle: () => void }) {
   return (
     <div className="space-y-2 p-5">
-      <p className="text-h3 font-semibold">탈퇴 후 정보 처리 고지</p>
+      <p className="text-h5 font-semibold">탈퇴 후 정보 처리 고지</p>
 
       <ol className="list-decimal pl-[1rem] text-h6">
         <li>소셜 로그인 정보 삭제(로그인 연동 해제) </li>

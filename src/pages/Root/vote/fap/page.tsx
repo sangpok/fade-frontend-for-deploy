@@ -10,10 +10,11 @@ import { useLayoutEffect } from 'react';
 import { MdInfoOutline } from 'react-icons/md';
 import { VoteController } from './components/VoteController';
 import { VotePolicyBottomSheet } from './components/VotePolicyBottomSheet';
+import { VoteSubPageList } from '../_components/VoteSubPageList';
 
 export default function Page() {
   useHeader({
-    title: 'FA:P 투표',
+    title: () => <VoteSubPageList />,
     leftSlot: () => <ShowVotePolicyButton />,
     rightSlot: () => <ShowNotificationButton />,
   });
@@ -46,7 +47,7 @@ export default function Page() {
         <VotingCounter />
       </FlexibleLayout.Header>
 
-      <FlexibleLayout.Content className="overflow-visible p-0">
+      <FlexibleLayout.Content>
         <VoteController />
       </FlexibleLayout.Content>
     </FlexibleLayout.Root>

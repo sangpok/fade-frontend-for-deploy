@@ -14,12 +14,12 @@ export function TermOfService({ onClose }: DefaultModalProps) {
             <MdChevronLeft className="size-6 transition-transform group-active:pointerdevice:scale-95" />
           </button>
 
-          <p className="text-center text-2xl font-semibold">FADE 이용 약관</p>
+          <p className="text-center text-lg font-semibold">FADE 이용 약관</p>
         </header>
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content className="p-5">
-        <div className="space-y-5 [&>h1]:text-h4 [&>h1]:font-semibold [&>h2]:text-h5 [&>h2]:font-semibold [&>h3]:text-h6 [&>h3]:font-semibold [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5">
+        <div className="space-y-5 [&>h1]:text-h5 [&>h1]:font-semibold [&>h2]:text-h5 [&>h2]:font-semibold [&>h3]:text-h6 [&>h3]:font-semibold [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5">
           <h1>이용 약관</h1>
 
           <p>

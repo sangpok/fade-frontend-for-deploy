@@ -45,7 +45,7 @@ function Header({ onBack }: { onBack: () => void }) {
   return (
     <header className="relative py-2">
       <BackButton onClick={onBack} />
-      <p className="text-center text-2xl font-semibold">스타일 선택</p>
+      <p className="text-center text-lg font-semibold">스타일 선택</p>
     </header>
   );
 }

@@ -79,7 +79,7 @@ export function SearchAccountView({ onClose }: DefaultModalProps) {
       <FlexibleLayout.Header>
         <header className="relative flex items-center justify-center py-2">
           <BackButton onClick={() => onClose()} />
-          <span className="mx-auto text-h3 font-semibold">계정 검색</span>
+          <span className="mx-auto text-h5 font-semibold">계정 검색</span>
         </header>
 
         <div className="border-b border-b-gray-200 p-5">

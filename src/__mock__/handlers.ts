@@ -9,6 +9,9 @@ import { HttpResponse, delay, http } from 'msw';
 import {
   createAccessToken,
   createAllFashionFeedDTODummies,
+  createBoNCommentDummies,
+  createBoNDetailDummies,
+  createBoNItemDummies,
   createBookmarkFeedDTODummies,
   createFAPArchivingFeedDTODummies,
   createFeedUserDetailDummies,
@@ -394,5 +397,122 @@ export const handlers = [
     await delay(NETWORK_DELAY);
 
     return HttpResponse.json({}, { status: HttpStatusCode.Ok });
+  }),
+
+  http.get(`${BASE_URL}/bon`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        bonList: createBoNItemDummies(10),
+        nextCursor: Math.random() > 0.9 ? 'null' : 10,
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.post(`${BASE_URL}/bon`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        id: Math.floor(Math.random() * 100),
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.get(`${BASE_URL}/bon/:bonId`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(createBoNDetailDummies(1)[0], { status: HttpStatusCode.Ok });
+  }),
+
+  http.post(`${BASE_URL}/bon/:bonId`, async () => {
+    await delay(NETWORK_DELAY);
+
+    const [yesCount, noCount] = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
+
+    return HttpResponse.json(
+      {
+        bonCount: {
+          yes: yesCount,
+          no: noCount,
+        },
+        voteCount: yesCount + noCount,
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.delete(`${BASE_URL}/bon/:bonId`, async ({ params }) => {
+    await delay(NETWORK_DELAY);
+    const { bonId } = params;
+
+    return HttpResponse.json(
+      {
+        bonId,
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.get(`${BASE_URL}/bon/:bonId/comment`, async ({ request }) => {
+    await delay(NETWORK_DELAY);
+
+    const { searchParams } = new URL(request.url);
+    const limit = +(searchParams.get('limit') || 10);
+
+    return HttpResponse.json(
+      {
+        comments: createBoNCommentDummies(limit),
+        nextCursor: Math.random() > 0.9 ? 'null' : 10,
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.post(`${BASE_URL}/bon/:bonId/comment`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        commentId: Math.floor(Math.random() * 100),
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.delete(`${BASE_URL}/bon/:bonId/comment/:commentId`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        commentId: Math.floor(Math.random() * 100),
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.post(`${BASE_URL}/bon/:bonId/comment/like`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        commentId: Math.floor(Math.random() * 100),
+      },
+      { status: HttpStatusCode.Ok }
+    );
+  }),
+
+  http.delete(`${BASE_URL}/bon/:bonId/comment/like`, async () => {
+    await delay(NETWORK_DELAY);
+
+    return HttpResponse.json(
+      {
+        commentId: Math.floor(Math.random() * 100),
+      },
+      { status: HttpStatusCode.Ok }
+    );
   }),
 ];

@@ -8,7 +8,7 @@ export const UploadGuideBottomSheet = forwardRef<HTMLDivElement, DefaultModalPro
     <FlexibleLayout.Root ref={ref} className="h-fit">
       <FlexibleLayout.Header>
         <header className="relative px-5 py-4">
-          <p className="text-center text-2xl font-semibold">사진 업로드 가이드</p>
+          <p className="text-center text-lg font-semibold">사진 업로드 가이드</p>
         </header>
       </FlexibleLayout.Header>
 

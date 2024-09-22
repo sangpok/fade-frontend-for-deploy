@@ -16,7 +16,7 @@ export function ConfirmModal({ title, description, onClose }: DefaultModalProps<
           <MdWarning className="mx-auto size-24 text-purple-100" />
 
           <div>
-            <p className="text-center text-2xl font-semibold">{title}</p>
+            <p className="text-center text-lg font-semibold">{title}</p>
             <p className="whitespace-pre-line text-center text-lg">{description}</p>
           </div>
         </div>

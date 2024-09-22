@@ -23,13 +23,15 @@ const VoteHistorySkeletonUI = lazy(() => import('@Pages/Root/mypage/voteHistory/
 const SubscribeListSkeletonUI = lazy(() => import('@Pages/Root/subscribe/list/page.skeleton').then((module) => ({ default: module.default })));
 const SubscribeSkeletonUI = lazy(() => import('@Pages/Root/subscribe/page.skeleton').then((module) => ({ default: module.default })));
 const UserFeedSkeletonUI = lazy(() => import('@Pages/Root/user/page.skeleton').then((module) => ({ default: module.default })));
-const VoteFAPSkeletonUI = lazy(() => import('@Pages/Root/voteFAP/page.skeleton').then((module) => ({ default: module.default })));
+const VoteFAPSkeletonUI = lazy(() => import('@Pages/Root/vote/fap/page.skeleton').then((module) => ({ default: module.default })));
+const VoteBuyOrNotSkeletonUI = lazy(() => import('@Pages/Root/vote/buyornot/page.skeleton').then((module) => ({ default: module.default })));
 
 /** Root */
 const LoginPage = lazy(() => import('@Pages/Root/login/page').then((module) => ({ default: module.default })));
 const SignUpPage = lazy(() => import('@Pages/Root/signup/page').then((module) => ({ default: module.default })));
 const ArchivePage = lazy(() => import('@Pages/Root/archive/page').then((module) => ({ default: module.default })));
-const VoteFAPPage = lazy(() => import('@Pages/Root/voteFAP/page').then((module) => ({ default: module.default })));
+const VoteFAPPage = lazy(() => import('@Pages/Root/vote/fap/page').then((module) => ({ default: module.default })));
+const VoteBuyOrNotPage = lazy(() => import('@Pages/Root/vote/buyornot/page').then((module) => ({ default: module.default })));
 const SubscribePage = lazy(() => import('@Pages/Root/subscribe/page').then((module) => ({ default: module.default })));
 const SubscribeListPage = lazy(() => import('@Pages/Root/subscribe/list/page').then((module) => ({ default: module.default })));
 const MyPage = lazy(() => import('@Pages/Root/mypage/page').then((module) => ({ default: module.default })));
@@ -68,14 +70,25 @@ export const routesFromElements = createRoutesFromElements(
             </Suspense>
           }
         />
-        <Route
-          path="vote-fap"
-          element={
-            <Suspense fallback={<VoteFAPSkeletonUI />}>
-              <VoteFAPPage />
-            </Suspense>
-          }
-        />
+        <Route path="vote">
+          <Route
+            index
+            path="fap"
+            element={
+              <Suspense fallback={<VoteFAPSkeletonUI />}>
+                <VoteFAPPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="buyornot"
+            element={
+              <Suspense fallback={<VoteBuyOrNotSkeletonUI />}>
+                <VoteBuyOrNotPage />
+              </Suspense>
+            }
+          />
+        </Route>
         <Route path="subscribe">
           <Route
             index

@@ -14,12 +14,12 @@ export function TermOfPIPA({ onClose }: DefaultModalProps) {
             <MdChevronLeft className="size-6 transition-transform group-active:pointerdevice:scale-95" />
           </button>
 
-          <p className="text-center text-2xl font-semibold">FADE 이용 약관</p>
+          <p className="text-center text-lg font-semibold">FADE 이용 약관</p>
         </header>
       </FlexibleLayout.Header>
 
       <FlexibleLayout.Content className="p-5">
-        <div className="space-y-5 [&>h1]:text-h4 [&>h1]:font-semibold [&>h2]:text-h5 [&>h2]:font-semibold [&>h3]:text-h6 [&>h3]:font-semibold [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5">
+        <div className="space-y-5 [&>h1]:text-h5 [&>h1]:font-semibold [&>h2]:text-h5 [&>h2]:font-semibold [&>h3]:text-h6 [&>h3]:font-semibold [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5">
           <h1>FADE 개인정보 수집 이용 내역</h1>
 
           <p>FADE는 "개인정보 보호법"에 따라 아래와 같이 수집하는 개인 정보의 항목, 수집 및 이용 목적, 보유 및 이용 기간을 안내드리고 동의를 받고자 합니다.</p>

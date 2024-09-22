@@ -14,7 +14,7 @@ export const HowToVoteModal = forwardRef<HTMLDivElement, DefaultModalProps>(({ o
   return (
     <div ref={ref}>
       <header className="relative px-5 py-4">
-        <p className="text-center text-2xl font-semibold">FA:P 투표 방법</p>
+        <p className="text-center text-lg font-semibold">FA:P 투표 방법</p>
       </header>
 
       <Carousel onLastClick={onClose} />

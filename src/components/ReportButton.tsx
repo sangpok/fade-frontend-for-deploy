@@ -1,7 +1,7 @@
 import { useModalActions } from '@Hooks/modal';
 import { useToastActions } from '@Hooks/toast';
 import { queryClient } from '@Libs/queryclient';
-import { ReportBottomSheet, ReportResult } from '@Pages/Root/voteFAP/components/ReportBottomSheet';
+import { ReportBottomSheet, ReportResult } from '@Pages/Root/vote/fap/components/ReportBottomSheet';
 import { requestReportFeed } from '@Services/report';
 import { useMutation } from '@tanstack/react-query';
 import { MdReport } from 'react-icons/md';

@@ -68,10 +68,10 @@ function CalendarDateSelector({ calenderDate, onMonthSelected, onNextMonthClicke
       </Button>
 
       {/* 나중에 Date Picker 진짜 바꿔야겠다 ... 개열받네 */}
-      <div id="date_picker">
+      <div id="date_picker" className="w-32">
         <input
           type="month"
-          className="relative whitespace-nowrap rounded-lg bg-gray-100 px-4 py-[.375rem] text-h6"
+          className="relative w-full whitespace-nowrap rounded-lg bg-gray-100 px-4 py-[.375rem] text-h6"
           value={calenderDate}
           onInput={(e) => onMonthSelected(e.currentTarget.valueAsDate)}
           min={format(MIN_DATE, 'yyyy-MM')}

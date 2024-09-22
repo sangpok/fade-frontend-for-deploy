@@ -21,7 +21,7 @@ export function FeedDetailDialog({ feeds, defaultViewIndex = 0, viewType = 'defa
       <FlexibleLayout.Header>
         <header className="relative py-2">
           <BackButton onClick={onClose} />
-          <p className="text-center text-2xl font-semibold">사진 상세</p>
+          <p className="text-center text-lg font-semibold">사진 상세</p>
         </header>
       </FlexibleLayout.Header>
 

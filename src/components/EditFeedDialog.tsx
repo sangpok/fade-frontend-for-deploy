@@ -72,7 +72,7 @@ function Header({ onClose }: { onClose: () => void }) {
         <MdClose className="size-6" />
       </Button>
 
-      <p className="text-center text-2xl font-semibold">사진 수정</p>
+      <p className="text-center text-lg font-semibold">사진 수정</p>
 
       <Button variants="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={handleInfoClick}>
         <MdInfoOutline className="size-6" />

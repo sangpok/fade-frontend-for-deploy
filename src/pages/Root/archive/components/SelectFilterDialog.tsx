@@ -27,7 +27,7 @@ export function SelectFilterDialog({ defaultFilter, onClose }: DefaultModalProps
       <FlexibleLayout.Header>
         <header className="relative flex items-center justify-center border-b border-b-gray-200 py-2">
           <BackButton onClick={() => onClose(defaultFilter)} />
-          <span className="mx-auto text-h3 font-semibold">필터</span>
+          <span className="mx-auto text-h5 font-semibold">필터</span>
           <ResetButton onClick={clearSelectedFilter} />
         </header>
       </FlexibleLayout.Header>

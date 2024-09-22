@@ -8,7 +8,7 @@ export const VotePolicyBottomSheet = forwardRef<HTMLDivElement, DefaultModalProp
     <FlexibleLayout.Root ref={ref} className="h-fit">
       <FlexibleLayout.Header>
         <header className="relative px-5 py-4">
-          <p className="text-center text-2xl font-semibold">투표 정책</p>
+          <p className="text-center text-lg font-semibold">투표 정책</p>
         </header>
       </FlexibleLayout.Header>
 

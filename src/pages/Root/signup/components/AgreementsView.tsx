@@ -64,7 +64,7 @@ export default function AgreementsView({ onAgree }: { onAgree: () => void }) {
           <FadeLogo />
 
           <div className="space-y-2">
-            <p className="text-2xl font-semibold">서비스 약관에 동의해주세요!</p>
+            <p className="text-lg font-semibold">서비스 약관에 동의해주세요!</p>
             <p className="text-gray-600">FADE를 이용하기 위해서는 아래 약관에 대한 동의가 필요해요.</p>
           </div>
         </header>

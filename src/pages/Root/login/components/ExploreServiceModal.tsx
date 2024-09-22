@@ -6,7 +6,7 @@ export const ExploreServiceModal = forwardRef<HTMLDivElement, DefaultModalProps>
   return (
     <div ref={ref}>
       <header className="relative px-5 py-4">
-        <p className="text-center text-2xl font-semibold">서비스 둘러보기</p>
+        <p className="text-center text-lg font-semibold">서비스 둘러보기</p>
       </header>
 
       <div className="space-y-2 p-5">

@@ -55,7 +55,7 @@ export function NotificationDialog({ onClose }: DefaultModalProps) {
       <FlexibleLayout.Header>
         <header className="relative py-2">
           <BackButton onClick={onClose} />
-          <p className="text-center text-2xl font-semibold">알림</p>
+          <p className="text-center text-lg font-semibold">알림</p>
         </header>
       </FlexibleLayout.Header>
 

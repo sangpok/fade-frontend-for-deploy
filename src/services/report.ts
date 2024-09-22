@@ -1,5 +1,5 @@
 import { axios } from '@Libs/axios';
-import { ReportResult } from '@Pages/Root/voteFAP/components/ReportBottomSheet';
+import { ReportResult } from '@Pages/Root/vote/fap/components/ReportBottomSheet';
 
 type RequestReportFeedPayload = { feedId: number } & ReportResult;
 

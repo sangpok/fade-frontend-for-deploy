@@ -8,7 +8,7 @@ export function PolicyView({ onDegreePolicy, onAgreePolicy }: { onDegreePolicy: 
       <FlexibleLayout.Header>
         <header className="relative py-2">
           <CloseButton onClick={() => onDegreePolicy()} />
-          <p className="text-center text-2xl font-semibold">사진 업로드 정책</p>
+          <p className="text-center text-lg font-semibold">사진 업로드 정책</p>
         </header>
       </FlexibleLayout.Header>
 

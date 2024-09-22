@@ -127,7 +127,7 @@ function MyDetails({ details }: { details: TMyUserDetail | undefined }) {
       <Avatar src={details?.profileImageURL} size="124" />
 
       <div className="flex flex-col items-center justify-center gap-1">
-        <p className="text-h4 font-semibold">안녕하세요, {details?.username}님!</p>
+        <p className="text-h5 font-semibold">안녕하세요, {details?.username}님!</p>
 
         <div className="space-x-1 text-detail">
           <span className="text-gray-500">{details?.genderType === 'MALE' ? '남자' : '여자'}</span>

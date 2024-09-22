@@ -40,7 +40,7 @@ export function AccountSetting({ details: userDetails, onClose }: DefaultModalPr
       <FlexibleLayout.Header>
         <header className="relative py-2">
           <BackButton onClick={onClose} />
-          <p className="text-center text-2xl font-semibold">계정 관리</p>
+          <p className="text-center text-lg font-semibold">계정 관리</p>
         </header>
       </FlexibleLayout.Header>
 

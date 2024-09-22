@@ -23,8 +23,13 @@ const testFahsionImages = [
 ];
 
 import {
+  BoNCommentVotedValue,
+  BoNVotedValue,
   GenderType,
   TAllFashionFeedDTO,
+  TBoNComment,
+  TBoNDetail,
+  TBoNItem,
   TBookmarkFeedDTO,
   TFAPArchivingFeedDTO,
   TFeedUserDetail,
@@ -36,7 +41,8 @@ import {
   TVoteHistoryFeedDTO,
 } from '@Types/model';
 import { TNotification, TNotificationType } from '@Types/notification';
-import { addDays, addHours } from 'date-fns';
+import { generateAnonName } from '@Utils/index';
+import { addDays, addHours, subDays } from 'date-fns';
 
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 const getRandomElement = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -306,4 +312,54 @@ export const createNotificationDummies = (count: number): TNotification[] => {
 
   // 생성된 알림을 createdAt 기준으로 최신순 정렬
   return notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+};
+
+// TBoNItem 더미 데이터 생성 함수
+export const createBoNItemDummies = (count: number): TBoNItem[] =>
+  Array.from({ length: count }, () => ({
+    id: getRandomInt(1, 10000),
+    title: `투표 ${getRandomInt(1, 1000)}`,
+    imageURL: testFahsionImages[getRandomInt(0, testFahsionImages.length - 1)],
+    voteCount: getRandomInt(0, 100),
+    commentCount: getRandomInt(0, 100),
+    hasVoted: Math.random() > 0.5,
+    isHot: Math.random() > 0.5,
+    isMine: Math.random() > 0.5,
+    createdAt: getRandomDate(subDays(new Date(), 7), new Date()),
+  }));
+
+// TBoNDetail 더미 데이터 생성 함수
+export const createBoNDetailDummies = (count: number): TBoNDetail[] => {
+  const yesCount: number = getRandomInt(0, 100);
+  const noCount: number = getRandomInt(0, 100);
+
+  return Array.from({ length: count }, () => ({
+    title: `투표 ${getRandomInt(1, 1000)}`,
+    contents: `내용 ${getRandomInt(1, 1000)}`,
+    imageURL: testFahsionImages[getRandomInt(0, testFahsionImages.length - 1)],
+    voteCount: yesCount + noCount,
+    commentCount: getRandomInt(0, 100),
+    myVotedValue: ['yes', 'no', 'not'][getRandomInt(0, 2)] as BoNVotedValue,
+    bonCount: {
+      yes: yesCount,
+      no: noCount,
+    },
+    hasCommented: Math.random() > 0.5,
+    isMine: Math.random() > 0.5,
+  }));
+};
+
+// TBoNComment 더미 데이터 생성 함수
+export const createBoNCommentDummies = (count: number): TBoNComment[] => {
+  return Array.from({ length: count }, () => ({
+    id: getRandomInt(0, 1000),
+    votedValue: ['yes', 'no'][getRandomInt(0, 1)] as BoNCommentVotedValue,
+    anonName: generateAnonName(),
+    contents: `이건 댓글이구요 익명의 작성자가 작성한 ${getRandomInt(0, 1000)} 댓글입니다.`,
+    likeCount: getRandomInt(0, 1000),
+    hasLiked: Math.random() > 0.5,
+    isBestComment: Math.random() > 0.5,
+    isMine: Math.random() > 0.5,
+    createdAt: getRandomDate(subDays(new Date(), 7), new Date()),
+  }));
 };

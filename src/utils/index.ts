@@ -63,7 +63,7 @@ export function clearSearchParams() {
   history.pushState(null, '', window.location.pathname);
 }
 
-export function getBase64Image(file: File) {
+export function getBase64Image(file: Blob) {
   return new Promise<string>((resolve, reject) => {
     const fileReader = new FileReader();
 
@@ -205,7 +205,7 @@ const randomNames = [
 
 export const generateAnonName = () => `${randomNames[Math.floor(Math.random() * randomNames.length)]}`;
 
-export async function calculateFileHash(file: File) {
+export async function calculateFileHash(file: Blob) {
   const arrayBuffer = await file.arrayBuffer();
 
   const hashBuffer = sha256.arrayBuffer(arrayBuffer);

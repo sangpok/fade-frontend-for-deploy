@@ -6,7 +6,7 @@ export default function NotFound() {
     <FlexibleLayout.Root>
       <FlexibleLayout.Header>
         <header className="relative px-5 py-4">
-          <p className="text-center text-2xl font-semibold">존재하지 않는 페이지</p>
+          <p className="text-center text-lg font-semibold">존재하지 않는 페이지</p>
         </header>
       </FlexibleLayout.Header>
 

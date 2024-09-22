@@ -20,7 +20,7 @@ export default function Page() {
 
   if (isAuthenticated) {
     import('@Layouts/AppLayout.skeleton');
-    return <Navigate to="/vote-fap" />;
+    return <Navigate to="/vote/fap" />;
   }
 
   if (savedRefreshToken === '') {
@@ -93,7 +93,7 @@ function TokenHandler({ savedRefreshToken }: TokenHandlerProps) {
     signIn(tokens);
     const { username } = getPayloadFromJWT(tokens.accessToken);
     showToast({ type: 'welcome', title: `${username}님, 환영합니다!` });
-    navigate('/vote-fap');
+    navigate('/vote/fap');
   };
 
   return null;
