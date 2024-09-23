@@ -23,7 +23,7 @@ export async function requestGetBoNDetail({ bonId }: GetBoNDetailPayload) {
 }
 
 type CreateBoNPayload = { attachmentId: number; title: string; contents: string };
-type CreateBoNResponse = { bonId: number };
+type CreateBoNResponse = { id: number };
 
 export async function requestCreateBoN(payload: CreateBoNPayload) {
   return await axios.post<CreateBoNResponse>(`/bon`, payload);

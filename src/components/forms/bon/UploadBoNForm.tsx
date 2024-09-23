@@ -15,7 +15,7 @@ import { ImageField } from './fields/ImageField';
 
 interface TUploadBoN {
   onValueChanged: (isChanged: boolean) => void;
-  onSubmitSuccess: () => void;
+  onSubmitSuccess: (bonId: number) => void;
 }
 
 type UploadBoNProps = TUploadBoN;
@@ -53,9 +53,9 @@ export function UploadBoNForm({ onValueChanged, onSubmitSuccess }: UploadBoNProp
         onError(error) {
           showErrorToast(error);
         },
-        onSuccess() {
+        onSuccess({ data: { id } }) {
           showToast({ title: '투표가 게시되었습니다.', type: 'success' });
-          onSubmitSuccess();
+          onSubmitSuccess(id);
         },
       });
     });

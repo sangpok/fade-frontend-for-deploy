@@ -9,11 +9,12 @@ import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { TBoNItem } from '@Types/model';
 import { cn } from '@Utils/index';
 import { Suspense, useState } from 'react';
-import { MdEdit } from 'react-icons/md';
+import { MdEdit, MdWhatshot } from 'react-icons/md';
 import { VoteSubPageList } from '../_components/VoteSubPageList';
 import { BoNDetailModal } from './_components/BoNDetailModal';
 import { SelectBox } from './_components/SelectBox';
 import { UploadBoNModal } from './_components/UploadBoNModal';
+import { queryClient } from '@Libs/queryclient';
 
 export default function Page() {
   useHeader({ title: () => <VoteSubPageList /> });
@@ -46,12 +47,25 @@ export default function Page() {
 function CreateBoNPostButton() {
   const { showModal } = useModalActions();
 
-  const handleClick = () => {
-    showModal({
+  const handleClick = async () => {
+    const bonId = await showModal({
       type: 'fullScreenDialog',
       animateType: 'slideUp',
       Component: UploadBoNModal,
     });
+
+    console.log({ bonId });
+
+    if (typeof bonId === 'number') {
+      showModal({
+        type: 'fullScreenDialog',
+        animateType: 'slideInFromRight',
+        props: { bonId },
+        Component: BoNDetailModal,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['bon'], refetchType: 'all' });
+    }
   };
 
   return (
@@ -146,10 +160,10 @@ function BoNPostItem({ id, commentCount, hasVoted, imageURL, isHot, title, voteC
       role="button"
       className={cn('flex cursor-pointer flex-col gap-2 rounded-lg border border-gray-200 bg-white py-5', { ['border-red-400']: isHot, ['opacity-55']: hasVoted })}
       onClick={handleClick}>
-      <p className={cn('text-center font-semibold')}>
-        {isHot && '🔥 '}
-        {title}
-      </p>
+      <div className="flex flex-row items-center justify-center gap-1">
+        {isHot && <MdWhatshot className="inline-block text-[#EC228B]" />}
+        <span className="text-center font-semibold">{title}</span>
+      </div>
       <div className="aspect-[4/3]">
         <Image src={imageURL} size="cover" />
       </div>
