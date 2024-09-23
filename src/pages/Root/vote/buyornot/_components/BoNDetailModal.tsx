@@ -113,6 +113,11 @@ function CommentBox({ bonId }: CommentBoxProps) {
           }
         })
       );
+
+      setContents('');
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['bon', 'detail', bonId, 'comment'], refetchType: 'all' });
     },
   });
 
@@ -124,8 +129,6 @@ function CommentBox({ bonId }: CommentBoxProps) {
     e.preventDefault();
 
     addBoNComment({ bonId, contents });
-    queryClient.invalidateQueries({ queryKey: ['bon', 'detail', bonId, 'comment', 'default'] });
-    setContents('');
   };
 
   if (isMine) {
@@ -206,11 +209,7 @@ function BoNContent({ bonId, onDelete }: BoNContentProps) {
           <p className="text-xl font-semibold">{title}</p>
           {isMine && <BoNDeleteButton bonId={bonId} onDelete={onDelete} />}
         </div>
-        <p className="whitespace-pre-line">
-          {contents}
-          {isMine && '내 게시글'}
-          {myVotedValue}
-        </p>
+        <p className="whitespace-pre-line">{contents}</p>
       </div>
 
       <div className="aspect-square overflow-hidden rounded-md">
@@ -252,7 +251,7 @@ function BoNDeleteButton({ bonId, onDelete }: BoNDeleteButtonProps) {
         { bonId },
         {
           onSuccess() {
-            queryClient.invalidateQueries({ queryKey: ['bon'] });
+            queryClient.invalidateQueries({ queryKey: ['bon'], refetchType: 'all' });
             showToast({ type: 'basic', title: '투표가 삭제되었습니다.' });
             onDelete();
           },
@@ -322,10 +321,10 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
             }
 
             // 투표 취소
-            if (currentVotedValue === votedValue) {
+            if (votedValue === 'NOT') {
               return {
-                yes: votedValue === 'YES' ? bonDetailResponse.data.bonCount.yes - 1 : bonDetailResponse.data.bonCount.yes,
-                no: votedValue === 'NO' ? bonDetailResponse.data.bonCount.no - 1 : bonDetailResponse.data.bonCount.no,
+                yes: currentVotedValue === 'YES' ? bonDetailResponse.data.bonCount.yes - 1 : bonDetailResponse.data.bonCount.yes,
+                no: currentVotedValue === 'NO' ? bonDetailResponse.data.bonCount.no - 1 : bonDetailResponse.data.bonCount.no,
               };
             }
 
@@ -347,6 +346,7 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
       };
 
       queryClient.setQueryData(['bon', 'detail', bonId], newBonDetailResponse);
+      setCurrentVotedValue(votedValue);
 
       return bonDetailResponse;
     },
@@ -366,8 +366,6 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
     } else {
       voteBoN({ bonId, votedValue: value });
     }
-
-    setCurrentVotedValue(currentVotedValue === value ? 'NOT' : value);
   };
 
   return (
@@ -658,6 +656,12 @@ function CommentDeleteButton({ bonId, commentId, onDelete }: CommentDeleteButton
 
       queryClient.setQueryData<CommentResponseType>(commentQueryKey, (oldComments) => updateCommentOptimistic(oldComments));
       queryClient.setQueryData<CommentResponseType>(bestCommentQueryKey, (oldComments) => updateCommentOptimistic(oldComments));
+      queryClient.setQueryData<AxiosResponse<TBoNDetail>>(['bon', 'detail', bonId], (oldDetail) =>
+        produce(oldDetail, (draft) => {
+          draft!.data.commentCount--;
+          draft!.data.hasCommented = false;
+        })
+      );
     },
   });
 
@@ -682,7 +686,7 @@ function CommentDeleteButton({ bonId, commentId, onDelete }: CommentDeleteButton
         { bonId, commentId },
         {
           onSuccess() {
-            queryClient.invalidateQueries({ queryKey: ['bon', 'detail', bonId], refetchType: 'all' });
+            queryClient.invalidateQueries({ queryKey: ['bon', 'detail', bonId, 'comment'], refetchType: 'all' });
             showToast({ type: 'basic', title: '댓글이 삭제되었습니다.' });
             onDelete();
           },

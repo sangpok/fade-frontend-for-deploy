@@ -99,7 +99,7 @@ interface TBoNPostList {
 type BoNPostListProps = TBoNPostList;
 
 function BoNPostList({ searchTypeFilter, sortTypeFilter }: BoNPostListProps) {
-  const { data, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
+  const { data, fetchNextPage, isFetching, isSuccess } = useSuspenseInfiniteQuery({
     queryKey: ['bon', { sort: sortTypeFilter, searchType: searchTypeFilter }],
     queryFn: ({ pageParam }) => requestGetBoNList({ nextCursor: pageParam, limit: 10, sortType: sortTypeFilter, searchType: searchTypeFilter }),
     initialPageParam: -1,
@@ -113,12 +113,15 @@ function BoNPostList({ searchTypeFilter, sortTypeFilter }: BoNPostListProps) {
     onIntersection: fetchNextPage,
   });
 
+  const hasNoPost = isSuccess && data.pages[0].data.bonList.length === 0;
+
   return (
     <div className="space-y-4">
       <div id="bonList" className="grid grid-cols-2 gap-4">
         {data.pages.map((page) => page.data.bonList.map((bonItem) => <BoNPostItem key={bonItem.id} {...bonItem} />))}
       </div>
       {isFetching && <SpinLoading />}
+      {hasNoPost && <p className="text-sm text-gray-600">표시할 Buy or Not 투표가 없습니다.</p>}
       {/* <p className="text-sm text-gray-600">모든 Buy or Not 투표를 불러왔습니다.</p> */}
     </div>
   );
