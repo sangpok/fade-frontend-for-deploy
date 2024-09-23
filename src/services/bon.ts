@@ -46,11 +46,11 @@ export async function requestVoteBoN({ bonId, votedValue }: VoteBoNPayload) {
   return await axios.post<VoteBoNResponse>(`/bon/${bonId}/votes`, { bonVoteType: votedValue });
 }
 
-type AddBoNCommentPayload = { bonId: number; content: string };
+type AddBoNCommentPayload = { bonId: number; contents: string };
 type AddBoNCommentResponse = { bonId: number };
 
-export async function requestAddBoNComment({ bonId, content }: AddBoNCommentPayload) {
-  return await axios.post<AddBoNCommentResponse>(`/bon/${bonId}/comment`, { content });
+export async function requestAddBoNComment({ bonId, contents }: AddBoNCommentPayload) {
+  return await axios.post<AddBoNCommentResponse>(`/bon/${bonId}/comment`, { content: contents });
 }
 
 type LikeBoNCommentPayload = { bonId: number; commentId: number; doesLike: boolean };
