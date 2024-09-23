@@ -118,7 +118,7 @@ function CommentBox({ bonId }: CommentBoxProps) {
 
   const [contents, setContents] = useState('');
 
-  const hasVoted = myVotedValue !== 'not';
+  const hasVoted = myVotedValue !== 'NOT';
 
   const handeSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -285,7 +285,7 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
 
   const confirm = useConfirm();
 
-  const hasVoted = currentVotedValue !== 'not';
+  const hasVoted = currentVotedValue !== 'NOT';
 
   const { mutate: voteBoN } = useMutation({
     mutationKey: ['voteBoN'],
@@ -305,7 +305,7 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
             }
 
             // 투표 취소
-            if (votedValue === 'not') {
+            if (votedValue === 'NOT') {
               return bonDetailResponse.data.voteCount - 1;
             }
 
@@ -316,21 +316,21 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
             // 투표 처음 할 때
             if (!hasVoted) {
               return {
-                yes: votedValue === 'yes' ? bonDetailResponse.data.bonCount.yes + 1 : bonDetailResponse.data.bonCount.yes,
-                no: votedValue === 'no' ? bonDetailResponse.data.bonCount.no + 1 : bonDetailResponse.data.bonCount.no,
+                yes: votedValue === 'YES' ? bonDetailResponse.data.bonCount.yes + 1 : bonDetailResponse.data.bonCount.yes,
+                no: votedValue === 'NO' ? bonDetailResponse.data.bonCount.no + 1 : bonDetailResponse.data.bonCount.no,
               };
             }
 
             // 투표 취소
             if (currentVotedValue === votedValue) {
               return {
-                yes: votedValue === 'yes' ? bonDetailResponse.data.bonCount.yes - 1 : bonDetailResponse.data.bonCount.yes,
-                no: votedValue === 'no' ? bonDetailResponse.data.bonCount.no - 1 : bonDetailResponse.data.bonCount.no,
+                yes: votedValue === 'YES' ? bonDetailResponse.data.bonCount.yes - 1 : bonDetailResponse.data.bonCount.yes,
+                no: votedValue === 'NO' ? bonDetailResponse.data.bonCount.no - 1 : bonDetailResponse.data.bonCount.no,
               };
             }
 
             // 다른 거 투표 (YES -> NO)
-            if (votedValue === 'no') {
+            if (votedValue === 'NO') {
               return {
                 yes: bonDetailResponse.data.bonCount.yes - 1,
                 no: bonDetailResponse.data.bonCount.no + 1,
@@ -362,12 +362,12 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
     }
 
     if (hasVoted) {
-      voteBoN({ bonId, votedValue: currentVotedValue === value ? 'not' : value });
+      voteBoN({ bonId, votedValue: currentVotedValue === value ? 'NOT' : value });
     } else {
       voteBoN({ bonId, votedValue: value });
     }
 
-    setCurrentVotedValue(currentVotedValue === value ? 'not' : value);
+    setCurrentVotedValue(currentVotedValue === value ? 'NOT' : value);
   };
 
   return (
@@ -375,21 +375,21 @@ function VoteButtonGroup({ bonId, initialVotedValue, noCount, yesCount, isMine, 
       <BoNVoteButton
         bonId={bonId}
         variants={hasVoted ? 'afterVote' : 'beforeVote'}
-        value="no"
-        checked={currentVotedValue === 'no'}
+        value="NO"
+        checked={currentVotedValue === 'NO'}
         bonCount={[noCount, yesCount]}
         isMine={isMine}
-        onClick={() => handleClick('no')}
+        onClick={() => handleClick('NO')}
       />
 
       <BoNVoteButton
         bonId={bonId}
         variants={hasVoted ? 'afterVote' : 'beforeVote'}
-        value="yes"
-        checked={currentVotedValue === 'yes'}
+        value="YES"
+        checked={currentVotedValue === 'YES'}
         bonCount={[noCount, yesCount]}
         isMine={isMine}
-        onClick={() => handleClick('yes')}
+        onClick={() => handleClick('YES')}
       />
     </div>
   );
@@ -428,8 +428,8 @@ function BoNVoteButton({ onClick, value, variants, bonCount: [noCount, yesCount]
   const isBeforeVote = variants === 'beforeVote';
   const isAfterVote = variants === 'afterVote';
 
-  const isNo = value === 'no';
-  const isYes = value === 'yes';
+  const isNo = value === 'NO';
+  const isYes = value === 'YES';
 
   const noRatio = Math.floor((noCount / (voteCount || 1)) * 100);
   const yesRatio = Math.floor((yesCount / (voteCount || 1)) * 100);
@@ -450,16 +450,16 @@ function BoNVoteButton({ onClick, value, variants, bonCount: [noCount, yesCount]
     <button
       className={cn('relative h-11 flex-1 overflow-hidden rounded-full border border-gray-500 px-5 py-2 text-gray-900', {
         ['border-gray-500 text-gray-900']: isBeforeVote,
-        ['border-blue-400 text-blue-400']: shouldShowRatio && value === 'no',
-        ['border-purple-400 text-purple-400']: shouldShowRatio && value === 'yes',
+        ['border-blue-400 text-blue-400']: shouldShowRatio && value === 'NO',
+        ['border-purple-400 text-purple-400']: shouldShowRatio && value === 'YES',
         ['border-gray-400 text-gray-400']: !isMine && isAfterVote && isLowerThenOther, // 우선순위
       })}
       onClick={onClick}>
       {shouldShowRatio && (
         <motion.div
           className={cn('absolute inset-0', {
-            ['bg-blue-50']: value === 'no',
-            ['bg-purple-50']: value === 'yes',
+            ['bg-blue-50']: value === 'NO',
+            ['bg-purple-50']: value === 'YES',
             ['bg-gray-100']: !isMine && isLowerThenOther,
           })}
           initial={{ width: 0 }}

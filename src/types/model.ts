@@ -221,7 +221,7 @@ export interface TBoNDetail {
   isMine: boolean;
 }
 
-export type BoNVotedValue = 'yes' | 'no' | 'not';
+export type BoNVotedValue = 'YES' | 'NO' | 'NOT';
 
 export interface TBoNCount {
   yes: number;
@@ -241,4 +241,4 @@ export interface TBoNComment {
   createdAt: Date;
 }
 
-export type BoNCommentVotedValue = Omit<BoNVotedValue, 'not'>;
+export type BoNCommentVotedValue = Omit<BoNVotedValue, 'NOT'>;
