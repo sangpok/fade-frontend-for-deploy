@@ -1,11 +1,11 @@
 import { axios } from '@Libs/axios';
 import { BoNVotedValue, TBoNComment, TBoNDetail, TBoNItem } from '@Types/model';
 
-type GetBoNListPayload = { sort: string; searchType: string; nextCursor: number; size: number };
+type GetBoNListPayload = { sortType: string; searchType: string; nextCursor: number; limit: number };
 type GetBoNListResponse = { bonList: TBoNItem[]; nextCursor: number };
 
-export async function requestGetBoNList({ nextCursor, searchType = 'all', size = 10, sort = 'recent' }: GetBoNListPayload) {
-  const searchParamsRaw = { searchType: searchType.toUpperCase(), size: size.toString(), sort: sort.toUpperCase() };
+export async function requestGetBoNList({ nextCursor, searchType = 'all', limit = 10, sortType = 'recent' }: GetBoNListPayload) {
+  const searchParamsRaw = { searchType: searchType.toUpperCase(), limit: limit.toString(), sortType: sortType.toUpperCase() };
   const searchParams = new URLSearchParams(Object.entries(searchParamsRaw));
 
   if (nextCursor !== -1) {
@@ -29,14 +29,18 @@ export async function requestCreateBoN(payload: CreateBoNPayload) {
   return await axios.post<CreateBoNResponse>(`/bon`, payload);
 }
 
-type GetBoNCommentPayload = { bonId: number; type: string; cursor: number; limit: number };
+type GetBoNCommentPayload = { bonId: number; searchType: string; nextCursor: number; limit: number };
 type GetBoNCommentResponse = { comments: TBoNComment[]; nextCursor: number };
 
-export async function requestGetBoNComment({ bonId, cursor, limit = 10, type = 'default' }: GetBoNCommentPayload) {
-  const searchParamsRaw = { cursor: cursor.toString(), limit: limit.toString(), type };
-  const searchParams = new URLSearchParams(Object.entries(searchParamsRaw)).toString();
+export async function requestGetBoNComment({ bonId, nextCursor, limit = 10, searchType = 'default' }: GetBoNCommentPayload) {
+  const searchParamsRaw = { limit: limit.toString(), searchType: searchType.toUpperCase() };
+  const searchParams = new URLSearchParams(Object.entries(searchParamsRaw));
 
-  return await axios.get<GetBoNCommentResponse>(`/bon/${bonId}/comment?${searchParams}`);
+  if (nextCursor !== -1) {
+    searchParams.append('nextCursor', nextCursor.toString());
+  }
+
+  return await axios.get<GetBoNCommentResponse>(`/bon/${bonId}/comment?${searchParams.toString()}`);
 }
 
 type VoteBoNPayload = { bonId: number; votedValue: BoNVotedValue };
@@ -58,10 +62,10 @@ type LikeBoNCommentResponse = { commentId: number };
 
 export async function requestLikeBoNComment({ bonId, commentId, doesLike }: LikeBoNCommentPayload) {
   if (doesLike) {
-    return await axios.post<LikeBoNCommentResponse>(`/bon/${bonId}/comment/${commentId}`);
+    return await axios.post<LikeBoNCommentResponse>(`/bon/${bonId}/comment/${commentId}/like`);
   }
 
-  return await axios.delete<LikeBoNCommentResponse>(`/bon/${bonId}/comment/${commentId}`);
+  return await axios.delete<LikeBoNCommentResponse>(`/bon/${bonId}/comment/${commentId}/like`);
 }
 
 type DeleteBoNPayload = { bonId: number };

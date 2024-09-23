@@ -484,8 +484,8 @@ function BoNVoteButton({ onClick, value, variants, bonCount: [noCount, yesCount]
 function BestCommentList({ bonId }: { bonId: number }) {
   const { data, isSuccess } = useSuspenseInfiniteQuery({
     queryKey: ['bon', 'detail', bonId, 'comment', 'best'],
-    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, cursor: pageParam, limit: 3, type: 'best' }),
-    initialPageParam: 0,
+    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, nextCursor: pageParam, limit: 3, searchType: 'best' }),
+    initialPageParam: -1,
     getNextPageParam({ data: { nextCursor } }) {
       return nextCursor !== null ? nextCursor : undefined;
     },
@@ -511,8 +511,8 @@ function BestCommentList({ bonId }: { bonId: number }) {
 function AllCommentList({ bonId }: { bonId: number }) {
   const { data, fetchNextPage, isFetching, isSuccess } = useSuspenseInfiniteQuery({
     queryKey: ['bon', 'detail', bonId, 'comment', 'default'],
-    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, cursor: pageParam, limit: 10, type: 'default' }),
-    initialPageParam: 0,
+    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, nextCursor: pageParam, limit: 10, searchType: 'default' }),
+    initialPageParam: -1,
     getNextPageParam({ data: { nextCursor } }) {
       return nextCursor !== null ? nextCursor : undefined;
     },

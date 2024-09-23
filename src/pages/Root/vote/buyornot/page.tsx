@@ -18,13 +18,13 @@ import { UploadBoNModal } from './_components/UploadBoNModal';
 export default function Page() {
   useHeader({ title: () => <VoteSubPageList /> });
 
-  const [sortFilter, setSortFilter] = useState('recent');
+  const [sortTypeFilter, setSortTypeFilter] = useState('recent');
   const [searchTypeFilter, setSearchTypeFilter] = useState('all');
 
   return (
     <>
       <FlexibleLayout.Root className="relative flex flex-col gap-3 bg-gray-50 p-5">
-        <PostFilter onSortChange={(value) => setSortFilter(value)} onSearchTypeChange={(value) => setSearchTypeFilter(value)} />
+        <PostFilter onSortChange={(value) => setSortTypeFilter(value)} onSearchTypeChange={(value) => setSearchTypeFilter(value)} />
         <Suspense
           fallback={
             <div id="bonList" className="grid grid-cols-2 gap-4">
@@ -34,7 +34,7 @@ export default function Page() {
               <div className="aspect-square w-full animate-pulse rounded-sm bg-gray-200" />
             </div>
           }>
-          <BoNPostList sortFilter={sortFilter} searchTypeFilter={searchTypeFilter} />
+          <BoNPostList sortTypeFilter={sortTypeFilter} searchTypeFilter={searchTypeFilter} />
         </Suspense>
       </FlexibleLayout.Root>
 
@@ -65,14 +65,14 @@ function CreateBoNPostButton() {
 
 const sortKeyValue: Record<string, string> = {
   recent: '최신순',
-  popluar: '인기순',
+  popular: '인기순',
 };
 
 const searchTypeKeyValue: Record<string, string> = {
   all: '전체',
   voted: '참여한 투표',
-  'not-voted': '참여하지 않은 투표',
-  mybon: '내가 올린 투표',
+  not_voted: '참여하지 않은 투표',
+  my_bon: '내가 올린 투표',
 };
 
 interface TPostFilter {
@@ -92,16 +92,16 @@ function PostFilter({ onSearchTypeChange, onSortChange }: PostFilterProps) {
 }
 
 interface TBoNPostList {
-  sortFilter: string;
+  sortTypeFilter: string;
   searchTypeFilter: string;
 }
 
 type BoNPostListProps = TBoNPostList;
 
-function BoNPostList({ searchTypeFilter, sortFilter }: BoNPostListProps) {
+function BoNPostList({ searchTypeFilter, sortTypeFilter }: BoNPostListProps) {
   const { data, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
-    queryKey: ['bon', { sort: sortFilter, searchType: searchTypeFilter }],
-    queryFn: ({ pageParam }) => requestGetBoNList({ nextCursor: pageParam, size: 10, sort: sortFilter, searchType: searchTypeFilter }),
+    queryKey: ['bon', { sort: sortTypeFilter, searchType: searchTypeFilter }],
+    queryFn: ({ pageParam }) => requestGetBoNList({ nextCursor: pageParam, limit: 10, sortType: sortTypeFilter, searchType: searchTypeFilter }),
     initialPageParam: -1,
     getNextPageParam({ data: { nextCursor } }) {
       return nextCursor !== null ? nextCursor : undefined;
