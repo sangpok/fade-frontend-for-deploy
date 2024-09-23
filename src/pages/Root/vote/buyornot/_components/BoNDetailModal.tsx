@@ -511,7 +511,7 @@ function BestCommentList({ bonId }: { bonId: number }) {
 function AllCommentList({ bonId }: { bonId: number }) {
   const { data, fetchNextPage, isFetching, isSuccess } = useSuspenseInfiniteQuery({
     queryKey: ['bon', 'detail', bonId, 'comment', 'default'],
-    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, nextCursor: pageParam, limit: 10, searchType: 'default' }),
+    queryFn: ({ pageParam }) => requestGetBoNComment({ bonId, nextCursor: pageParam, limit: 10, searchType: 'all' }),
     initialPageParam: -1,
     getNextPageParam({ data: { nextCursor } }) {
       return nextCursor !== null ? nextCursor : undefined;

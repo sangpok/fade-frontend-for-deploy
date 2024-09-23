@@ -32,7 +32,7 @@ export async function requestCreateBoN(payload: CreateBoNPayload) {
 type GetBoNCommentPayload = { bonId: number; searchType: string; nextCursor: number; limit: number };
 type GetBoNCommentResponse = { comments: TBoNComment[]; nextCursor: number };
 
-export async function requestGetBoNComment({ bonId, nextCursor, limit = 10, searchType = 'default' }: GetBoNCommentPayload) {
+export async function requestGetBoNComment({ bonId, nextCursor, limit = 10, searchType = 'all' }: GetBoNCommentPayload) {
   const searchParamsRaw = { limit: limit.toString(), searchType: searchType.toUpperCase() };
   const searchParams = new URLSearchParams(Object.entries(searchParamsRaw));
 
